@@ -1112,6 +1112,7 @@ function doResume() {
 
 /* ================= game 2: Zoom Zoom Khana ================= */
 var ZOOM = { ms: 10000, z0: 7, revealMs: 1500, introMs: 4000, endMs: 4500, minLeft: 2500, awayMs: 8000 };
+function zTurnLabel(sec) { return sec === 60 ? "1 minute" : sec === 90 ? "1½ minutes" : sec === 120 ? "2 minutes" : sec + " seconds"; }
 function zFoodByKey(k) { for (var i = 0; i < FOODS.length; i++) if (FOODS[i][0] === k) return FOODS[i]; return FOODS[0]; }
 function zOptions(f) {
   var same = FOODS.filter(function (x) { return x[2] === f[2] && x[0] !== f[0]; });
@@ -1195,7 +1196,7 @@ function zBoard(h, size) {
 function zSky(h) {
   var z = h.z, pl = h.paused ? h.pauseLeft : null, ph = h.phase;
   if (ph === "zintro") {
-    return '<div class="talk"><div><h1 class="h1 dq">' + esc(rname(z.pid)) + ", you’re up!</h1><p class=\"sub\">" + tsec(h.settings.zturn * 1000) + " seconds, " + z.list.length + " foods. Each one zooms out on the TV. Tap its name on your phone, fast.</p>" +
+    return '<div class="talk"><div><h1 class="h1 dq">' + esc(rname(z.pid)) + ", you’re up!</h1><p class=\"sub\">" + zTurnLabel(h.settings.zturn) + ", " + z.list.length + " foods. Each one zooms out on the TV. Tap its name on your phone, fast.</p>" +
       '<p class="sub small">Everyone else: no shouting.</p></div>' + tRing(h.timerEnd, h.timerTot, pl ? pl.timer : null) + "</div>";
   }
   if (ph === "zplay") {
@@ -1601,7 +1602,7 @@ function card(h, small) {
 function zPhone(h, stt, vipC) {
   var z = h.z, me = P.me.id, mine = z.pid === me, pl = h.paused ? h.pauseLeft : null;
   if (stt === "zintro") {
-    if (mine) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">You’re up, ' + esc(P.me.name) + '!</h2><p class="sub">' + tsec(h.settings.zturn * 1000) + ' seconds. Tap the name of the food on the TV as soon as you know it.</p><div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? '<div class="acts">' + B("Start now", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
+    if (mine) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">You’re up, ' + esc(P.me.name) + '!</h2><p class="sub">' + zTurnLabel(h.settings.zturn) + ', ' + z.list.length + ' foods. Tap the name of the food on the TV as soon as you know it.</p><div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? '<div class="acts">' + B("Start now", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
     return '<div class="center">' + pAv(h, z.pid, 110, "pop") + '<h2 class="h2 disp">' + esc(pName(h, z.pid)) + ' is up next</h2><p class="sub">Watch the TV. No shouting the answers!</p>' + zPhBoard(h) + "</div>";
   }
   if (stt === "zplay") {
