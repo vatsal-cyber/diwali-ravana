@@ -128,7 +128,7 @@ h1,h2,h3,p{margin:0}
 .sparks i{position:absolute;width:var(--sz,3px);height:var(--sz,3px);border-radius:50%;background:#E8A23A;opacity:.45;animation:spark var(--d,8s) ease-in-out infinite;animation-delay:var(--dl,0s);box-shadow:0 0 10px 2px rgba(232,162,58,.35)}
 @keyframes spark{0%,100%{opacity:.15;transform:translateY(0)}50%{opacity:.7;transform:translateY(-14px)}}
 .top{position:absolute;left:170px;right:170px;top:80px;height:70px;display:flex;align-items:center;gap:30px}
-.brand{display:flex;align-items:center;gap:10px;font-size:34px;color:var(--text);line-height:1;width:360px;flex:none}
+.brand{display:flex;align-items:center;gap:10px;font-size:32px;color:var(--text);line-height:1;width:400px;flex:none;white-space:nowrap}
 .brand-lotus{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(90,40,40,.3))}
 .mid{flex:1;display:flex;align-items:center;justify-content:center;gap:28px}
 .mid .k{font-size:26px;color:var(--muted);font-weight:600;white-space:nowrap}
@@ -206,7 +206,48 @@ h1,h2,h3,p{margin:0}
 .joinat b{color:var(--text);font-weight:700}
 .codeinline{font-size:56px;color:var(--pink);letter-spacing:.12em;vertical-align:-4px;margin-left:6px}
 .lobbytxt .note{font-size:26px;color:var(--muted);max-width:720px;line-height:1.3}
-.lobbyopts{display:flex;align-items:center;gap:34px;margin-top:10px}
+.lobbyopts{display:flex;align-items:center;gap:34px;margin-top:6px;flex-wrap:wrap}
+.gblurb{font-size:24px;color:var(--muted);max-width:780px;line-height:1.35;margin:0}
+.lobbytxt .h1{font-size:88px}
+/* ---- Zoom Zoom Khana (TV) ---- */
+.tv.zoomg .sky{left:120px;right:120px;top:196px;height:650px;animation:none}
+.tv.zoomg .cast,.tv.zoomg .medal,.tv.zoomg .sparks{display:none}
+.zwrap{display:flex;gap:40px;align-items:stretch;width:100%;height:100%;text-align:left}
+.zframe{position:relative;flex:none;width:866px;height:650px;border-radius:28px;overflow:hidden;background:#2B1424;box-shadow:0 30px 70px rgba(90,40,40,.35),0 0 0 7px #fff,0 0 0 9px rgba(217,164,65,.65)}
+.zimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform}
+.zframe.rev .zimg{animation:zsnap .5s ease-out both}
+@keyframes zsnap{from{transform:scale(1.25)}to{transform:scale(1)}}
+.zbadge{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:14px;padding:16px 40px;border-radius:999px;font-size:46px;font-weight:800;white-space:nowrap;color:#fff;background:var(--jade);box-shadow:0 12px 34px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.4);animation:popin .45s cubic-bezier(.2,1.5,.4,1) both}
+.zbadge.no{background:#D9342B}
+.zbadge .ic{width:44px;height:44px}
+.zbar{position:absolute;left:0;right:0;bottom:0;height:12px;background:rgba(0,0,0,.35)}
+.zbar i{display:block;height:100%;background:var(--pink);transform-origin:0 50%;transition:transform .25s linear}
+.zbar i.low{background:#FFB22E}
+.zside{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
+.zwho{display:flex;align-items:center;gap:18px}
+.zwho .k{display:block;font-size:22px;color:var(--muted);font-weight:600}
+.zwho .nm{display:block;font-size:42px;font-weight:800;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zclock{display:flex;align-items:center;gap:12px;font-size:26px;color:var(--muted);font-weight:600}
+.zclock .ic{width:30px;height:30px;color:var(--gold2)}
+.zclock>b{font-family:"Rozha One",Georgia,serif;font-weight:400;font-size:44px;color:var(--text);line-height:1}
+.zclock .got{color:var(--pink)}
+.zopts{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.zopts li{display:flex;align-items:center;gap:16px;padding:9px 18px;border-radius:16px;background:rgba(255,255,255,.6);box-shadow:inset 0 0 0 1.5px rgba(166,118,42,.3);font-size:30px;font-weight:700;color:var(--text);transition:background .3s,opacity .3s}
+.zopts .ltr{flex:none;width:42px;height:42px;border-radius:50%;background:var(--gold);color:#3A1205;display:grid;place-items:center;font-size:22px;font-weight:800}
+.zopts li.ok{background:var(--jade);color:#fff;box-shadow:none}
+.zopts li.ok .ltr{background:#fff;color:var(--jade)}
+.zopts li.no{background:#D9342B;color:#fff;box-shadow:none}
+.zopts li.dim{opacity:.4}
+.zboard{margin-top:auto;display:grid;gap:6px}
+.zboard .row{display:flex;align-items:center;gap:12px;font-size:24px;font-weight:600;color:var(--muted);padding:2px 10px;border-radius:14px}
+.zboard .row.cur{color:var(--text);font-weight:800;background:rgba(232,37,125,.08)}
+.zboard .row.away{opacity:.5}
+.zboard .row>b{margin-left:auto;font-family:"Rozha One",Georgia,serif;font-weight:400;font-size:32px;color:var(--gold2)}
+.zintro,.zend{display:flex;flex-direction:column;align-items:center;gap:8px}
+.zintro .av,.zend .av{margin-bottom:10px}
+.zintro .ringwrap{margin-top:14px}
+.zbig{color:var(--pink);font-size:1.3em}
+.tv.ring .zend .h1{animation:rise .5s both}
 /* the cast: a quiet row */
 .cast{position:absolute;left:0;right:0;top:0;bottom:0;z-index:5;pointer-events:none;animation:camcast 16s ease-in-out infinite}
 .pup .fig{perspective:900px}
@@ -323,6 +364,27 @@ h1,h2,h3,p{margin:0}
 @keyframes tapb{0%,100%{transform:translateY(0)}50%{transform:translateY(2px) scale(.94)}}
 .card3d.flip .budwrap .hold{opacity:0}
 .card3d.small .budwrap .hold{font-size:12px;padding:6px 12px}
+/* ---- Zoom Zoom Khana (phone) ---- */
+.zph{display:flex;flex-direction:column;gap:12px;width:100%}
+.zhead{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;color:var(--muted)}
+.zhead b{color:var(--pink);font-size:18px}
+.tbar.zpb{width:100%;margin:0;height:10px}
+.zgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.zbtn{font:inherit;min-height:104px;border:0;border-radius:22px;padding:12px;font-size:20px;line-height:1.2;font-weight:800;color:var(--text);background:rgba(255,255,255,.8);box-shadow:inset 0 0 0 2px rgba(217,164,65,.7),0 8px 18px rgba(120,70,60,.12);cursor:pointer;transition:transform .1s,background .3s,opacity .3s}
+.zbtn:active{transform:scale(.97)}
+.zbtn.sel{box-shadow:inset 0 0 0 3px var(--pink),0 8px 18px rgba(232,37,125,.2)}
+.zbtn.ok{background:var(--jade);color:#fff;box-shadow:none}
+.zbtn.no{background:#D9342B;color:#fff;box-shadow:none}
+.zbtn.dim{opacity:.4}
+.zbtn[disabled]{cursor:default}
+.zres{font-size:24px;font-weight:800;text-align:center;margin:6px 0 0;color:var(--jade)}
+.zres.no{color:#D9342B}
+.zcount{font-size:84px;line-height:1;color:var(--pink);margin:10px 0}
+.zpboard{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:6px}
+.zpr{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 6px;border-radius:999px;background:rgba(255,255,255,.7);box-shadow:inset 0 0 0 1px rgba(166,118,42,.3);font-size:14px;font-weight:600;color:var(--muted)}
+.zpr b{color:var(--gold2);font-size:16px}
+.zpr.cur{color:var(--text);box-shadow:inset 0 0 0 2px var(--pink)}
+.pts2{color:var(--pink)}
 .card3d.small .budwrap{padding-bottom:38px}
 .glyph{display:block;margin:0 auto}
 .glyph .lotus{margin:0 auto}
@@ -403,6 +465,6 @@ h1,h2,h3,p{margin:0}
 <canvas id="fx" aria-hidden="true"></canvas>
 <script src="qrcode.min.js"></script>
 <script src="mqtt.min.js"></script>
-<script src="app.js?v=8"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>
