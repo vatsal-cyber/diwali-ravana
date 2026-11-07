@@ -6,4 +6,4 @@ A live Diwali party game for 3 to 8 players. The TV shows the game, and phones a
 2. Everyone scans the QR code on the TV and enters a name.
 3. Everyone gets the same secret word except one Ravana. Give one-word clues, vote on your phones, and catch the Ravana.
 
-Live sync uses public MQTT relays (broker.emqx.io and broker.hivemq.com), so no accounts or sign-in are needed. If the internet is patchy, use **Play without live sync**.
+Live sync uses public MQTT relays (broker.emqx.io, broker.hivemq.com and mqtt.eclipseprojects.io), so no accounts or sign-in are needed. If the internet is patchy, use **Play without live sync**.
