@@ -327,6 +327,7 @@ function petals(n) {
   }
   return out;
 }
+function glyph(w, k) { var i = (k != null) ? k : (window.P && P.me ? P.me.av : 4); return '<span class="glyph">' + lotus(i, w || 120, "", { ripples: false }) + "</span>"; }
 function footlights(n) { var o = ""; for (var i = 0; i < n; i++) o += diya("fl d" + (i % 3)); return o; }
 function floatingPetals(n) {
   var out = "", r = rng(5);
@@ -1199,7 +1200,8 @@ function tvSky(h) {
   if (ph === "lobby") {
     return '<div class="lobbysky"><div class="qrcard"><div class="qr">' + qrSvg(JOIN_URL + "#join-" + h.code) + '</div></div>' +
       '<div class="lobbytxt"><h1 class="h1">Scan to join</h1><p class="joinat">or go to <b>' + CFG.short + '</b> and enter <b class="codeinline disp">' + h.code + "</b></p>" +
-      '<p class="note">' + (roster().length < CFG.minP ? "Need at least 3 players." : (h.notice ? esc(h.notice) : "The host (crown) can run the game from their phone.")) + "</p></div></div>";
+      '<p class="note">' + (roster().length < CFG.minP ? "Need at least 3 players." : (h.notice ? esc(h.notice) : "The host (crown) can run the game from their phone.")) + "</p>" +
+      '<div class="lobbyopts">' + optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk") + "</div></div></div>";
   }
   if (ph === "peek") {
     var el = now() - (T.phaseAt || 0);
@@ -1255,9 +1257,8 @@ function optRow(label, opts, val, act) {
 function tvApron(h) {
   var ph = h.phase, pl = h.paused ? h.pauseLeft : null, n = roster().length, acts = "", cap = "";
   if (ph === "lobby") {
-    acts = optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk") +
-      B("Start game", "start", null, "big", "data-primary" + (n < CFG.minP ? " disabled" : ""));
-    cap = "Scan the code with your phone camera to join. Edges cut off? Settings " + ic("gear") + " has screen size.";
+    acts = B("Start game", "start", null, "big", "data-primary" + (n < CFG.minP ? " disabled" : ""));
+    cap = "Edges cut off on your TV? Settings " + ic("gear") + " has screen size.";
   } else if (ph === "peek") { acts = B("Start the clues", "skip", null, "", "data-primary") + '<span class="tchip">' + ic("clock") + tText(h.timerEnd, pl ? pl.timer : null) + "</span>"; cap = "Hold your card to see it, then tap Got it."; }
   else if (ph === "clues") { acts = B("Next speaker", "skip", null, "", "data-primary"); cap = "Say one word that hints at the secret word. Not too obvious, the Ravana is listening."; }
   else if (ph === "discuss") { acts = B("Start the vote", "votenow", null, "", "data-primary") + B("Add 30 seconds", "addtime", null, "ghost"); cap = "Talk it out. Who doesn’t seem to know the word?"; }
@@ -1281,7 +1282,7 @@ function tvOverlay(h) {
       '<div class="actrow">' + B("Done", "closeset", null, "", "data-primary") + "</div></div></div>";
   }
   if (h.paused) {
-    return '<div class="ov open"><div class="ovin">' + diya("big-diya") + '<h1 class="h1">Paused</h1><p class="sub">Timers are stopped on every screen.</p>' +
+    return '<div class="ov open"><div class="ovin">' + glyph(170, 4) + '<h1 class="h1">Paused</h1><p class="sub">Timers are stopped on every screen.</p>' +
       '<div class="actrow">' + B("Resume", "resume", null, "big", "data-primary") + B("Settings", "settings", null, "ghost") + "</div></div></div>";
   }
   return "";
@@ -1390,12 +1391,12 @@ function card(h, small) {
     : '<div class="face back"><span class="kick">The secret word</span><span class="cw disp">' + esc(h.word) + '</span><span class="ct">Give clues that fit it, without saying it.</span></div>';
   var word = mine ? '<span class="kick">You are the</span><span class="cw disp">Ravana</span><span class="ct">You don\'t know the word. Your hint: it\'s about <b>' + esc(h.cat) + "</b>. Blend in.</span>"
     : '<span class="kick">The secret word</span><span class="cw disp">' + esc(h.word) + '</span><span class="ct">Give clues that fit it, without saying it.</span>';
-  return '<div class="card3d' + (small ? " small" : "") + '" data-hold="1"><div class="budwrap' + (mine ? " rav" : "") + '"><div class="word">' + word + '</div><div class="budlotus">' + lotus(P.me.av, 300, "fluid", { dark: mine, ripples: false }) + '</div><span class="hold">Hold to see your card</span></div></div>';
+  return '<div class="card3d' + (small ? " small" : "") + '" data-hold="1"><div class="budwrap' + (mine ? " rav" : "") + '"><div class="word">' + word + '</div><div class="budlotus">' + lotus(P.me.av, 300, "fluid", { dark: mine, ripples: false }) + '</div><span class="hold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M12 10.5a1.5 1.5 0 0 1 3 0V12"/><path d="M15 11.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.2a6 6 0 0 1-4.6-2.2L4 15.5a1.4 1.4 0 0 1 2.1-1.8L9 16.5"/></svg>Hold to see your card</span></div></div>';
 }
 function phMain(h, stt) {
   var me = P.me.id, vipC = h && h.vip === me && !h.paused;
-  if (stt === "nohost") return '<div class="center">' + diya("big-diya") + '<h2 class="h2 disp">Looking for the TV</h2><p class="sub">Make sure the TV page is still open.</p></div>';
-  if (stt === "joining") return '<div class="center">' + diya("big-diya") + '<h2 class="h2 disp">Joining room ' + esc(P.code) + '</h2><p class="sub">Hang on a second…</p></div>';
+  if (stt === "nohost") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">Looking for the TV</h2><p class="sub">Make sure the TV page is still open.</p></div>';
+  if (stt === "joining") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">Joining room ' + esc(P.code) + '</h2><p class="sub">Hang on a second…</p></div>';
   if (stt === "rejected") {
     var why = String(h.rejected[me] || "").split(":")[0];
     return '<div class="center"><h2 class="h2 disp">' + (why === "full" ? "This room is full" : "That name is taken") + '</h2><p class="sub">' + (why === "full" ? "The game is limited to 8 players." : "Someone in this room already uses that name. Pick another one.") + "</p>" +
@@ -1413,7 +1414,7 @@ function phMain(h, stt) {
         B("Start the game", "cmd", "start", "big", n < CFG.minP ? "disabled" : "") + '<p class="note">' + (n < CFG.minP ? "Need at least 3 players." : "Everyone's phone will light up.") + "</p></div>"
         : '<p class="sub">Waiting for ' + (h.vip ? esc(pName(h, h.vip)) : "the host") + ' to start the game.</p><button type="button" class="linkbtn" data-act="cmd" data-arg="claim" data-k="claim">Want to run the game? Become the host</button>') + "</div>";
   }
-  if (stt === "waiting") return '<div class="center">' + diya("big-diya") + '<h2 class="h2 disp">Round ' + h.round + " is on</h2><p class=\"sub\">You'll be dealt in next round. Watch the TV and enjoy the chaos.</p></div>";
+  if (stt === "waiting") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">Round ' + h.round + " is on</h2><p class=\"sub\">You'll be dealt in next round. Watch the TV and enjoy the chaos.</p></div>";
   if (stt === "peek") {
     var seen = P.st.saw === h.rk, acked = h.ack.saw.indexOf(me) >= 0;
     return card(h) + '<div class="acts">' + (seen ? '<p class="status">' + (acked ? ic("check") + " Got it. Waiting for the others (" + h.ack.saw.length + " of " + h.players.length + ")" : "Sending…") + "</p>" : B("Got it", "saw", null, "big")) +
@@ -1438,7 +1439,7 @@ function phMain(h, stt) {
       '<p class="status">' + (my ? (ok ? ic("check") + " The TV has your vote. You can change it." : "Sending your vote…") : "Tap a name to vote.") + "</p>" +
       (vipC ? '<div class="acts">' + B("Count the votes now (" + h.ack.voted.length + " of " + h.players.length + ")", "cmd", "count", "ghost") + "</div>" : "");
   }
-  if (stt === "verdict") return '<div class="center">' + diya("big-diya") + '<h2 class="h2 disp">Look at the TV!</h2><p class="sub">The votes are in.</p>' + (vipC ? '<div class="acts">' + B("Continue", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
+  if (stt === "verdict") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">Look at the TV!</h2><p class="sub">The votes are in.</p>' + (vipC ? '<div class="acts">' + B("Continue", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
   if (stt === "guess") {
     if (h.ravanaId === me) {
       var sent = P.st.guess && P.st.guess.rk === h.rk;
@@ -1477,10 +1478,10 @@ function phOv(h, stt) {
       B("Close", "closemenu", null, "ghost") + "</div>";
   }
   if (P.host && h && h.vip === P.me.id) out += phHostSheet(h);
-  if (h && h.paused && stt !== "joining") out += '<div class="pov">' + diya("big-diya") + '<h2 class="h2 disp">Paused</h2><p class="sub">The game is paused on the TV.</p>' + (h.vip === P.me.id ? B("Resume", "cmd", "resume", "big") : "") + "</div>";
+  if (h && h.paused && stt !== "joining") out += '<div class="pov">' + glyph(120) + '<h2 class="h2 disp">Paused</h2><p class="sub">The game is paused on the TV.</p>' + (h.vip === P.me.id ? B("Resume", "cmd", "resume", "big") : "") + "</div>";
   var b = hostOf();
   if (P.net && P.net.connected > 0 && (!b || !b.seen || now() - b.seen > 35000) && now() - P.net.started > 15000 && stt !== "removed") {
-    out += '<div class="pov">' + diya("big-diya") + '<h2 class="h2 disp">Can\'t reach the TV</h2><p class="sub">Is the game still open on the TV? We\'ll reconnect automatically when it\'s back.</p>' + B("Join with a different code", "newcode", null, "ghost") + "</div>";
+    out += '<div class="pov">' + glyph(120) + '<h2 class="h2 disp">Can\'t reach the TV</h2><p class="sub">Is the game still open on the TV? We\'ll reconnect automatically when it\'s back.</p>' + B("Join with a different code", "newcode", null, "ghost") + "</div>";
   } else if (P.net && P.net.connected === 0 && now() - P.net.started > 4000) {
     out += '<div class="netbar">Reconnecting…</div>';
   }
@@ -1548,7 +1549,7 @@ function renderJoin1() {
   var ci = document.getElementById("codeIn"); if (ci && !P.code && !IS_TOUCH) ci.focus();
 }
 function renderFinding() {
-  setRoot('<div class="ph"><main class="phm"><div class="center">' + diya("big-diya") + '<h2 class="h2 disp">Finding room ' + esc(P.code) + '</h2><p class="sub" id="findMsg">Connecting to the TV…</p><div class="acts">' + B("Use a different code", "join1", null, "ghost") + "</div></div></main></div>");
+  setRoot('<div class="ph"><main class="phm"><div class="center">' + glyph(120) + '<h2 class="h2 disp">Finding room ' + esc(P.code) + '</h2><p class="sub" id="findMsg">Connecting to the TV…</p><div class="acts">' + B("Use a different code", "join1", null, "ghost") + "</div></div></main></div>");
 }
 function avGrid(h) {
   var used = {}, names = [];
