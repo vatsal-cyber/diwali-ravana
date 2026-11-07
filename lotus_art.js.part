@@ -1,0 +1,146 @@
+/* ================= the cast: floating lotus diyas ================= */
+var LOTUS = [
+  { c: "#FF2E8C", t: "#FFB3D6", n: "hot pink" }, { c: "#FF7A1A", t: "#FFD0A3", n: "saffron" }, { c: "#1FB6A8", t: "#A9F0E6", n: "teal" }, { c: "#9B4DFF", t: "#D9C2FF", n: "violet" },
+  { c: "#FFC21A", t: "#FFF0B3", n: "gold" }, { c: "#E8203C", t: "#FFB1B8", n: "crimson" }, { c: "#2E8BFF", t: "#B8D8FF", n: "blue" }, { c: "#45C96A", t: "#C3F2CF", n: "green" },
+  { c: "#FF5FA8", t: "#FFD1E6", n: "rose" }, { c: "#F2A900", t: "#FFE39A", n: "amber" }, { c: "#C13FD0", t: "#F0BDF5", n: "magenta" }, { c: "#FF9A5C", t: "#FFDCC6", n: "peach" }
+];
+var AVATARS = LOTUS;
+var GOLD = "#F3C96B", GOLD2 = "#B98A2D", GOLD3 = "#FFE7A8";
+function petalD(len, w) { return "M0,0 C" + w + "," + (-len * 0.32).toFixed(1) + " " + (w * 0.58).toFixed(1) + "," + (-len * 0.9).toFixed(1) + " 0," + (-len) + " C" + (-w * 0.58).toFixed(1) + "," + (-len * 0.9).toFixed(1) + " " + (-w) + "," + (-len * 0.32).toFixed(1) + " 0,0Z"; }
+function lotusSVG(i, o) {
+  o = o || {};
+  var L = LOTUS[((i % LOTUS.length) + LOTUS.length) % LOTUS.length], uid = "lt" + (o.uid || i), c = o.dark ? "#4A0A22" : L.c, t = o.dark ? "#8E1B45" : L.t, s = "";
+  s += '<defs><linearGradient id="' + uid + 'p" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="' + c + '"/><stop offset=".78" stop-color="' + t + '"/><stop offset="1" stop-color="#FFF8F0"/></linearGradient>' +
+    '<linearGradient id="' + uid + 'q" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="' + c + '" stop-opacity=".75"/><stop offset="1" stop-color="' + t + '"/></linearGradient>' +
+    '<radialGradient id="' + uid + 'g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE9A8" stop-opacity=".95"/><stop offset=".45" stop-color="#FFB347" stop-opacity=".45"/><stop offset="1" stop-color="#FF8A2A" stop-opacity="0"/></radialGradient></defs>';
+  if (o.ripples !== false) s += '<g class="ripple"><ellipse cx="80" cy="134" rx="62" ry="9" fill="none" stroke="rgba(255,230,200,.35)" stroke-width="1.5"/><ellipse cx="80" cy="134" rx="40" ry="6" fill="none" stroke="rgba(255,230,200,.25)" stroke-width="1.2"/></g>';
+  s += '<circle class="glow" cx="80" cy="96" r="62" fill="url(#' + uid + 'g)"/>';
+  var back = [-54, -27, 0, 27, 54], mid = [-40, -13, 13, 40], front = [-24, 0, 24];
+  s += '<g transform="translate(80,126)">';
+  back.forEach(function (a) { s += '<path d="' + petalD(66, 15) + '" transform="rotate(' + a + ')" fill="url(#' + uid + 'q)" stroke="' + GOLD + '" stroke-width="1.6" stroke-linejoin="round"/>'; });
+  mid.forEach(function (a) { s += '<path d="' + petalD(58, 15) + '" transform="rotate(' + a + ')" fill="url(#' + uid + 'p)" stroke="' + GOLD + '" stroke-width="1.6" stroke-linejoin="round"/>'; });
+  s += '<ellipse cy="-2" rx="38" ry="11" fill="' + c + '" opacity=".9"/>';
+  s += '<g class="flame" transform="translate(0,-22)"><path d="M0,-30 C9,-17 12,-9 8,-1 C5,5 -5,5 -8,-1 C-12,-9 -9,-17 0,-30Z" fill="#FF8A1F"/><path d="M0,-22 C5,-13 6,-8 4,-3 C2,1 -2,1 -4,-3 C-6,-8 -5,-13 0,-22Z" fill="#FFC93C"/><ellipse cy="-6" rx="2.4" ry="5" fill="#FFF8D6"/></g>';
+  s += '<ellipse cy="2" rx="16" ry="6" fill="#F6B01E"/><ellipse cy="1" rx="10" ry="3.5" fill="#FFE39A"/>';
+  front.forEach(function (a) { s += '<path d="' + petalD(44, 16) + '" transform="rotate(' + a + ') translate(0,8)" fill="url(#' + uid + 'p)" stroke="' + GOLD + '" stroke-width="1.6" stroke-linejoin="round"/>'; });
+  s += "</g>";
+  if (o.crown) s += '<g transform="translate(80,34)"><path d="M-16,8 L-12,-8 L-5,2 L0,-12 L5,2 L12,-8 L16,8Z" fill="' + GOLD + '" stroke="' + GOLD2 + '" stroke-width="1.2" stroke-linejoin="round"/><circle cy="-2" r="2.2" fill="#FF2E8C"/></g>';
+  return s;
+}
+function lotus(i, w, cls, o) {
+  o = o || {};
+  return '<svg class="lotus ' + (cls || "") + '" viewBox="0 0 160 150" width="' + w + '" height="' + Math.round(w * 150 / 160) + '" aria-hidden="true">' + lotusSVG(i, o) + "</svg>";
+}
+function ravanaShadow() {
+  var heads = "";
+  for (var k = 0; k < 10; k++) {
+    var a = (-160 + k * 17.8) * Math.PI / 180, x = 100 + Math.cos(a) * 54, y = 86 + Math.sin(a) * 46, big = k === 5 || k === 4;
+    heads += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (big ? 14 : 11) + '" fill="#2A0616"/><path d="M' + (x - 8).toFixed(1) + " " + (y - 10).toFixed(1) + " l8 -14 l8 14z" + '" fill="#2A0616"/>' +
+      '<circle cx="' + (x - 3.5).toFixed(1) + '" cy="' + (y - 1).toFixed(1) + '" r="1.6" fill="#FF2E8C" class="eye"/><circle cx="' + (x + 3.5).toFixed(1) + '" cy="' + (y - 1).toFixed(1) + '" r="1.6" fill="#FF2E8C" class="eye"/>';
+  }
+  return '<svg class="shadow" viewBox="0 0 200 260" aria-hidden="true"><path d="M60 120 L140 120 L182 260 L18 260Z" fill="#2A0616"/><path d="M40 170 L10 120 L60 140Z M160 170 L190 120 L140 140Z" fill="#2A0616"/>' + heads + "</svg>";
+}
+function avHTML(name, avIdx, size, cls) {
+  var L = LOTUS[((avIdx % LOTUS.length) + LOTUS.length) % LOTUS.length] || LOTUS[0];
+  return '<span class="av ' + (cls || "") + '" style="--s:' + size + 'px;--c:' + L.c + '"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" fill="#2A0A2E"/><circle cx="60" cy="60" r="58" fill="' + L.c + '" opacity=".28"/>' +
+    '<g transform="translate(14,10) scale(.58)">' + lotusSVG(avIdx, { uid: "av" + avIdx + Math.floor(Math.random() * 1e6), ripples: false }) + "</g>" +
+    '<circle cx="60" cy="60" r="57" fill="none" stroke="' + GOLD + '" stroke-width="3.5"/></svg></span>';
+}
+/* the phone card: a lotus bud that opens in your hand */
+function budSVG(i, o) {
+  var L = LOTUS[((i % LOTUS.length) + LOTUS.length) % LOTUS.length], uid = "bud" + i, c = o && o.dark ? "#4A0A22" : L.c, t = o && o.dark ? "#8E1B45" : L.t;
+  var s = '<defs><linearGradient id="' + uid + 'p" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="' + c + '"/><stop offset=".8" stop-color="' + t + '"/><stop offset="1" stop-color="#FFF8F0"/></linearGradient><radialGradient id="' + uid + 'g" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE9A8" stop-opacity=".9"/><stop offset="1" stop-color="#FF8A2A" stop-opacity="0"/></radialGradient></defs>';
+  s += '<circle class="bglow" cx="100" cy="150" r="90" fill="url(#' + uid + 'g)"/>';
+  s += '<g transform="translate(100,186)">';
+  var rows = [{ a: [-34, -17, 0, 17, 34], len: 118, w: 26, cls: "pb" }, { a: [-26, -9, 9, 26], len: 104, w: 26, cls: "pm" }, { a: [-14, 14], len: 86, w: 26, cls: "pf" }];
+  rows.forEach(function (r) { r.a.forEach(function (ang, k) { s += '<path class="pt ' + r.cls + '" data-a="' + ang + '" d="' + petalD(r.len, r.w) + '" transform="rotate(' + ang + ')" fill="url(#' + uid + 'p)" stroke="' + GOLD + '" stroke-width="2" stroke-linejoin="round"/>'; }); });
+  s += '</g><ellipse cx="100" cy="206" rx="56" ry="10" fill="none" stroke="rgba(255,230,200,.3)" stroke-width="1.5"/>';
+  return s;
+}
+
+/* ================= the set: sky, haveli skyline, pool ================= */
+function rng(seed) { var a = seed | 0; return function () { a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function backdrop() {
+  var r = rng(11), stars = "", i;
+  for (i = 0; i < 110; i++) { stars += '<circle cx="' + (r() * 1800).toFixed(0) + '" cy="' + (r() * 420).toFixed(0) + '" r="' + (0.7 + r() * 1.5).toFixed(1) + '" fill="#FFF4D6" opacity="' + (0.3 + r() * 0.6).toFixed(2) + '" class="star s' + (i % 3) + '"/>'; }
+  var sky = "", xs = [40, 150, 250, 330, 470, 580, 700, 800, 900, 1000, 1110, 1230, 1330, 1450, 1560, 1660, 1760], hs = [50, 90, 60, 130, 70, 160, 100, 80, 190, 110, 70, 140, 90, 120, 60, 150, 70];
+  for (i = 0; i < xs.length; i++) {
+    var x = xs[i], hh = hs[i], w = 54 + (hh % 50), y = 560 - hh, dome = hh > 100;
+    sky += '<rect x="' + (x - w / 2) + '" y="' + y + '" width="' + w + '" height="' + (hh + 20) + '" fill="#1E0824"/>';
+    if (dome) sky += '<path d="M' + (x - w / 2) + " " + y + " C" + (x - w / 2) + " " + (y - w * 0.95) + " " + (x + w / 2) + " " + (y - w * 0.95) + " " + (x + w / 2) + " " + y + 'Z" fill="#1E0824"/><path d="M' + x + " " + (y - w * 0.7) + ' v-24" stroke="#C9A24E" stroke-width="2"/><circle cx="' + x + '" cy="' + (y - w * 0.7 - 26) + '" r="3" fill="' + GOLD + '"/>';
+    else sky += '<path d="M' + (x - w / 2) + " " + y + " L" + x + " " + (y - 22) + " L" + (x + w / 2) + " " + y + 'Z" fill="#1E0824"/>';
+    for (var k = 0; k < 3; k++) sky += '<rect x="' + (x - 16 + k * 13) + '" y="' + (y + 18 + (k % 2) * 22) + '" width="5" height="8" fill="#FFB347" opacity=".9"/>';
+    if (i % 2 === 0) sky += '<g transform="translate(' + x + ',' + (y - 2) + ')"><path d="M-8,0 Q-8,-8 0,-8 Q8,-8 8,0 Z" fill="#1E0824"/></g>';
+  }
+  /* fairy-light strings across the skyline */
+  var strings = "";
+  for (i = 0; i < 4; i++) { var sx = 120 + i * 420, ex = sx + 420, sy = 470 + (i % 2) * 20; strings += '<path d="M' + sx + " " + sy + " Q" + (sx + 210) + " " + (sy + 50) + " " + ex + " " + sy + '" stroke="rgba(255,244,214,.25)" stroke-width="1.4" fill="none"/>'; for (var b = 1; b < 12; b++) { var f = b / 12, bx = sx + f * 420, by = sy + 50 * 4 * f * (1 - f) * 0.5; strings += '<circle cx="' + bx.toFixed(0) + '" cy="' + (by + 3).toFixed(0) + '" r="3" fill="' + (b % 2 ? "#FFE39A" : "#FF9ACB") + '" class="bulb b' + (b % 3) + '"/>'; } }
+  var ref = "";
+  for (i = 0; i < 26; i++) { var rx = 20 + i * 70 + (i % 3) * 9; ref += '<rect x="' + rx + '" y="582" width="' + (6 + (i % 4) * 4) + '" height="' + (120 + (i % 5) * 40) + '" fill="' + (i % 3 === 0 ? "#FF2E8C" : "#FFC21A") + '" opacity="' + (0.05 + (i % 4) * 0.025).toFixed(3) + '" class="refl r' + (i % 3) + '"/>'; }
+  return '<svg viewBox="0 0 1800 810" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>' +
+    '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#140826"/><stop offset=".5" stop-color="#3A0F4D"/><stop offset=".76" stop-color="#A1176A"/><stop offset="1" stop-color="#FF2E8C"/></linearGradient>' +
+    '<linearGradient id="pool" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A1142"/><stop offset=".3" stop-color="#2A0A2E"/><stop offset="1" stop-color="#160617"/></linearGradient>' +
+    '<radialGradient id="moon" cx=".5" cy=".5" r=".5"><stop offset=".4" stop-color="#FFF2CC"/><stop offset="1" stop-color="#FFF2CC" stop-opacity="0"/></radialGradient>' +
+    '</defs><rect width="1800" height="580" fill="url(#sky)"/>' + stars +
+    '<circle cx="1500" cy="140" r="170" fill="url(#moon)" opacity=".3"/><circle cx="1500" cy="140" r="58" fill="#FFF2CC"/><circle cx="1480" cy="128" r="9" fill="#F3E4C0" opacity=".5"/><circle cx="1515" cy="155" r="6" fill="#F3E4C0" opacity=".5"/>' +
+    sky + strings + '<rect y="580" width="1800" height="230" fill="url(#pool)"/>' + ref +
+    '<ellipse cx="1500" cy="640" rx="110" ry="14" fill="#FFF2CC" opacity=".08"/><ellipse cx="1500" cy="700" rx="70" ry="8" fill="#FFF2CC" opacity=".05"/>' +
+    '<path d="M0 580 H1800" stroke="rgba(255,230,200,.35)" stroke-width="2"/></svg>';
+}
+function archSVG() {
+  /* cusped jharokha arch along the top inside edge, with hanging bells */
+  var out = '<svg viewBox="0 0 1800 150" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="agold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE7A8"/><stop offset=".5" stop-color="#D8AA52"/><stop offset="1" stop-color="#8F6520"/></linearGradient></defs>';
+  var d = "M0 0 H1800 V40 ", n = 9, seg = 200;
+  for (var i = n - 1; i >= 0; i--) { var x1 = i * seg, xm = x1 + seg / 2; d += "L" + (x1 + seg) + " 40 C" + (x1 + seg - 30) + " 40 " + (xm + 40) + " 120 " + xm + " 132 C" + (xm - 40) + " 120 " + (x1 + 30) + " 40 " + x1 + " 40 "; }
+  out += '<path d="' + d + 'Z" fill="#2A0A2E"/><path d="' + d + 'Z" fill="none" stroke="url(#agold)" stroke-width="8" transform="translate(0,-4)"/>';
+  for (var j = 0; j < n; j++) { var cx = j * seg + seg / 2; out += '<circle cx="' + cx + '" cy="134" r="7" fill="url(#agold)"/>'; }
+  return out + "</svg>";
+}
+function bellStrand(n, len) {
+  var out = '<svg class="strand" viewBox="-16 0 32 ' + len + '" width="32" height="' + len + '" aria-hidden="true"><defs><linearGradient id="bbr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FCE4A4"/><stop offset=".5" stop-color="#D6A64B"/><stop offset="1" stop-color="#8E6524"/></linearGradient></defs><path d="M0,0 V' + (len - 30) + '" stroke="#B48A55" stroke-width="2.6" stroke-dasharray="5 2"/>';
+  for (var i = 0; i < n; i++) {
+    var y = 44 + i * ((len - 80) / Math.max(1, n - 1));
+    out += '<g class="bell" transform="translate(0,' + y.toFixed(0) + ')"><rect x="-3" y="-4" width="6" height="5" rx="1" fill="#8E6524"/><path d="M-7,0 H7 L11,22 Q0,26 -11,22Z" fill="url(#bbr)"/><path d="M-7,0 H7" stroke="#FCE4A4" stroke-width="1.4"/><circle cy="25" r="3" fill="#6E4A18"/></g>';
+  }
+  return out + "</svg>";
+}
+function lotusPetal(rot, len, w) {
+  var d = petalD(len, w);
+  return '<g transform="rotate(' + rot + ')"><path d="' + d + '" fill="#E3BC6A" stroke="#F3C96B" stroke-width="3.2" stroke-linejoin="round"/><path d="' + d + '" transform="translate(0,-3) scale(.7)" fill="#FF2E8C"/></g>';
+}
+function lotusMark(cls) {
+  var p = [[-62, 26, 11], [62, 26, 11], [-37, 33, 12], [37, 33, 12], [-15, 38, 11], [15, 38, 11], [0, 42, 11]];
+  return '<svg class="' + (cls || "") + '" viewBox="-40 -44 80 62" aria-hidden="true"><g transform="translate(0,10)">' + p.map(function (q) { return lotusPetal(q[0], q[1], q[2]); }).join("") + '<path d="M-27,1 Q0,15 27,1 Q0,8 -27,1Z" fill="#E3BC6A"/><circle cy="-14" r="2" fill="#F6D995"/></g></svg>';
+}
+function ornament(len, size, kind) {
+  var w = size, sc = size / 80, lotusH = 62 * sc, pearls = "", i, y = 14, np = Math.max(1, Math.floor(len / 7));
+  for (i = 0; i < np; i++) pearls += '<circle cx="0" cy="' + (y + i * 7) + '" r="2.4" fill="#FFF6EC"/>';
+  var top = 14 + np * 7, h = top + lotusH + 40;
+  var bell = kind === "brass"
+    ? '<g class="bell" transform="translate(0,' + (top + lotusH + 6) + ')"><circle r="2.2" cy="0" fill="#FFF6EC"/><path d="M-6,4 H6 L8.5,20 Q0,23 -8.5,20Z" fill="#D6A64B"/><path d="M-6,4 H6" stroke="#FCE4A4" stroke-width="1.2"/><circle cy="22" r="2.4" fill="#8E6524"/></g>'
+    : '<g transform="translate(0,' + (top + lotusH + 4) + ')"><circle r="2.2" cy="0" fill="#FFF6EC"/><circle r="2.2" cy="6" fill="#FFF6EC"/><path d="M-6,15 Q-6,9 0,9 Q6,9 6,15 L7,17 H-7Z" fill="#E3BC6A"/><circle cy="22" r="5" fill="#FF2E8C"/><circle cy="22" r="5" fill="none" stroke="#FFB3D6" stroke-width="1" stroke-dasharray="1.5 2"/></g>';
+  return '<svg class="orn" viewBox="' + (-w / 2) + ' 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-hidden="true"><circle cx="0" cy="7" r="5.5" fill="none" stroke="#E3BC6A" stroke-width="2.2"/>' + pearls +
+    '<g transform="translate(0,' + (top + lotusH * 0.72) + ') scale(' + sc.toFixed(3) + ')">' + [[-62, 26, 11], [62, 26, 11], [-37, 33, 12], [37, 33, 12], [-15, 38, 11], [15, 38, 11], [0, 42, 11]].map(function (q) { return lotusPetal(q[0], q[1], q[2]); }).join("") + '<path d="M-27,1 Q0,15 27,1 Q0,8 -27,1Z" fill="#E3BC6A"/></g>' + bell + "</svg>";
+}
+function hangers(count, small) {
+  var out = "", lens = [6, 30, 14, 36, 4, 26, 10, 34, 6, 24, 18], sizes = [84, 62, 76, 58, 88, 64, 80, 60, 84, 66, 72];
+  for (var i = 0; i < count; i++) {
+    var x = ((i + 0.5) / count * 100).toFixed(2), L = lens[i % lens.length] * (small ? 0.6 : 1), z = sizes[i % sizes.length] * (small ? 0.6 : 1);
+    out += '<div class="hang h' + (i % 4) + '" style="left:' + x + '%">' + ornament(L, Math.round(z), i % 3 === 1 ? "brass" : "jhumka") + "</div>";
+  }
+  return out;
+}
+function petals(n) {
+  var out = "";
+  for (var i = 0; i < n; i++) {
+    var x = (4 + (i * 37) % 92), d = 16 + (i * 7) % 9, dl = -(i * 2.7).toFixed(1), sz = 12 + (i % 3) * 5, c = i % 2 ? "#FF2E8C" : "#FF8FC2";
+    out += '<i style="left:' + x + "%;animation-duration:" + d + "s;animation-delay:" + dl + 's"><svg viewBox="-10 -14 20 28" width="' + sz + '" height="' + (sz * 1.4).toFixed(0) + '"><path d="M0,-13 C9,-7 9,6 0,13 C-9,6 -9,-7 0,-13Z" fill="' + c + '"/><path d="M0,-11 C3,-4 3,4 0,11" stroke="rgba(255,255,255,.35)" stroke-width="1" fill="none"/></svg></i>';
+  }
+  return out;
+}
+function footlights(n) { var o = ""; for (var i = 0; i < n; i++) o += diya("fl d" + (i % 3)); return o; }
+function floatingPetals(n) {
+  var out = "", r = rng(5);
+  for (var i = 0; i < n; i++) { var x = (3 + r() * 94).toFixed(1), y = (8 + r() * 80).toFixed(1), rot = (r() * 360).toFixed(0), sz = 10 + Math.floor(r() * 10); out += '<i class="fp" style="left:' + x + "%;top:" + y + "%;--d:" + (5 + r() * 5).toFixed(1) + "s;--dl:-" + (r() * 8).toFixed(1) + 's"><svg viewBox="-10 -14 20 28" width="' + sz + '" height="' + (sz * 1.4).toFixed(0) + '" style="transform:rotate(' + rot + 'deg)"><path d="M0,-13 C9,-7 9,6 0,13 C-9,6 -9,-7 0,-13Z" fill="' + (i % 2 ? "#FF2E8C" : "#FF8FC2") + '" opacity=".85"/></svg></i>'; }
+  return out;
+}

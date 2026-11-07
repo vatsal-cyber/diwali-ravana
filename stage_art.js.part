@@ -1,0 +1,102 @@
+/* ================= the cast: kathputli string puppets ================= */
+var PUPPETS = [
+  { f: "#E23A3A", c: "#F6C544", t: "turban", s: 1 }, { f: "#F2A51A", c: "#1E9E6A", t: "dupatta", s: 0 },
+  { f: "#1E9E6A", c: "#F2A51A", t: "turban", s: 2 }, { f: "#2F6FD8", c: "#F26B1D", t: "dupatta", s: 1 },
+  { f: "#C2278F", c: "#17A3A8", t: "turban", s: 0 }, { f: "#F26B1D", c: "#6C3FC2", t: "dupatta", s: 2 },
+  { f: "#6C3FC2", c: "#F2A51A", t: "turban", s: 1 }, { f: "#17A3A8", c: "#E54B7A", t: "dupatta", s: 0 },
+  { f: "#D8B021", c: "#B23B2A", t: "turban", s: 2 }, { f: "#E54B7A", c: "#2F6FD8", t: "dupatta", s: 1 },
+  { f: "#3A9D3A", c: "#E23A3A", t: "turban", s: 0 }, { f: "#B23B2A", c: "#17A3A8", t: "dupatta", s: 2 }
+];
+var AVATARS = PUPPETS;
+var SKINS = ["#F1C9A3", "#D7A271", "#AD7A4F"], GOLD = "#F3C96B", GOLD2 = "#B98A2D", INK = "#2B1810";
+function pEye(x, dir) {
+  return '<path d="M' + (x - 9) + ' 88 q9 -8 18 0 q-9 8 -18 0z" fill="#FFF8EE" stroke="' + INK + '" stroke-width="1.6"/><circle cx="' + x + '" cy="88" r="3.6" fill="' + INK + '"/><circle cx="' + (x + 1.3) + '" cy="86.6" r="1.1" fill="#fff"/>' +
+    '<path d="M' + (x + 9 * dir) + ' 88 l' + (5 * dir) + ' -2.5" stroke="' + INK + '" stroke-width="1.7" stroke-linecap="round"/>';
+}
+function pDots() { return [[40, 212], [60, 206], [80, 212], [30, 250], [60, 246], [90, 250], [48, 230], [72, 230]].map(function (q) { return '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="2.2" fill="' + GOLD + '" opacity=".9"/>'; }).join(""); }
+function pGarland() {
+  return '<path d="M30 142 C38 182 50 202 60 206 C70 202 82 182 90 142" stroke="#F58F1E" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="0 12"/>' +
+    '<path d="M30 142 C38 182 50 202 60 206 C70 202 82 182 90 142" stroke="#FFD24A" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="0 12" stroke-dashoffset="6"/>';
+}
+function pRavanaHeads(skin) {
+  var out = "";
+  for (var k = 0; k < 9; k++) {
+    var a = (-168 + k * 19.5) * Math.PI / 180, x = 60 + Math.cos(a) * 46, y = 94 + Math.sin(a) * 42;
+    out += '<g transform="translate(' + x.toFixed(1) + "," + y.toFixed(1) + ')"><path d="M-9 -5 C-9 -17 9 -17 9 -5 Q0 -9 -9 -5Z" fill="' + GOLD2 + '"/><ellipse rx="8" ry="9.5" fill="' + skin + '"/><path d="M-4.5 1 q4.5 -3 9 0" stroke="' + INK + '" stroke-width="1.2" fill="none"/><circle cx="-3" cy="-2" r="1" fill="' + INK + '"/><circle cx="3" cy="-2" r="1" fill="' + INK + '"/></g>';
+  }
+  return out;
+}
+function pRavanaCrown() {
+  return '<path d="M32 76 L38 42 L49 64 L60 32 L71 64 L82 42 L88 76 Z" fill="' + GOLD + '" stroke="' + GOLD2 + '" stroke-width="2" stroke-linejoin="round"/><circle cx="60" cy="52" r="4" fill="#E0312F"/><circle cx="46" cy="62" r="2.6" fill="#1E9E6A"/><circle cx="74" cy="62" r="2.6" fill="#1E9E6A"/>' +
+    '<path d="M41 80 l17 4 M79 80 l-17 4" stroke="' + INK + '" stroke-width="2.8" stroke-linecap="round"/>';
+}
+function puppetSVG(i, o) {
+  o = o || {};
+  var p = PUPPETS[((i % PUPPETS.length) + PUPPETS.length) % PUPPETS.length], skin = SKINS[p.s], f = p.f, c = p.c, fem = p.t === "dupatta", s = "";
+  if (o.full) s += '<path d="M60 9 V62 M30 9 L24 192 M90 9 L96 192" stroke="rgba(255,244,220,.4)" stroke-width="1.3" fill="none"/><rect x="16" y="2" width="88" height="8" rx="4" fill="#8A5A2B"/><rect x="18" y="3" width="84" height="3" rx="2" fill="#C49462"/>';
+  if (o.ravana) s += pRavanaHeads(skin);
+  if (fem) s += '<path d="M60 50 C34 50 26 92 18 152 L102 152 C94 92 86 50 60 50Z" fill="' + c + '" stroke="' + GOLD + '" stroke-width="2.5"/>';
+  s += '<path d="M36 176 L84 176 C96 220 108 250 112 272 Q60 288 8 272 C12 250 24 220 36 176Z" fill="' + f + '"/>' +
+    '<path d="M9 266 Q60 282 111 266 L112 272 Q60 288 8 272Z" fill="' + GOLD + '"/><path d="M20 232 Q60 244 100 232" stroke="' + GOLD + '" stroke-width="3" fill="none" opacity=".9"/>' + pDots() +
+    '<path d="M36 136 C22 152 16 172 19 194 L31 192 C29 172 35 156 45 142Z" fill="' + c + '"/><path d="M84 136 C98 152 104 172 101 194 L89 192 C91 172 85 156 75 142Z" fill="' + c + '"/>' +
+    '<circle cx="24" cy="198" r="7.5" fill="' + skin + '"/><circle cx="96" cy="198" r="7.5" fill="' + skin + '"/>' +
+    '<rect x="53" y="118" width="14" height="18" fill="' + skin + '"/>' +
+    '<path d="M34 136 Q60 126 86 136 L84 178 L36 178Z" fill="' + c + '"/><path d="M44 138 Q60 150 76 138" stroke="' + GOLD + '" stroke-width="2.5" fill="none"/>';
+  if (o.garland) s += pGarland();
+  s += '<ellipse cx="33" cy="96" rx="5" ry="7" fill="' + skin + '"/><ellipse cx="87" cy="96" rx="5" ry="7" fill="' + skin + '"/>' +
+    '<circle cx="33" cy="107" r="3" fill="' + GOLD + '"/><circle cx="87" cy="107" r="3" fill="' + GOLD + '"/><circle cx="33" cy="114" r="2.2" fill="#E0312F"/><circle cx="87" cy="114" r="2.2" fill="#E0312F"/>' +
+    '<ellipse cx="60" cy="92" rx="27" ry="31" fill="' + skin + '"/>' +
+    '<circle cx="45" cy="101" r="5" fill="rgba(255,105,105,.22)"/><circle cx="75" cy="101" r="5" fill="rgba(255,105,105,.22)"/>' +
+    '<path d="M42 79 q8 -6 16 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M62 79 q8 -6 16 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+    pEye(50, -1) + pEye(70, 1) + '<path d="M60 90 l-3.5 11 h7z" fill="rgba(0,0,0,.12)"/><path d="M50 109 q10 7 20 0 q-10 4 -20 0z" fill="#C0392B"/>';
+  if (fem) s += '<circle cx="60" cy="75" r="2.6" fill="#E0312F"/><path d="M33 70 C36 52 84 52 87 70 Q60 62 33 70Z" fill="' + c + '"/><path d="M34 69 Q60 60 86 69" stroke="' + GOLD + '" stroke-width="2.5" fill="none"/>';
+  else s += '<path d="M47 104 q6.5 -5 13 0 q6.5 -5 13 0 q-6.5 3.5 -13 0 q-6.5 3.5 -13 0z" fill="' + INK + '"/>' +
+    '<path d="M31 80 C31 50 89 50 89 80 Q60 70 31 80Z" fill="' + c + '"/><path d="M32 78 Q60 66 88 78" stroke="' + GOLD + '" stroke-width="4" fill="none"/><path d="M88 70 q16 -10 11 10 q-5 -3 -11 -10z" fill="' + c + '"/><circle cx="60" cy="63" r="4" fill="' + GOLD + '"/><path d="M60 59 q-3 -12 2 -18 M60 59 q4 -11 10 -14" stroke="' + GOLD + '" stroke-width="2" fill="none" stroke-linecap="round"/>';
+  if (o.ravana) s += pRavanaCrown();
+  return s;
+}
+function puppet(i, w, cls, o) {
+  o = Object.assign({ full: true }, o || {});
+  return '<svg class="puppet ' + (cls || "") + '" viewBox="0 0 120 300" width="' + w + '" height="' + (w * 2.5) + '" aria-hidden="true">' + puppetSVG(i, o) + "</svg>";
+}
+function avHTML(name, avIdx, size, cls) {
+  var p = PUPPETS[((avIdx % PUPPETS.length) + PUPPETS.length) % PUPPETS.length] || PUPPETS[0];
+  return '<span class="av ' + (cls || "") + '" style="--s:' + size + 'px"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><clipPath id="avclip"><circle cx="60" cy="60" r="56"/></clipPath></defs>' +
+    '<circle cx="60" cy="60" r="58" fill="' + p.f + '"/><circle cx="60" cy="60" r="58" fill="rgba(20,4,10,.42)"/>' +
+    '<g clip-path="url(#avclip)" transform="translate(0,-26) scale(1.06) translate(-3.4,0)">' + puppetSVG(avIdx, {}) + "</g>" +
+    '<circle cx="60" cy="60" r="57" fill="none" stroke="' + GOLD + '" stroke-width="3.5"/></svg></span>';
+}
+
+/* ================= the set: backdrop, curtains, footlights ================= */
+function backdrop() {
+  var stars = "", i, r = rng(7);
+  for (i = 0; i < 90; i++) { var sx = (r() * 1800).toFixed(0), sy = (r() * 460).toFixed(0), sr = (0.8 + r() * 1.6).toFixed(1); stars += '<circle cx="' + sx + '" cy="' + sy + '" r="' + sr + '" fill="#FFF4D6" opacity="' + (0.35 + r() * 0.55).toFixed(2) + '" class="star s' + (i % 3) + '"/>'; }
+  var domes = "", xs = [60, 190, 300, 470, 610, 760, 900, 1040, 1190, 1330, 1470, 1600, 1740], hs = [40, 70, 50, 95, 60, 120, 80, 110, 55, 90, 65, 75, 45];
+  for (i = 0; i < xs.length; i++) {
+    var x = xs[i], hh = hs[i], w = 60 + (hh % 40), y = 600 - hh;
+    domes += '<rect x="' + (x - w / 2) + '" y="' + y + '" width="' + w + '" height="' + (hh + 10) + '" fill="#1B0712"/><path d="M' + (x - w / 2) + " " + y + " C" + (x - w / 2) + " " + (y - w * 0.9) + " " + (x + w / 2) + " " + (y - w * 0.9) + " " + (x + w / 2) + " " + y + 'Z" fill="#1B0712"/><path d="M' + x + " " + (y - w * 0.68) + " v-26" + '" stroke="#C9A24E" stroke-width="2"/><circle cx="' + x + '" cy="' + (y - w * 0.68 - 28) + '" r="3" fill="#F3C96B"/>';
+    for (var k = 0; k < 3; k++) domes += '<rect x="' + (x - 18 + k * 14) + '" y="' + (y + 16 + (k % 2) * 18) + '" width="6" height="9" fill="#F6B84A" opacity=".85"/>';
+  }
+  var lant = "";
+  for (i = 0; i < 5; i++) lant += '<g class="lant l' + i + '" transform="translate(' + (240 + i * 330) + ',' + (330 + (i % 2) * 90) + ')"><ellipse rx="22" ry="28" fill="#FF8A2A" opacity=".9"/><ellipse rx="22" ry="28" fill="url(#lg)"/><rect x="-8" y="26" width="16" height="4" fill="#C9712A"/></g>';
+  return '<svg viewBox="0 0 1800 810" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>' +
+    '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#120B33"/><stop offset=".55" stop-color="#2A1446"/><stop offset=".78" stop-color="#5A1538"/><stop offset="1" stop-color="#7A1A36"/></linearGradient>' +
+    '<radialGradient id="moon" cx=".5" cy=".5" r=".5"><stop offset=".45" stop-color="#FFF2CC"/><stop offset="1" stop-color="#FFF2CC" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="lg" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#FFE3A0" stop-opacity=".95"/><stop offset="1" stop-color="#FF8A2A" stop-opacity="0"/></radialGradient>' +
+    '</defs><rect width="1800" height="810" fill="url(#sky)"/>' + stars +
+    '<circle cx="1480" cy="150" r="150" fill="url(#moon)" opacity=".35"/><path d="M1480 86 A64 64 0 1 0 1544 150 A48 48 0 1 1 1480 86Z" fill="#FFF2CC"/>' +
+    '<rect y="470" width="1800" height="140" fill="url(#sky)" opacity="0"/>' + lant + domes +
+    '<rect x="0" y="600" width="1800" height="210" fill="#1B0712"/></svg>';
+}
+function valanceSVG() {
+  var out = '<svg viewBox="0 0 1800 110" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="vel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9A1437"/><stop offset="1" stop-color="#5C0719"/></linearGradient><pattern id="folds" width="38" height="110" patternUnits="userSpaceOnUse"><rect width="38" height="110" fill="url(#vel)"/><rect width="9" height="110" fill="rgba(0,0,0,.28)"/><rect x="22" width="5" height="110" fill="rgba(255,120,150,.18)"/></pattern></defs>';
+  var d = "M0 0 H1800 V48 ";
+  for (var i = 7; i >= 0; i--) d += "Q" + (i * 225 + 112) + " 118 " + (i * 225) + " 48 ";
+  out += '<path d="' + d + 'Z" fill="url(#folds)"/>';
+  var fr = "M0 48 ";
+  for (var j = 0; j < 8; j++) fr += "Q" + (j * 225 + 112) + " 118 " + ((j + 1) * 225) + " 48 ";
+  out += '<path d="' + fr + '" stroke="#F3C96B" stroke-width="7" fill="none"/><path d="' + fr + '" stroke="#B98A2D" stroke-width="3" fill="none" stroke-dasharray="2 6" transform="translate(0,9)"/>';
+  return out + "</svg>";
+}
+function footlights(n) { var o = ""; for (var i = 0; i < n; i++) o += diya("fl d" + (i % 3)); return o; }
+function archCorner() { return '<svg viewBox="0 0 80 80" aria-hidden="true"><path d="M8 72 Q8 8 72 8" stroke="#F3C96B" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="12" cy="68" r="7" fill="#F3C96B"/><circle cx="68" cy="12" r="7" fill="#F3C96B"/><path d="M26 54 q14 -28 28 -28 q-6 14 -28 28z" fill="#E0312F" stroke="#F3C96B" stroke-width="2"/></svg>'; }
