@@ -29,10 +29,24 @@ var WORDS = {
   "Party time": ["New clothes", "Card party", "Gift box", "Dhol", "Dance-off", "Group selfie", "Cleaning the house", "Gold coins", "Dry fruit box"]
 };
 var AVATARS = [
-  { e: "🪔", c: "#FFB22E" }, { e: "🎆", c: "#F2367D" }, { e: "🦚", c: "#19B3A3" }, { e: "🪷", c: "#FF86B4" },
-  { e: "🐘", c: "#9D8CFF" }, { e: "🌸", c: "#FFA9C9" }, { e: "🍬", c: "#FF6F61" }, { e: "🌙", c: "#F3D36B" },
-  { e: "🎇", c: "#5EC8FF" }, { e: "🏹", c: "#EE7F4F" }, { e: "🪁", c: "#4FD18B" }, { e: "🐒", c: "#D9A066" }
+  { g: "diya", c: "#D98E26" }, { g: "lotus", c: "#C9577F" }, { g: "moon", c: "#4E5BB8" }, { g: "spark", c: "#2F84B8" },
+  { g: "kite", c: "#2E9781" }, { g: "lantern", c: "#C24C38" }, { g: "marigold", c: "#D9741F" }, { g: "mango", c: "#5E9433" },
+  { g: "bell", c: "#8E68C9" }, { g: "dhol", c: "#A65B3E" }, { g: "ladoo", c: "#B8892A" }, { g: "feather", c: "#22808F" }
 ];
+var GLYPHS = {
+  diya: '<path d="M0,-18 C5,-11 6,-6 3.5,-2.5 C2,-.5 -2,-.5 -3.5,-2.5 C-6,-6 -5,-11 0,-18Z"/><path d="M-17,3 Q0,1 17,3 Q14,15 0,16 Q-14,15 -17,3Z"/>',
+  lotus: '<path d="M0,-17 C6,-9 6,3 0,10 C-6,3 -6,-9 0,-17Z"/><path transform="rotate(-42 0 10)" d="M0,-9 C5,-3 5,5 0,10 C-5,5 -5,-3 0,-9Z"/><path transform="rotate(42 0 10)" d="M0,-9 C5,-3 5,5 0,10 C-5,5 -5,-3 0,-9Z"/><ellipse cy="14" rx="14" ry="2.6"/>',
+  moon: '<path d="M3,-16 A16,16 0 1 0 16,3 A12.5,12.5 0 1 1 3,-16Z"/><path d="M10,-13 l1.2,3 3,1.2 -3,1.2 -1.2,3 -1.2,-3 -3,-1.2 3,-1.2Z"/>',
+  spark: '<path d="M-2,-17 C0,-5 4,-2 15,0 C4,2 0,5 -2,17 C-4,5 -8,2 -19,0 C-8,-2 -4,-5 -2,-17Z"/><path d="M12,-15 C12.6,-11.5 13.5,-10.6 17,-10 C13.5,-9.4 12.6,-8.5 12,-5 C11.4,-8.5 10.5,-9.4 7,-10 C10.5,-10.6 11.4,-11.5 12,-15Z"/>',
+  kite: '<path d="M0,-18 L13,-3 L0,13 L-13,-3Z"/><path d="M0,13 q-5,4 0,7 q5,3 0,6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M0,-18 L0,13 M-13,-3 L13,-3" stroke="var(--c)" stroke-width="1.8"/>',
+  lantern: '<rect x="-1.2" y="-21" width="2.4" height="5"/><path d="M-6,-16 H6 L13,-3 L7,11 H-7 L-13,-3Z"/><path d="M-13,-3 H13 M-6,-16 L-7,11 M6,-16 L7,11" stroke="var(--c)" stroke-width="1.6"/><path d="M-4,11 v8 M0,11 v10 M4,11 v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  marigold: '<g>' + (function () { var o = ""; for (var i = 0; i < 8; i++) o += '<path transform="rotate(' + (i * 45) + ')" d="M0,-4 C5,-8 5,-16 0,-19 C-5,-16 -5,-8 0,-4Z"/>'; for (var j = 0; j < 8; j++) o += '<path transform="rotate(' + (j * 45 + 22.5) + ')" opacity=".7" d="M0,-4 C4,-7 4,-13 0,-15 C-4,-13 -4,-7 0,-4Z"/>'; return o; })() + '</g><circle r="5.2" style="fill:var(--c)"/><circle r="2.6"/>',
+  mango: '<path d="M-1,-15 C10,-11 16,-1 13,8 C10,17 -7,18 -12,9 C-16,1 -11,-9 -1,-15Z"/><path d="M-1,-15 C1,-20 7,-22 11,-19 C8,-15 3,-14 -1,-15Z"/>',
+  bell: '<rect x="-2" y="-21" width="4" height="6" rx="1"/><path d="M0,-16 C8,-16 10,-9 10,-1 L14,8 H-14 L-10,-1 C-10,-9 -8,-16 0,-16Z"/><circle cy="12.5" r="3.4"/>',
+  dhol: '<path d="M-16,-9 Q0,-13 16,-9 V9 Q0,13 -16,9Z"/><path d="M-11,-10 L-6,10 L0,-11 L6,10 L11,-10" fill="none" stroke="var(--c)" stroke-width="2"/><ellipse cx="-16" rx="3" ry="9"/><ellipse cx="16" rx="3" ry="9"/>',
+  ladoo: '<circle cx="-7.5" cy="7" r="7.5"/><circle cx="7.5" cy="7" r="7.5"/><circle cy="-6" r="7.5"/><g style="fill:var(--c)"><circle cx="-9" cy="5" r="1.2"/><circle cx="6" cy="9" r="1.2"/><circle cx="2" cy="-8" r="1.2"/><circle cx="-2" cy="-4" r="1"/></g>',
+  feather: '<path d="M0,-19 C10,-10 11,3 0,14 C-11,3 -10,-10 0,-19Z"/><ellipse cy="-3" rx="5.5" ry="7.5" style="fill:var(--c)"/><ellipse cy="-2" rx="3" ry="4.2"/><path d="M0,14 V22" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>'
+};
 
 /* ================= utils ================= */
 function now() { return Date.now(); }
@@ -100,6 +114,8 @@ var RLAYERS = [
 function rangoli(mode, cls) {
   var out = '<svg class="' + (cls || "") + '" viewBox="-500 -500 1000 1000" aria-hidden="true">';
   RLAYERS.forEach(function (L, li) {
+    if (mode === "gold") { L = Object.assign({}, L, { c: li % 2 ? "#F2B544" : "#FBF1DF" }); mode = "fillg"; }
+    if (mode === "fillg") L = Object.assign({}, L, { c: li % 2 ? "#F2B544" : "#FBF1DF" });
     var st = mode === "draw" ? ' fill="none" stroke="' + L.c + '" stroke-width="6" pathLength="1" style="animation-delay:' + (li * 0.22).toFixed(2) + 's"' : ' fill="' + L.c + '"';
     if (L.dot) { out += '<circle r="' + L.dot + '"' + st + '/>'; return; }
     if (L.dots) {
@@ -113,6 +129,20 @@ function rangoli(mode, cls) {
     for (var k = 0; k < L.n; k++) out += '<path d="' + d + '" transform="rotate(' + (k * 360 / L.n).toFixed(2) + ')"' + st + '/>';
   });
   return out + "</svg>";
+}
+function lights(W, n, h) {
+  var seg = W / n, sag = h || 34, out = '<svg viewBox="0 0 ' + W + " " + (sag + 30) + '" preserveAspectRatio="xMidYMin slice" aria-hidden="true" class="lights">';
+  var bulbs = "", k = 0;
+  for (var i = 0; i < n; i++) {
+    var x0 = i * seg, x1 = x0 + seg, cx = x0 + seg / 2;
+    out += '<path d="M' + x0.toFixed(1) + ' 6 Q' + cx.toFixed(1) + " " + (6 + sag * 2).toFixed(1) + " " + x1.toFixed(1) + ' 6" fill="none" stroke="rgba(251,241,223,.22)" stroke-width="1.6"/>';
+    for (var t = 1; t < 8; t++) {
+      var f = t / 8, x = x0 + f * seg, y = 6 + sag * 4 * f * (1 - f) * 1.0;
+      var warm = (k % 3 === 0) ? "#FFD27A" : (k % 3 === 1 ? "#FBF1DF" : "#F2B544");
+      bulbs += '<circle class="b' + (k % 4) + '" cx="' + x.toFixed(1) + '" cy="' + (y + 5).toFixed(1) + '" r="4.2" fill="' + warm + '"/>'; k++;
+    }
+  }
+  return out + bulbs + "</svg>";
 }
 function toran(W, n) {
   var seg = W / n, sag = 46, out = '<svg viewBox="0 0 ' + W + ' 120" preserveAspectRatio="xMidYMin slice" aria-hidden="true"><path d="M0 8H' + W + '" stroke="#8B5A2B" stroke-width="4"/>';
@@ -171,8 +201,7 @@ function qrSvg(text) {
 }
 function avHTML(name, avIdx, size, cls) {
   var a = AVATARS[avIdx] || AVATARS[0];
-  var inner = S.emoji ? a.e : esc(String(name || "?").trim().charAt(0).toUpperCase());
-  return '<span class="av ' + (S.emoji ? "" : "ini ") + (cls || "") + '" style="--c:' + a.c + ";--s:" + size + 'px"><span class="avi">' + inner + "</span></span>";
+  return '<span class="av ' + (cls || "") + '" style="--c:' + a.c + ";--s:" + size + 'px"><svg class="avg" viewBox="-24 -24 48 48" fill="currentColor" aria-hidden="true">' + GLYPHS[a.g] + "</svg></span>";
 }
 function B(label, act, arg, cls, attrs) {
   var a = arg == null ? "" : String(arg);
@@ -230,6 +259,7 @@ var MUS = {
     clues: { vol: 0.45, tempo: 96, drone: 1, groove: "light", melody: 0 },
     discuss: { vol: 0.5, tempo: 100, drone: 1, groove: "light", melody: 0 },
     vote: { vol: 0.7, tempo: 116, drone: 1, groove: "tense", melody: 0 },
+    verdict: { vol: 0.45, tempo: 70, drone: 1, groove: "heart", melody: 0 },
     guess: { vol: 0.6, tempo: 66, drone: 1, groove: "heart", melody: 0 },
     reveal: { vol: 0.85, tempo: 104, drone: 1, groove: "full", melody: 1, duck: 3.4 },
     skipped: { vol: 0.5, tempo: 96, drone: 1, groove: "light", melody: 0 },
@@ -576,7 +606,7 @@ function avOf(id, size, cls) { return avHTML(rname(id), rav(id), size, cls); }
 function pst(id) { var p = T.net && T.net.peers[id]; return p && p.st.role === "player" ? p.st : null; }
 function online(id) { return T.net ? T.net.alive(id) : false; }
 function onlinePlayers() { return T.H.players.filter(online); }
-function isRoundPhase(ph) { return ["peek", "clues", "discuss", "vote", "guess"].indexOf(ph) >= 0; }
+function isRoundPhase(ph) { return ["peek", "clues", "discuss", "vote", "verdict", "guess"].indexOf(ph) >= 0; }
 
 function newHost() {
   return {
@@ -693,6 +723,7 @@ function runCmd(id, c) {
   if (c.type === "start" && h.phase === "lobby") startGame();
   else if (c.type === "skip" && c.rk === h.rk) { if (h.phase === "peek") toClues(); else if (h.phase === "clues") nextSpeaker(); }
   else if (c.type === "votenow" && h.phase === "discuss" && c.rk === h.rk) toVote();
+  else if (c.type === "skip" && h.phase === "verdict" && c.rk === h.rk) afterVerdict();
   else if (c.type === "next" && (h.phase === "reveal" || h.phase === "skipped") && c.rk === h.rk) nextRound();
   else if (c.type === "again" && h.phase === "final") playAgain();
 }
@@ -745,9 +776,13 @@ function tally() {
   var delta = {}; h.players.forEach(function (id) { delta[id] = 0; });
   Object.keys(voted).forEach(function (v) { if (voted[v] === h.ravanaId && v !== h.ravanaId) delta[v] += 1; });
   if (!caught) delta[h.ravanaId] = (delta[h.ravanaId] || 0) + 2;
-  h.result = { caught: caught, tie: tops.length > 1, none: !tops.length, counts: counts, voted: voted, delta: delta, guess: null, guessOk: false };
+  h.result = { caught: caught, picked: tops.length === 1 ? tops[0] : "", tie: tops.length > 1, none: !tops.length, counts: counts, voted: voted, delta: delta, guess: null, guessOk: false };
   T.pend = null;
-  if (caught) { h.phase = "guess"; h.timerEnd = now() + CFG.guessMs; h.timerTot = CFG.guessMs; SND.dhol(0, true); }
+  h.phase = "verdict"; h.timerEnd = now() + (h.result.picked ? 7000 : 5000); h.timerTot = h.timerEnd - now();
+}
+function afterVerdict() {
+  var h = T.H;
+  if (h.result.caught) { h.phase = "guess"; h.timerEnd = now() + CFG.guessMs; h.timerTot = CFG.guessMs; SND.dhol(0, true); }
   else finishRound();
 }
 function finishRound() {
@@ -801,6 +836,7 @@ function tvTick() {
     }
     else if (h.phase === "discuss") { if (t > h.timerEnd) { toVote(); ch = true; } else if (allIn(h.ack.ready)) auto = "discuss"; }
     else if (h.phase === "vote") { if (t > h.timerEnd) { tally(); ch = true; } else if (allIn(h.ack.voted)) auto = "vote"; }
+    else if (h.phase === "verdict") { if (t > h.timerEnd) { afterVerdict(); ch = true; } }
     else if (h.phase === "guess") { if (t > h.timerEnd) { if (h.result.guess == null) { h.result.guess = ""; h.result.guessOk = false; } finishRound(); ch = true; } }
     if (auto) {
       if (!T.pend || T.pend.k !== auto + h.rk) T.pend = { k: auto + h.rk, at: t + CFG.autoMs };
@@ -817,9 +853,9 @@ function tvTick() {
 
 /* ---- TV views ---- */
 function tvShell() {
-  return '<div class="tv" id="tv"><div class="toran">' + toran(1920, 12) + '</div>' +
+  return '<div class="tv" id="tv"><div class="toplights">' + lights(1920, 6, 30) + '</div>' +
     '<header class="tvh" id="tvHead"></header>' +
-    '<div class="tvm"><div class="stagewrap"><div class="bgr">' + rangoli("fill") + '</div><section class="stage" id="tvMain"></section></div><aside class="rail" id="tvRail"></aside></div>' +
+    '<div class="tvm"><div class="stagewrap"><div class="bgr">' + rangoli("gold") + '</div><section class="stage" id="tvMain"></section></div><aside class="rail" id="tvRail"></aside></div>' +
     '<footer class="tvf" id="tvFoot"></footer><div id="tvOv"></div></div>';
 }
 function fitTV() {
@@ -840,13 +876,16 @@ function tvRender() {
   patch("tvFoot", tvFoot(h));
   var ovChanged = patch("tvOv", tvOverlay(h));
   T.newIds = {};
-  var rk = h.phase === "reveal" ? "reveal" + h.rk : (h.phase === "final" ? "final" + h.rk : "");
+  var rk = (h.phase === "reveal" || h.phase === "verdict" || h.phase === "final") ? h.phase + h.rk : "";
   if (rk && rk !== T.revealKey) {
     T.revealKey = rk;
-    if (h.phase === "reveal") {
-      SND.roll();
-      var good = h.result && h.result.caught && !h.result.guessOk;
-      setTimeout(function () { if (good) { FX.show(4.5, "joy"); SND.fanfare(); } else { FX.show(2.5, "boo"); SND.boo(); } }, 1550);
+    var R = h.result;
+    if (h.phase === "verdict") {
+      if (R.picked) { SND.roll(); setTimeout(function () { if (R.caught) { FX.show(3.5, "joy"); SND.fanfare(); } else { FX.show(2, "boo"); SND.boo(); } }, 2300); }
+      else SND.boo(0.2);
+    } else if (h.phase === "reveal") {
+      if (R.caught) { setTimeout(function () { if (R.guessOk) { FX.show(2, "boo"); SND.boo(); } else { FX.show(3, "joy"); SND.fanfare(); } }, 500); }
+      else { SND.roll(); setTimeout(function () { FX.show(2.5, "boo"); SND.boo(); }, 1550); }
     } else { FX.show(7, "joy"); SND.fanfare(); SND.fanfare(0.8); }
   }
   ensureFocus(phaseChanged || ovChanged);
@@ -854,7 +893,7 @@ function tvRender() {
   updateTimers(0);
 }
 var STEPS = ["Cards", "Clues", "Talk", "Vote", "Reveal"];
-var STEP_OF = { peek: 0, clues: 1, discuss: 2, vote: 3, guess: 3, reveal: 4, skipped: 4 };
+var STEP_OF = { peek: 0, clues: 1, discuss: 2, vote: 3, verdict: 4, guess: 4, reveal: 4, skipped: 4 };
 function tvHead(h) {
   var conn = T.net && T.net.connected > 0, mid;
   if (h.phase === "lobby") mid = '<span class="midtxt">Waiting for players</span>';
@@ -899,40 +938,41 @@ function tvFoot(h) {
     clues: "Say one word that hints at the secret word. Not too obvious, the Ravana is listening.",
     discuss: "Talk it out. Who doesn't seem to know the word?",
     vote: "Vote on your phone. You can change your vote until time runs out.",
+    verdict: "The votes are in.",
     guess: "If the Ravana guesses the word, they steal 2 points.",
     reveal: (h.vip ? rname(h.vip) + " can start the next round from their phone." : "Start the next round when you're ready."),
     skipped: "No points this round.",
     final: "Happy Diwali! Play again to start a new game with the same players."
   }[h.phase] || "";
   var right = !T.net || T.net.connected === 0 ? '<span class="warn">Reconnecting to the internet…</span>' : (h.phase === "lobby" ? '<span class="muted">Edges cut off? Settings ' + ic("gear") + " has screen size</span>" : "");
-  return ic("phone") + "<span>" + hint + "</span>" + right;
+  return '<span class="cap2">' + hint + "</span>" + right;
 }
 function optRow(label, opts, val, act) {
-  return '<div class="optrow"><span class="lbl">' + label + "</span>" + opts.map(function (o) { return B(o[1], act, o[0], "chip" + (o[0] === val ? " sel" : "")); }).join("") + "</div>";
+  return '<div class="optrow"><span class="lbl">' + label + '</span><div class="seg">' + opts.map(function (o) { return B(o[1], act, o[0], "chip" + (o[0] === val ? " sel" : "")); }).join("") + "</div></div>";
 }
 function tvMain(h) {
   var ph = h.phase, pl = h.paused ? h.pauseLeft : null;
   if (ph === "lobby") {
     var n = roster().length, digits = h.code.split("").map(function (d) { return '<span class="digit disp">' + d + "</span>"; }).join("");
-    return '<div class="lobby"><div class="qrcol"><div class="qrwrap"><div class="qrring">' + rangoli("fill") + '</div><div class="qr">' + qrSvg(JOIN_URL + "#join-" + h.code) + '</div></div><p class="cap">Scan to join</p></div>' +
-      '<div class="joincol"><p class="joinat">Or open <b>' + CFG.short + "</b> and enter</p>" + '<div class="digits">' + digits + "</div>" +
+    return '<div class="lobby"><div class="qrcol"><div class="qrwrap"><div class="qr">' + qrSvg(JOIN_URL + "#join-" + h.code) + '</div></div><p class="cap">Scan to join</p></div>' +
+      '<div class="joincol"><p class="joinat">Or go to <b>' + CFG.short + "</b> and enter</p>" + '<div class="digits">' + digits + "</div>" +
       '<div class="opts">' + optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk") + "</div>" +
       '<div class="startrow">' + B("Start game", "start", null, "big", "data-primary" + (n < CFG.minP ? " disabled" : "")) +
       '<p class="note">' + (n < CFG.minP ? "Need at least 3 players. " + (n === 1 ? "1 has" : n + " have") + " joined." : (h.notice ? esc(h.notice) : "The player with the crown can also start from their phone.")) + "</p></div></div></div>";
   }
   if (ph === "peek") {
     var el = now() - (T.phaseAt || 0);
-    var rc = el < 2300 ? '<div class="roundcard" style="animation-delay:-' + (el / 1000).toFixed(2) + 's"><span class="disp">Round ' + h.round + "</span><small>Topic: " + esc(h.cat) + "</small></div>" : "";
-    return rc + '<div class="topic">Topic: ' + esc(h.cat) + '</div><h1 class="h1">Check your phones</h1>' +
-      '<p class="sub">Hold your card to see the secret word. One of you only sees the topic: that\'s the Ravana.</p>' +
+    var rc = el < 2300 ? '<div class="roundcard" style="animation-delay:-' + (el / 1000).toFixed(2) + 's"><span class="disp">Round ' + h.round + "</span><small>Check your phones</small></div>" : "";
+    return rc + '<h1 class="h1">Check your phones</h1>' +
+      '<p class="sub">Everyone gets the same secret word, except one player. They\'re the Ravana, and they only get a hint.</p>' +
       '<div class="readyrow">' + h.players.map(function (id) { var ok = h.ack.saw.indexOf(id) >= 0; return '<div class="rchip' + (ok ? " ok" : "") + '">' + avOf(id, 76, online(id) ? "" : "away") + '<span class="tick">' + ic("check") + "</span></div>"; }).join("") + "</div>" +
       '<div class="actrow">' + B("Start the clues", "skip", null, "", "data-primary") + '<span class="tchip">' + ic("clock") + tText(h.timerEnd, pl ? pl.timer : null) + "</span></div>";
   }
   if (ph === "clues") {
     var cur = h.order[h.clueIdx], away = !online(cur);
     var strip = h.order.map(function (id, i) { return '<li class="' + (i < h.clueIdx ? "done" : (i === h.clueIdx ? "cur" : "")) + '"><span class="num">' + (i + 1) + "</span>" + avOf(id, 74, online(id) ? "" : "away") + '<span class="onm">' + esc(rname(id)) + "</span></li>"; }).join("");
-    return '<div class="cluewrap"><div class="speaker"><div class="halo">' + rangoli("fill") + "</div>" + avOf(cur, 210) + "</div>" +
-      '<div class="ctext"><div class="topic">Topic: ' + esc(h.cat) + '</div><h1 class="h1 sname">' + esc(rname(cur)) + '</h1><p class="sub">' + (away ? "is away, skipping their turn" : "give a one-word clue") + "</p>" +
+    return '<div class="cluewrap"><div class="speaker"><div class="halo">' + rangoli("gold") + "</div>" + avOf(cur, 210) + "</div>" +
+      '<div class="ctext"><span class="kicker">Up now</span><h1 class="h1 sname">' + esc(rname(cur)) + '</h1><p class="sub">' + (away ? "is away, skipping their turn" : "give a one-word clue") + "</p>" +
       tBar(h.turnEnd, CFG.turnMs, pl ? pl.turn : null) + "</div></div>" + '<ol class="order">' + strip + "</ol>" +
       '<div class="actrow">' + B("Next speaker", "skip", null, "", "data-primary") + "</div>";
   }
@@ -943,16 +983,24 @@ function tvMain(h) {
       '<div class="actrow">' + B("Start the vote", "votenow", null, "", "data-primary") + B("Add 30 seconds", "addtime", null, "ghost") + "</div>";
   }
   if (ph === "vote") {
-    var tiles = h.players.map(function (id) { var v = h.ack.voted.indexOf(id) >= 0; return '<div class="vt' + (v ? " voted" : "") + '">' + avOf(id, 96, online(id) ? "" : "away") + '<span class="vn">' + esc(rname(id)) + '</span><span class="vs">' + (v ? ic("check") + "voted" : (online(id) ? "thinking…" : "away")) + "</span></div>"; }).join("");
+    var tiles = h.players.map(function (id) { var v = h.ack.voted.indexOf(id) >= 0; return '<div class="vt' + (v ? " voted" : "") + '">' + avOf(id, 80, online(id) ? "" : "away") + '<span class="vn">' + esc(rname(id)) + '</span><span class="vs">' + (v ? ic("check") + "voted" : (online(id) ? "thinking…" : "away")) + "</span></div>"; }).join("");
     return '<div class="votehead"><h1 class="h1">Vote on your phones</h1>' + tRing(h.timerEnd, h.timerTot, pl ? pl.timer : null) + '</div><div class="vgrid">' + tiles + "</div>" +
       '<div class="actrow">' + B("Count the votes", "count", null, "", "data-primary") + '<span class="note">' + h.ack.voted.length + " of " + onlinePlayers().length + " voted</span></div>";
+  }
+  if (ph === "verdict") {
+    var V = h.result;
+    if (!V.picked) return '<div class="verdict-s"><h1 class="h1">' + (V.none ? "Nobody voted" : "The votes were split") + '</h1><p class="sub">No one was picked, so the Ravana gets away.</p>' +
+      '<div class="actrow">' + B("Continue", "verdictnext", null, "", "data-primary") + "</div></div>";
+    return '<div class="verdict-s ' + (V.caught ? "good" : "bad") + '"><p class="r1">The group picked</p><div class="r2 vp">' + avOf(V.picked, 190) + '<span class="rname disp">' + esc(rname(V.picked)) + "</span></div>" +
+      '<div class="stamp disp">' + (V.caught ? "The Ravana!" : "Not the Ravana") + "</div>" +
+      '<div class="r6 actrow">' + B("Continue", "verdictnext", null, "", "data-primary") + "</div></div>";
   }
   if (ph === "guess") {
     var r = h.result, g = r.guess;
     var box = g == null ? '<div class="gbox wait"><span class="typing">Waiting for a guess<i>.</i><i>.</i><i>.</i></span></div>'
       : '<div class="gbox"><span class="gtext disp">' + (g ? esc(g) : "No guess") + '</span><span class="verdict ' + (r.guessOk ? "ok" : "no") + '">' + (r.guessOk ? "That's the word!" : "Not the word") + "</span></div>";
-    return '<div class="caught">' + avOf(h.ravanaId, 170, "red") + '</div><h1 class="h1">Caught! ' + esc(rname(h.ravanaId)) + " is the Ravana</h1>" +
-      '<p class="sub">One guess at the word steals 2 points.</p>' + box +
+    return '<div class="caught">' + avOf(h.ravanaId, 150, "red") + '</div><h1 class="h1">' + esc(rname(h.ravanaId)) + "'s last chance</h1>" +
+      '<p class="sub">Guess the secret word to steal 2 points.</p>' + box +
       '<div class="actrow">' + (g == null ? B("Skip the guess", "continue", null, "ghost") : B("Show the results", "continue", null, "", "data-primary") + B(r.guessOk ? "Don't count it" : "Count it", "override", r.guessOk ? "0" : "1", "ghost")) +
       '<span class="tchip">' + tText(h.timerEnd, pl ? pl.timer : null) + "</span></div>";
   }
@@ -962,11 +1010,19 @@ function tvMain(h) {
     else if (R.caught) out = "Caught! Everyone who voted for them gets a point.";
     else if (R.none) out = "Nobody voted, so the Ravana escapes with 2 points.";
     else if (R.tie) out = "The votes were split, so the Ravana escapes with 2 points.";
-    else out = "Wrong person! The Ravana escapes with 2 points.";
+    else out = "The group picked the wrong person. The Ravana escapes with 2 points.";
     var chips = h.players.filter(function (id) { return R.voted[id]; }).map(function (id) { return '<span class="vchip' + (R.voted[id] === h.ravanaId ? " right" : "") + '">' + avOf(id, 46) + ic("arrow") + avOf(R.voted[id], 46) + "</span>"; }).join("");
-    var last = h.settings.rounds && h.round >= h.settings.rounds;
-    return '<div class="reveal ' + (R.caught && !R.guessOk ? "good" : "bad") + '"><div class="rdraw">' + rangoli("draw", "draw") + "</div>" +
-      '<p class="r1">The Ravana was</p><div class="r2">' + avOf(h.ravanaId, 150, R.caught ? "" : "red") + '<span class="rname disp">' + esc(rname(h.ravanaId)) + "</span></div>" +
+    var last = h.settings.rounds && h.round >= h.settings.rounds, rn = esc(rname(h.ravanaId));
+    if (R.caught) {
+      out = R.guessOk ? rn + " guessed it, so they steal 2 points. Everyone who caught them still gets 1."
+        : (R.guess ? rn + "\u2019s guess, \u201c" + esc(R.guess) + "\u201d, was wrong. Everyone who caught them gets a point." : rn + " didn't guess. Everyone who caught them gets a point.");
+      return '<div class="reveal quick ' + (R.guessOk ? "bad" : "good") + '"><div class="rdraw">' + rangoli("draw", "draw") + "</div>" +
+        '<p class="r1">The secret word was</p><p class="r3 big"><span class="rword disp">' + esc(h.word) + "</span></p>" + '<p class="r4">' + out + "</p>" +
+        (chips ? '<div class="r5 vchips">' + chips + "</div>" : "") +
+        '<div class="r6 actrow">' + B(last ? "See final results" : "Next round", "next", null, "big", "data-primary") + "</div></div>";
+    }
+    return '<div class="reveal bad"><div class="rdraw">' + rangoli("draw", "draw") + "</div>" +
+      '<p class="r1">The real Ravana was</p><div class="r2">' + avOf(h.ravanaId, 150, "red") + '<span class="rname disp">' + rn + "</span></div>" +
       '<p class="r3">The word was <span class="rword disp">' + esc(h.word) + "</span></p>" + '<p class="r4">' + out + "</p>" +
       (chips ? '<div class="r5 vchips">' + chips + "</div>" : "") +
       '<div class="r6 actrow">' + B(last ? "See final results" : "Next round", "next", null, "big", "data-primary") + "</div></div>";
@@ -1103,9 +1159,9 @@ function phHead(h) {
 function card(h, small) {
   var mine = h.ravanaId === P.me.id;
   var back = mine
-    ? '<div class="face back rav"><span class="kick">You are the</span><span class="cw disp">Ravana</span><span class="ct">The topic is <b>' + esc(h.cat) + "</b>. Blend in and give a clue that fits.</span></div>"
-    : '<div class="face back"><span class="kick">The secret word</span><span class="cw disp">' + esc(h.word) + '</span><span class="ct">Topic: ' + esc(h.cat) + "</span></div>";
-  return '<div class="card3d' + (small ? " small" : "") + '" data-hold="1"><div class="inner"><div class="face front"><div class="fr">' + rangoli("fill") + "</div>" + diya("card-diya") + '<span class="hold">Hold to see your card</span></div>' + back + "</div></div>";
+    ? '<div class="face back rav"><span class="kick">You are the</span><span class="cw disp">Ravana</span><span class="ct">You don\'t know the word. Your hint: it\'s about <b>' + esc(h.cat) + "</b>. Blend in.</span></div>"
+    : '<div class="face back"><span class="kick">The secret word</span><span class="cw disp">' + esc(h.word) + '</span><span class="ct">Give clues that fit it, without saying it.</span></div>';
+  return '<div class="card3d' + (small ? " small" : "") + '" data-hold="1"><div class="inner"><div class="face front"><div class="fr">' + rangoli("gold") + "</div>" + diya("card-diya") + '<span class="hold">Hold to see your card</span></div>' + back + "</div></div>";
 }
 function phMain(h, stt) {
   var me = P.me.id, vipC = h && h.vip === me && !h.paused;
@@ -1149,15 +1205,16 @@ function phMain(h, stt) {
     return '<h2 class="h2 disp">Who is the Ravana?</h2><p class="sub">' + tText(h.timerEnd, pl2) + " left to vote</p>" + '<div class="vlist">' + opts + "</div>" +
       '<p class="status">' + (my ? (ok ? ic("check") + " The TV has your vote. You can change it." : "Sending your vote…") : "Tap a name to vote.") + "</p>";
   }
+  if (stt === "verdict") return '<div class="center">' + diya("big-diya") + '<h2 class="h2 disp">Look at the TV!</h2><p class="sub">The votes are in.</p>' + (vipC ? '<div class="acts">' + B("Continue", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
   if (stt === "guess") {
     if (h.ravanaId === me) {
       var sent = P.st.guess && P.st.guess.rk === h.rk;
       if (h.result && h.result.guess != null) return '<div class="center"><h2 class="h2 disp">' + (h.result.guessOk ? "You got it!" : "Not quite") + '</h2><p class="sub">Your guess: <b>' + esc(h.result.guess || "none") + "</b></p></div>";
-      return '<div class="center"><h2 class="h2 disp">You were caught!</h2><p class="sub">Guess the secret word to steal 2 points. Topic: <b>' + esc(h.cat) + "</b></p>" +
+      return '<div class="center"><h2 class="h2 disp">You were caught!</h2><p class="sub">Guess the secret word to steal 2 points. Your hint was <b>' + esc(h.cat) + "</b></p>" +
         '<form class="gform" data-form="guess"><input id="guessIn" class="field" maxlength="40" autocomplete="off" autocapitalize="words" placeholder="Your guess" value="' + esc(P.guessDraft) + '">' +
         '<button class="btn big" type="submit"' + (sent ? " disabled" : "") + ">" + (sent ? "Sent" : "Submit my guess") + "</button></form></div>";
     }
-    return '<div class="center">' + pAv(h, h.ravanaId, 110, "red") + '<h2 class="h2 disp">' + esc(pName(h, h.ravanaId)) + " was caught!</h2><p class=\"sub\">They're guessing the word now.</p></div>";
+    return '<div class="center">' + pAv(h, h.ravanaId, 110, "red") + '<h2 class="h2 disp">' + esc(pName(h, h.ravanaId)) + "'s last chance</h2><p class=\"sub\">They're guessing the word on their phone.</p></div>";
   }
   if (stt === "reveal") {
     var R = h.result, d = R.delta[me] || 0;
@@ -1179,7 +1236,7 @@ function phOv(h, stt) {
   if (P.menu) {
     var vip = h && h.vip === P.me.id;
     out += '<div class="backdrop" data-act="closemenu"></div><div class="sheet"><h3 class="disp">Room ' + esc(P.code) + "</h3>" +
-      (vip && h && ["peek", "clues", "discuss", "vote", "guess"].indexOf(h.phase) >= 0 ? B(h.paused ? "Resume the game" : "Pause the game", "cmd", h.paused ? "resume" : "pause", "ghost") : "") +
+      (vip && h && isRoundPhase(h.phase) ? B(h.paused ? "Resume the game" : "Pause the game", "cmd", h.paused ? "resume" : "pause", "ghost") : "") +
       (P.confirmLeave ? B("Yes, leave the game", "leaveyes", null, "danger") : B("Leave the game", "leave", null, "ghost")) +
       B("Close", "closemenu", null, "") + "</div>";
   }
@@ -1211,7 +1268,7 @@ function homeLan() {
 }
 function renderHome() {
   var sr = savedRoom(), sh = savedHost();
-  setRoot('<div class="home"><div class="htoran">' + toran(1920, 12) + '</div><div class="hero">' + diya("hero-diya") + '<h1 class="title disp">Find the Ravana</h1><p class="tag">A Diwali party game. The TV runs the show, your phones hold the secrets.</p></div>' +
+  setRoot('<div class="home"><div class="htoran">' + lights(1920, 6, 30) + '</div><div class="hero">' + diya("hero-diya") + '<h1 class="title disp">Find the Ravana</h1><p class="tag">A Diwali party game. The TV runs the show, your phones hold the secrets.</p></div>' +
     '<div class="choices"><div id="homeLan">' + homeLan() + "</div>" +
     (sr && P.me.name ? B("Rejoin room " + esc(sr.code) + " as " + esc(P.me.name), "rejoin", sr.code, "rani big") : "") +
     B("Join a game", "join1", null, "big", IS_TOUCH ? "data-primary" : "") +
@@ -1275,6 +1332,7 @@ var ACT = {
   votenow: function () { toVote(); tvPub(); },
   addtime: function () { T.H.timerEnd += 30000; T.H.timerTot += 30000; tvPub(); },
   count: function () { tally(); tvPub(); },
+  verdictnext: function () { if (T.H.phase === "verdict") { afterVerdict(); tvPub(); } },
   "continue": function () { var r = T.H.result; if (r && r.guess == null) { r.guess = ""; r.guessOk = false; } finishRound(); tvPub(); },
   override: function (v) { var r = T.H.result; r.guessOk = v === "1"; T.H.timerEnd = now() + CFG.afterGuessMs; T.H.timerTot = CFG.afterGuessMs; tvPub(); },
   next: function () { nextRound(); tvPub(); },

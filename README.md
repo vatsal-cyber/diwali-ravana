@@ -5,11 +5,11 @@ A live Diwali party game for 3 to 8 players. The TV runs the show, and phones ho
 **Play:** open **tinyurl.com/ravanatv** on the TV browser and choose **Use this screen as the TV**. Everyone scans the QR code. Phones on the same Wi-Fi also get a one-tap **Join** button on the home page.
 
 ## How a round works
-1. **Cards:** everyone holds their phone card to see the secret word. One player is the Ravana and only sees the topic.
+1. **Cards:** everyone holds their phone card to see the secret word. One player is the Ravana: they get a private hint (the topic) instead of the word. The TV never shows the topic.
 2. **Clues:** in turn, each player says one word that hints at the secret word.
 3. **Talk:** the group discusses who doesn't seem to know the word.
 4. **Vote:** everyone votes on their phone.
-5. **Reveal:** if the Ravana is caught, everyone who voted for them gets 1 point and the Ravana gets one guess at the word to steal 2. If the Ravana escapes, they get 2.
+5. **Verdict and reveal:** the TV shows who the group picked and stamps whether they were the Ravana. If the Ravana is caught, everyone who voted for them gets 1 point and the Ravana gets one guess at the word to steal 2. If the Ravana escapes, they get 2.
 
 ## Built to survive a real party
 - Phones that lock or lose signal stay in the game, show as away, and reconnect when they wake.
