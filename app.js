@@ -382,30 +382,34 @@ var SND = {
   pop: function () { if (!this.ok()) return; var t = this.ctx.currentTime; this.noise(t, 0.35, 0.25, 900 + Math.random() * 900); }
 };
 
-/* ================= music: tanpura drone, keherwa dhol groove, bansuri melody ================= */
+/* ================= music: tanpura drone, dhol/tabla groove, santoor shimmer, bansuri melody, hall reverb ================= */
 var MUS = {
-  on: lsGet("ravana_music") !== false, mood: null, cfg: null, master: null, timer: 0, next: 0, step: 0, prevF: 0,
-  SA: 293.66, /* Sa = D4 */
+  on: lsGet("ravana_music") !== false, mood: null, cfg: null, master: null, verb: null, timer: 0, next: 0, step: 0, prevF: 0,
+  SA: 293.66, /* Sa = D4; raag Bhoopali (Sa Re Ga Pa Dha) */
   MOODS: {
-    lobby: { vol: 0.9, tempo: 96, drone: 1, groove: "full", melody: 1 },
-    peek: { vol: 0.55, tempo: 96, drone: 1, groove: "light", melody: 0 },
-    clues: { vol: 0.45, tempo: 96, drone: 1, groove: "light", melody: 0 },
-    discuss: { vol: 0.5, tempo: 100, drone: 1, groove: "light", melody: 0 },
-    vote: { vol: 0.7, tempo: 116, drone: 1, groove: "tense", melody: 0 },
-    verdict: { vol: 0.45, tempo: 70, drone: 1, groove: "heart", melody: 0 },
-    guess: { vol: 0.6, tempo: 66, drone: 1, groove: "heart", melody: 0 },
-    reveal: { vol: 0.85, tempo: 104, drone: 1, groove: "full", melody: 1, duck: 3.4 },
-    skipped: { vol: 0.5, tempo: 96, drone: 1, groove: "light", melody: 0 },
-    final: { vol: 0.95, tempo: 108, drone: 1, groove: "full", melody: 1, duck: 2.5 }
+    lobby: { vol: 0.9, tempo: 96, groove: "full", melody: 1, santoor: 1 },
+    peek: { vol: 0.7, tempo: 96, groove: "light", melody: 0, santoor: 0.6 },
+    clues: { vol: 0.6, tempo: 96, groove: "light", melody: 0, santoor: 0.5 },
+    discuss: { vol: 0.65, tempo: 100, groove: "light", melody: 0, santoor: 0.55 },
+    vote: { vol: 0.85, tempo: 116, groove: "tense", melody: 0, santoor: 0 },
+    verdict: { vol: 0.55, tempo: 70, groove: "heart", melody: 0, santoor: 0 },
+    guess: { vol: 0.7, tempo: 66, groove: "heart", melody: 0, santoor: 0 },
+    reveal: { vol: 0.85, tempo: 104, groove: "full", melody: 1, santoor: 1, duck: 3.4 },
+    skipped: { vol: 0.5, tempo: 96, groove: "light", melody: 0, santoor: 0.45 },
+    final: { vol: 0.95, tempo: 108, groove: "full", melody: 1, santoor: 1, duck: 2.5 }
   },
   /* phrases in eighth notes: [semitones from Sa, length]. 16 eighths = 2 keherwa cycles */
   PH: {
     A: [[7, 1], [9, 1], [12, 2], [9, 1], [7, 1], [4, 2], [7, 1], [4, 1], [2, 1], [4, 1], [0, 4]],
     B: [[4, 1], [7, 1], [9, 2], [7, 1], [9, 1], [12, 1], [14, 1], [12, 2], [9, 1], [7, 1], [4, 2], [2, 2]],
     C: [[12, 1], [9, 1], [7, 1], [4, 1], [7, 2], [4, 1], [2, 1], [0, 2], [2, 1], [4, 1], [2, 2], [-5, 1], [0, 1]],
-    D: [[0, 1], [2, 1], [4, 1], [7, 1], [9, 2], [12, 2], [14, 1], [12, 1], [9, 1], [7, 1], [9, 2], [7, 2]]
+    D: [[0, 1], [2, 1], [4, 1], [7, 1], [9, 2], [12, 2], [14, 1], [12, 1], [9, 1], [7, 1], [9, 2], [7, 2]],
+    E: [[9, 2], [12, 1], [9, 1], [7, 2], [4, 1], [7, 1], [9, 1], [7, 1], [4, 1], [2, 1], [4, 2], [0, 2]],
+    F: [[12, 1], [14, 1], [16, 2], [14, 1], [12, 1], [9, 2], [12, 1], [9, 1], [7, 1], [9, 1], [7, 2], [4, 2]]
   },
-  SONG: ["A", "B", "A", "C", "", "", "D", "C", "", ""],
+  SONG: ["A", "B", "A", "C", "", "D", "C", "", "E", "F", "E", "C", "", ""],
+  /* santoor arpeggios, one note per eighth */
+  ARP: [[0, 7, 12, 16, 12, 7, 4, 7], [-5, 0, 4, 7, 12, 7, 4, 0], [2, 7, 9, 14, 9, 7, 2, 4], [0, 4, 7, 12, 19, 12, 7, 4]],
   setMood: function (name, force) {
     if (!this.on && name !== "off") name = "off";
     if (name === this.mood && !force) return;
@@ -413,14 +417,25 @@ var MUS = {
     var cfg = this.MOODS[name] || null;
     if (!SND.ctx) return;
     var c = SND.ctx, t = c.currentTime;
-    if (!this.master) { this.master = c.createGain(); this.master.gain.value = 0.0001; var comp = c.createDynamicsCompressor(); this.master.connect(comp); comp.connect(c.destination); }
+    if (!this.master) {
+      this.master = c.createGain(); this.master.gain.value = 0.0001;
+      var comp = c.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
+      this.bus = c.createGain(); this.bus.connect(this.master); this.master.connect(comp); comp.connect(c.destination);
+      this.verb = c.createConvolver(); this.verb.buffer = this.impulse(c, 2.2); this.send = c.createGain(); this.send.gain.value = 0.9;
+      this.send.connect(this.verb); this.verb.connect(this.master);
+    }
     var g = this.master.gain; g.cancelScheduledValues(t); g.setValueAtTime(Math.max(0.0001, g.value), t);
     if (!cfg) { g.exponentialRampToValueAtTime(0.0001, t + 0.8); this.cfg = null; return; }
-    var target = 0.32 * cfg.vol;
+    var target = 0.5 * cfg.vol;
     if (cfg.duck) { g.exponentialRampToValueAtTime(target * 0.18, t + 0.3); g.setValueAtTime(target * 0.18, t + cfg.duck); g.exponentialRampToValueAtTime(target, t + cfg.duck + 1.2); }
     else g.exponentialRampToValueAtTime(target, t + (prev && prev !== "off" ? 0.8 : 2.2));
     this.cfg = cfg;
     if (!this.timer) { this.next = t + 0.1; var me = this; this.timer = setInterval(function () { me.tick(); }, 90); }
+  },
+  impulse: function (c, sec) {
+    var n = Math.floor(c.sampleRate * sec), b = c.createBuffer(2, n, c.sampleRate);
+    for (var ch = 0; ch < 2; ch++) { var d = b.getChannelData(ch); for (var i = 0; i < n; i++) { var x = i / n; d[i] = (Math.random() * 2 - 1) * Math.pow(1 - x, 3.2) * (i < 4000 && i % 1300 < 90 ? 1.8 : 1); } }
+    return b;
   },
   tick: function () {
     var c = SND.ctx; if (!c || c.state !== "running") return;
@@ -430,60 +445,96 @@ var MUS = {
   },
   f: function (semi, oct) { return this.SA * Math.pow(2, semi / 12 + (oct || 0)); },
   play: function (s, t) {
-    var cfg = this.cfg, p = s % 8, sd = 30 / cfg.tempo;
-    if (cfg.drone && p % 2 === 0) this.tanpura([this.f(7, -2), this.f(0, -1), this.f(0, -1), this.f(0, -2)][p / 2], t);
-    var gr = cfg.groove;
+    var cfg = this.cfg, p = s % 8, sd = 30 / cfg.tempo, gr = cfg.groove, bar = Math.floor(s / 16);
+    if (p % 2 === 0) this.tanpura([this.f(7, -2), this.f(0, -1), this.f(0, -1), this.f(0, -2)][p / 2], t);
     if (gr === "full" || gr === "light") {
       /* keherwa: dha ge na ti | na ka dhi na */
-      var bass = [1, 0.7, 0, 0, 0, 0, 0.9, 0][p], hi = [0.8, 0, 0.9, 0.5, 0.8, 0, 0.8, 0.9][p];
-      if (gr === "light") hi *= 0.35;
+      var bass = [1, 0.7, 0, 0, 0, 0, 0.9, 0][p], hi = [0.8, 0, 0.9, 0.5, 0.8, 0, 0.8, 0.9][p], tak = [0, 0.5, 0, 0.7, 0, 0.6, 0, 0.5][p];
+      if (gr === "light") { hi *= 0.35; tak *= 0.5; }
       if (bass) this.dhol(t, bass);
       if (hi) this.tin(t, hi);
+      if (tak) this.tak(t, tak);
       if (p === 5 && gr === "full") this.ka(t);
       if (gr === "full" && s % 32 === 31) { this.tin(t + sd / 2, 0.6); this.tin(t + sd * 0.75, 0.5); }
+      if (gr === "light" && s % 16 === 0) this.chikari(t);
     } else if (gr === "tense") {
       if (p % 2 === 0) this.dhol(t, p === 0 ? 1 : 0.6);
-      this.tin(t, p % 2 ? 0.35 : 0.55); this.tin(t + sd / 2, 0.22);
+      this.tin(t, p % 2 ? 0.35 : 0.55); this.tak(t + sd / 2, 0.35);
+      if (s % 16 === 8) this.chikari(t);
     } else if (gr === "heart") {
       if (p % 4 === 0) { this.dhol(t, 0.9); this.dhol(t + sd * 0.55, 0.6); }
+      if (s % 16 === 0) this.swell(t, sd * 16);
+    }
+    if (cfg.santoor) {
+      var pat = this.ARP[bar % this.ARP.length], q = s % 8;
+      if (gr === "full" || q % 2 === 0) this.santoor(this.f(pat[q], 1), t, cfg.santoor * (q === 0 ? 0.6 : 0.42), (q % 2 ? 0.45 : -0.45));
     }
     if (cfg.melody) {
-      var bar = Math.floor(s / 16) % this.SONG.length, ph = this.PH[this.SONG[bar]];
+      var ph = this.PH[this.SONG[bar % this.SONG.length]];
       if (ph) {
         var off = s % 16, acc = 0;
         for (var i = 0; i < ph.length; i++) { if (acc === off) { this.flute(this.f(ph[i][0], 0), t, ph[i][1] * sd); break; } acc += ph[i][1]; }
       }
     }
   },
-  out: function () { return this.master; },
+  out: function () { return this.bus; },
+  wet: function (node, amt) { node.connect(this.bus); if (amt && this.send) { var g = SND.ctx.createGain(); g.gain.value = amt; node.connect(g); g.connect(this.send); } },
   tanpura: function (f, t) {
     var c = SND.ctx, o = c.createOscillator(), o2 = c.createOscillator(), lp = c.createBiquadFilter(), g = c.createGain();
     o.type = "sawtooth"; o2.type = "sawtooth"; o.frequency.value = f; o2.frequency.value = f * 1.003;
     lp.type = "lowpass"; lp.frequency.setValueAtTime(2200, t); lp.frequency.exponentialRampToValueAtTime(500, t + 2.4); lp.Q.value = 6;
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 3.2);
-    o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(this.out()); o.start(t); o2.start(t); o.stop(t + 3.3); o2.stop(t + 3.3);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.045, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 3.2);
+    o.connect(lp); o2.connect(lp); lp.connect(g); this.wet(g, 0.25); o.start(t); o2.start(t); o.stop(t + 3.3); o2.stop(t + 3.3);
+  },
+  swell: function (t, dur) {
+    var c = SND.ctx, g = c.createGain(), lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900;
+    [0, 7, 12].forEach(function (semi) { var o = c.createOscillator(); o.type = "triangle"; o.frequency.value = MUS.f(semi, -1); o.connect(lp); o.start(t); o.stop(t + dur + 0.1); });
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + dur * 0.45); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    lp.connect(g); this.wet(g, 0.6);
   },
   dhol: function (t, v) {
     var c = SND.ctx, o = c.createOscillator(), g = c.createGain();
     o.type = "sine"; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(52, t + 0.28);
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.75 * v, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
-    o.connect(g); g.connect(this.out()); o.start(t); o.stop(t + 0.45);
+    o.connect(g); g.connect(this.bus); o.start(t); o.stop(t + 0.45);
+    this.noise(t, 0.03, 0.08 * v, 700, 0);
   },
+  tak: function (t, v) { this.noise(t, 0.05, 0.11 * v, 1100, 0.2); var c = SND.ctx, o = c.createOscillator(), g = c.createGain(); o.type = "sine"; o.frequency.setValueAtTime(420, t); o.frequency.exponentialRampToValueAtTime(300, t + 0.05); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.1 * v, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09); o.connect(g); g.connect(this.bus); o.start(t); o.stop(t + 0.1); },
   tin: function (t, v) {
     var c = SND.ctx, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain();
     o.type = "sine"; o2.type = "triangle"; o.frequency.value = 620; o2.frequency.value = 1245;
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16 * v, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-    o.connect(g); o2.connect(g); g.connect(this.out()); o.start(t); o2.start(t); o.stop(t + 0.18); o2.stop(t + 0.18);
-    this.noise(t, 0.035, 0.05 * v, 3200);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.15 * v, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    o.connect(g); o2.connect(g); this.wet(g, 0.3); o.start(t); o2.start(t); o.stop(t + 0.18); o2.stop(t + 0.18);
+    this.noise(t, 0.035, 0.05 * v, 3200, 0.3);
   },
-  ka: function (t) { this.noise(t, 0.06, 0.12, 1400); },
-  noise: function (t, d, peak, freq) {
+  ka: function (t) { this.noise(t, 0.06, 0.12, 1400, 0.15); },
+  chikari: function (t) {
+    var me = this; [[12, 0], [7, 0.07], [12, 0.14], [19, 0.21]].forEach(function (n) { me.pluck(me.f(n[0], 1), t + n[1], 0.09, 0.6); });
+  },
+  pluck: function (f, t, v, dur) {
+    var c = SND.ctx, o = c.createOscillator(), o2 = c.createOscillator(), hp = c.createBiquadFilter(), g = c.createGain();
+    o.type = "sawtooth"; o2.type = "square"; o.frequency.value = f; o2.frequency.value = f * 2.003;
+    hp.type = "highpass"; hp.frequency.value = 600;
+    var g2 = c.createGain(); g2.gain.value = 0.25;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(hp); o2.connect(g2); g2.connect(hp); hp.connect(g); this.wet(g, 0.5); o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
+  },
+  santoor: function (f, t, v, pan) {
+    var c = SND.ctx, o = c.createOscillator(), o2 = c.createOscillator(), o3 = c.createOscillator(), g = c.createGain(), hp = c.createBiquadFilter(), out = g;
+    o.type = "triangle"; o2.type = "triangle"; o3.type = "sine"; o.frequency.value = f * 0.9985; o2.frequency.value = f * 1.0015; o3.frequency.value = f * 2;
+    var g3 = c.createGain(); g3.gain.value = 0.3; hp.type = "highpass"; hp.frequency.value = 350;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12 * v, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+    o.connect(hp); o2.connect(hp); o3.connect(g3); g3.connect(hp); hp.connect(g);
+    if (c.createStereoPanner) { var pn = c.createStereoPanner(); pn.pan.value = pan || 0; g.connect(pn); out = pn; }
+    this.wet(out, 0.55); o.start(t); o2.start(t); o3.start(t); o.stop(t + 0.9); o2.stop(t + 0.9); o3.stop(t + 0.9);
+  },
+  noise: function (t, d, peak, freq, wet) {
     var c = SND.ctx;
     if (!SND.noiseBuf) { var b = c.createBuffer(1, c.sampleRate, c.sampleRate), ch = b.getChannelData(0); for (var i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1; SND.noiseBuf = b; }
     var s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
     s.buffer = SND.noiseBuf; f.type = "bandpass"; f.frequency.value = freq; f.Q.value = 1;
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
-    s.connect(f); f.connect(g); g.connect(this.out()); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.02);
+    s.connect(f); f.connect(g); this.wet(g, wet || 0); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.02);
   },
   flute: function (f, t, dur) {
     var c = SND.ctx, o = c.createOscillator(), o2 = c.createOscillator(), lfo = c.createOscillator(), lg = c.createGain(), g = c.createGain(), lp = c.createBiquadFilter();
@@ -497,9 +548,9 @@ var MUS = {
     var end = t + Math.max(0.18, dur * 0.96);
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.13, t + 0.05); g.gain.setValueAtTime(0.11, end - 0.06); g.gain.exponentialRampToValueAtTime(0.0001, end + 0.12);
     var g2 = c.createGain(); g2.gain.value = 0.18;
-    o.connect(g); o2.connect(g2); g2.connect(g); g.connect(lp); lp.connect(this.out());
+    o.connect(g); o2.connect(g2); g2.connect(g); g.connect(lp); this.wet(lp, 0.5);
     o.start(t); o2.start(t); lfo.start(t); o.stop(end + 0.15); o2.stop(end + 0.15); lfo.stop(end + 0.15);
-    this.noise(t, 0.08, 0.025, 2200);
+    this.noise(t, 0.08, 0.025, 2200, 0);
     this.prevF = f;
   }
 };
