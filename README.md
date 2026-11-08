@@ -28,4 +28,7 @@ The food list lives in `foods.js`: 97 vegetarian sweets and snacks with other na
 Live sync uses public MQTT relays (broker.emqx.io, broker.hivemq.com and mqtt.eclipseprojects.io), so nobody needs an account.
 
 ## Music
-The TV plays recorded Bollywood / bhangra tracks that change with the game: a party track in the lobby, a lighter bed while people talk, a driving bhangra track for Pehchaan Kaun? turns, and a celebration track for reveals and the finale. The music dips under the fanfares and drops low with a heartbeat drum during the verdict. The host can pick any of the 12 songs (or Auto mix) in TV Settings → Song or on their phone under Host controls; the TV remembers the pick. Files are in `music/` (credits in `music/CREDITS.md`); if they can't load, the TV falls back to its built-in score. Phones never play music.
+The TV plays game-show music by Kevin MacLeod that changes with the game: a bouncy lobby track, a fast quiz track for Pehchaan Kaun? turns, a sneaky track for Find the Ravana, thinking music for the vote, a quiet track for the verdict and "Winner Winner!" for reveals and the finale. It dips under the fanfares. The host can pick any of the 12 tracks (or Auto mix) in TV Settings → Song or on their phone under Host controls; the TV remembers the pick. Files are in `music/` (credits in `music/CREDITS.md`); if they can't load, the TV falls back to its built-in score. Phones never play music.
+
+## If a phone leaves the page
+Switching apps or locking the phone is fine: the player shows as away on the TV but stays in the game, and the phone reconnects within a second of coming back. If the phone's browser reloads the tab, it rejoins the room by itself as the same player; a reloaded TV tab resumes the same room.

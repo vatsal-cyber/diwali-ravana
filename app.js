@@ -429,7 +429,7 @@ var MUS = {
     if (name === this.mood && !force) return;
     if (name !== "off" && name !== "heartonly" && REC.ok() && SND.ctx) {
       this.mood = name; REC.set(name);
-      var layer = (name === "verdict" || name === "guess") ? "heartonly" : "off";
+      var layer = "off";
       if (this.synthLayer === layer) return; this.synthLayer = layer;
       this.mood = null; this._nest = true; this.setMood(layer, true); this._nest = false; this.mood = name; return;
     }
@@ -576,36 +576,37 @@ var MUS = {
   }
 };
 
-/* ================= recorded music: real tracks per game phase, crossfaded on the TV ================= */
+/* ================= game music: recorded tracks per game phase, crossfaded on the TV ================= */
 var REC = {
   /* src, where looping restarts (from) and where it loops (end), seconds. Swap a track by replacing the file in music/. */
   TRACKS: {
-    indian_dance: { n: "Indian Dance", src: "music/indian_dance.mp3", from: 8, end: 209 },
-    bollywood_groove: { n: "Bollywood Groove", src: "music/bollywood_groove.mp3", from: 8, end: 319 },
-    bhangra: { n: "Bhangra Beat", src: "music/bhangra.mp3", from: 8, end: 106 },
-    celebration: { n: "Indian Celebration", src: "music/celebration.mp3", from: 8, end: 228 },
-    hindi_pop: { n: "Hindi Pop", src: "music/hindi_pop.mp3", from: 8, end: 236 },
-    bollywood_music: { n: "Bollywood Music", src: "music/bollywood_music.mp3", from: 8, end: 258 },
-    desi_dance: { n: "Desi Dance", src: "music/desi_dance.mp3", from: 8, end: 198 },
-    bollywood_bounce: { n: "Bollywood Bounce", src: "music/bollywood_bounce.mp3", from: 8, end: 96 },
-    tabla_dance: { n: "Tabla Dance", src: "music/tabla_dance.mp3", from: 8, end: 184 },
-    bollywood_nights: { n: "Bollywood Nights", src: "music/bollywood_nights.mp3", from: 8, end: 123 },
-    hindi_song: { n: "Hindi Song", src: "music/hindi_song.mp3", from: 8, end: 198 },
-    bollywood_lounge: { n: "Bollywood Lounge", src: "music/bollywood_lounge.mp3", from: 8, end: 267 }
+    game_show: { n: "Happy Happy Game Show", src: "music/game_show.mp3", from: 3, end: 149 },
+    monkeys: { n: "Monkeys Spinning Monkeys", src: "music/monkeys.mp3", from: 3, end: 122 },
+    fluffing_duck: { n: "Fluffing a Duck", src: "music/fluffing_duck.mp3", from: 3, end: 59 },
+    pixelland: { n: "Pixelland", src: "music/pixelland.mp3", from: 3, end: 230 },
+    run_amok: { n: "Run Amok", src: "music/run_amok.mp3", from: 3, end: 100 },
+    bit_shift: { n: "Bit Shift", src: "music/bit_shift.mp3", from: 3, end: 188 },
+    voxel: { n: "Voxel Revolution", src: "music/voxel.mp3", from: 3, end: 121 },
+    quirky_dog: { n: "Quirky Dog", src: "music/quirky_dog.mp3", from: 3, end: 143 },
+    sneaky_snitch: { n: "Sneaky Snitch", src: "music/sneaky_snitch.mp3", from: 3, end: 129 },
+    thinking: { n: "Thinking Music", src: "music/thinking.mp3", from: 3, end: 188 },
+    investigations: { n: "Investigations", src: "music/investigations.mp3", from: 3, end: 89 },
+    winner: { n: "Winner Winner!", src: "music/winner.mp3", from: 3, end: 190 }
   },
-  ORDER: ["auto", "indian_dance", "bollywood_groove", "bhangra", "celebration", "hindi_pop", "bollywood_music", "desi_dance", "bollywood_bounce", "tabla_dance", "bollywood_nights", "hindi_song", "bollywood_lounge"],
+  ORDER: ["auto", "game_show", "monkeys", "fluffing_duck", "pixelland", "run_amok", "bit_shift", "voxel", "quirky_dog", "sneaky_snitch", "thinking", "investigations", "winner"],
   /* phase: [track used by "Auto mix", volume 0..1]. When the host picks one track, it plays everywhere at these volumes. */
   MAP: {
-    lobby: ["indian_dance", 0.75], peek: ["bollywood_music", 0.5], clues: ["bollywood_music", 0.32], discuss: ["bollywood_music", 0.42], vote: ["bollywood_music", 0.6],
-    verdict: ["bollywood_music", 0.14], guess: ["bollywood_music", 0.18], reveal: ["celebration", 0.9], skipped: ["bollywood_music", 0.4], final: ["celebration", 1],
-    zintro: ["bhangra", 0.5], zplay: ["bhangra", 0.72], zturnend: ["indian_dance", 0.8]
+    lobby: ["game_show", 0.7], peek: ["sneaky_snitch", 0.5], clues: ["sneaky_snitch", 0.34], discuss: ["sneaky_snitch", 0.45], vote: ["thinking", 0.7],
+    verdict: ["investigations", 0.32], guess: ["investigations", 0.38], reveal: ["winner", 0.85], skipped: ["sneaky_snitch", 0.4], final: ["winner", 1],
+    zintro: ["pixelland", 0.5], zplay: ["pixelland", 0.7], zturnend: ["game_show", 0.8]
   },
-  choice: (function () { var c = lsGet("ravana_track"); return c && c !== "auto" && !/^(party|chill|drive|finale)$/.test(c) ? c : "auto"; })(),
+  choice: "auto",
   label: function (c) { c = c || this.choice; return c === "auto" ? "Auto mix" : (this.TRACKS[c] ? this.TRACKS[c].n : "Auto mix"); },
   num: function (c) { c = c || this.choice; return this.ORDER.indexOf(c); },
   pick: function (c) { if (this.ORDER.indexOf(c) < 0) c = "auto"; this.choice = c; lsSet("ravana_track", c); if (this.phase) { var ph = this.phase; this.phase = ""; this.set(ph); } },
   step: function (d) { var i = this.ORDER.indexOf(this.choice); i = (i + d + this.ORDER.length) % this.ORDER.length; this.pick(this.ORDER[i]); },
   els: {}, cur: "", phase: "", failed: false, bus: null, timer: 0,
+  init: function () { var c = lsGet("ravana_track"); this.choice = c && this.TRACKS[c] ? c : "auto"; },
   ok: function () { return !this.failed && !!SND.ctx && typeof Audio !== "undefined" && !(window.RAVANA_CFG && window.RAVANA_CFG.noRec); },
   setup: function () {
     if (this.bus || !SND.ctx) return;
@@ -669,6 +670,7 @@ var REC = {
   }
 };
 
+REC.init();
 /* ================= fireworks: rockets + 3D bursts ================= */
 var FX = {
   c: null, x: null, parts: [], rockets: [], flashes: [], raf: 0, until: 0, style: "joy", nextLaunch: 0, finale: false,
@@ -775,7 +777,9 @@ function Net(code, cb) {
     var old = self.peers[id], live = !(packet && packet.retain);
     if (old && (old.st._ts || 0) > (st._ts || 0)) return;
     if (old && old.st._ts === st._ts) { if (live) old.seen = now(); return; }
-    self.peers[id] = { st: st, seen: live ? now() : (old ? old.seen : 0), recv: now() };
+    var seen = live ? now() : (old ? old.seen : 0);
+    if (!live && old && (st._ts || 0) > (old.st._ts || 0)) seen = Math.max(old.seen || 0, now() - CFG.awayMs + 15000); /* it published since we last heard: it's alive */
+    self.peers[id] = { st: st, seen: seen, recv: now() };
     cb.peers && cb.peers();
   }
   function pub1(c) { try { c.publish(base + self.id, JSON.stringify(self.mine), { retain: true, qos: 0 }); } catch (e) { } }
@@ -822,14 +826,16 @@ function Net(code, cb) {
   function onVis() {
     if (self.stopped) return;
     if (document.hidden) { hiddenAt = now(); return; }
+    self.resumedAt = now();
     if (hiddenAt && now() - hiddenAt > 2500) self.restart();
     else clients.forEach(function (c) { if (c && !c.connected) { try { c.reconnect(); } catch (e) { } } });
     hiddenAt = 0;
     if (self.mine) self.publish(self.mine);
   }
   document.addEventListener("visibilitychange", onVis);
-  window.addEventListener("online", function () { if (!self.stopped) self.restart(); });
-  window.addEventListener("pageshow", function (e) { if (e.persisted && !self.stopped) self.restart(); });
+  window.addEventListener("online", function () { if (!self.stopped) { self.resumedAt = now(); self.restart(); } });
+  window.addEventListener("pageshow", function (e) { if (e.persisted && !self.stopped) { self.resumedAt = now(); self.restart(); } });
+  window.addEventListener("focus", function () { if (!self.stopped && clients.some(function (c) { return c && !c.connected; })) { self.resumedAt = now(); clients.forEach(function (c) { if (c && !c.connected) { try { c.reconnect(); } catch (e) { } } }); } });
   return self;
 }
 
@@ -990,7 +996,7 @@ function tvStart(resume) {
   T.net = Net(T.H.code, { peers: tvOnPeers, status: function () { tvRender(); } });
   T.net.start(T.H.id);
   lanKey(function (k) { T.lanKey = k; tvAnnounce(); });
-  S.view = "tv"; setRoot(tvShell()); fitTV();
+  S.view = "tv"; setRoot(tvShell()); fitTV(); ssSet("ravana_tvtab", 1);
   try { if (navigator.wakeLock) navigator.wakeLock.request("screen").catch(function () { }); } catch (e) { }
   tvPub();
 }
@@ -1664,10 +1670,12 @@ function goPhone() {
   if (saved && saved.id === P.me.id && saved.sess === h.sess && saved.code === P.code) base = Object.assign(base, { saw: saved.saw || "", ready: saved.ready || "", vote: saved.vote || null, guess: saved.guess || null, joinedAt: saved.joinedAt || base.joinedAt });
   P.st = base;
   lsSet("ravana_room", { code: P.code, sess: h.sess, ts: now() });
+  ssSet("ravana_inroom", P.code); setHash("#join-" + P.code);
   requestWake();
   setView("phone");
   phPub();
 }
+function setHash(hsh) { try { if ((location.hash || "") !== hsh) history.replaceState(null, "", location.pathname + location.search + hsh); } catch (e) { } }
 function phPub() { if (!P.st || !P.net) return; P.net.publish(P.st); lsSet("ravana_pst", P.st); var r = savedRoom(); if (r) { r.ts = now(); lsSet("ravana_room", r); } phRender(); }
 function phCmd(type, arg) { var h = HS(); if (!h) return; P.st.cmd = { seq: now(), type: type, rk: h.rk, idx: h.clueIdx, arg: arg == null ? "" : String(arg) }; phPub(); }
 function phStatus(h) {
@@ -1824,9 +1832,10 @@ function phOv(h, stt) {
   if (P.host && h && h.vip === P.me.id) out += phHostSheet(h);
   if (h && h.paused && stt !== "joining") out += '<div class="pov">' + glyph(120) + '<h2 class="h2 disp">Paused</h2><p class="sub">The game is paused on the TV.</p>' + (h.vip === P.me.id ? B("Resume", "cmd", "resume", "big") : "") + "</div>";
   var b = hostOf();
-  if (P.net && P.net.connected > 0 && (!b || !b.seen || now() - b.seen > 35000) && now() - P.net.started > 15000 && stt !== "removed") {
+  var woke = now() - (P.net && P.net.resumedAt || 0) < 15000;
+  if (P.net && P.net.connected > 0 && (!b || !b.seen || now() - b.seen > 35000) && now() - P.net.started > 15000 && !woke && stt !== "removed") {
     out += '<div class="pov">' + glyph(120) + '<h2 class="h2 disp">Can\'t reach the TV</h2><p class="sub">Is the game still open on the TV? We\'ll reconnect automatically when it\'s back.</p>' + B("Join with a different code", "newcode", null, "ghost") + "</div>";
-  } else if (P.net && P.net.connected === 0 && now() - P.net.started > 4000) {
+  } else if (P.net && P.net.connected === 0 && now() - P.net.started > 4000 && now() - (P.net.resumedAt || 0) > 3000) {
     out += '<div class="netbar">Reconnecting…</div>';
   }
   return out;
@@ -1991,9 +2000,9 @@ var ACT = {
   leaveyes: function () {
     if (P.st && P.net) { P.st.left = true; P.net.publish(P.st); }
     var n = P.net; P.net = null; setTimeout(function () { if (n) n.stop(false); }, 1500);
-    lsDel("ravana_room"); lsDel("ravana_pst"); P.menu = false; P.confirmLeave = false; P.st = null; setView("home");
+    lsDel("ravana_room"); lsDel("ravana_pst"); ssSet("ravana_inroom", ""); setHash(""); P.menu = false; P.confirmLeave = false; P.st = null; setView("home");
   },
-  newcode: function () { if (P.net) { P.net.stop(false); P.net = null; } lsDel("ravana_room"); P.code = ""; setView("join1"); },
+  newcode: function () { if (P.net) { P.net.stop(false); P.net = null; } lsDel("ravana_room"); ssSet("ravana_inroom", ""); setHash(""); P.code = ""; setView("join1"); },
   changename: function () { setView("join2"); },
   joinagain: function () { P.me = { id: "p_" + rid(12), name: P.me.name, av: P.me.av }; lsSet("ravana_me", P.me); lsDel("ravana_pst"); var c = P.code; if (P.net) { P.net.stop(false); P.net = null; } startJoin(c); }
 };
@@ -2078,6 +2087,10 @@ function applyTheme(t) { if (["velvet", "ivory", "rose"].indexOf(t) < 0) t = "ve
   S.emoji = emojiSupport();
   loadMe();
   FX.init();
-  if (!route()) setView("home");
+  if (route()) return;
+  var sr = savedRoom(), inroom = ssGet("ravana_inroom");
+  if (ssGet("ravana_tvtab") && savedHost()) { tvStart(true); return; }      /* the TV tab was reloaded: carry on */
+  if (inroom && sr && sr.code === inroom && P.me.name) { startJoin(inroom); return; } /* this phone tab was reloaded mid-game */
+  setView("home");
 })();
 window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, REC: REC };
