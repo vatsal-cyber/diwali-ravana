@@ -1,10 +1,10 @@
 # Diwali Games
 
-Live party games for the TV and everyone's phones: **Find the Ravana** and **Pehchaan Kaun?**. The TV runs the show; phones are the controllers.
+Live party games for the TV and everyone's phones: **Find the Ravana** and **Thali Thriller**. The TV runs the show; phones are the controllers.
 
 **Play:** open **tinyurl.com/ravanatv** on the TV browser and choose **Use this screen as the TV**. Everyone scans the QR code. Phones on the same Wi-Fi also get a one-tap **Join** button on the home page. Pick the game in the lobby (on the TV or the host's phone); Play again returns to the lobby so you can switch.
 
-## Pehchaan Kaun? (2 to 8 players)
+## Thali Thriller (2 to 8 players)
 One player at a time gets a turn (45 s, 1 min or 1½ min). A food photo (Indian sweets and snacks, or favourites from around the world) starts zoomed way in and zooms out over 10 seconds; the player taps its name from four choices on their phone. One point per right answer, most right wins. The turn ends with a photo recap of every food.
 
 The food list lives in `foods.js`: 80 vegetarian dishes (51 Indian, 29 from around the world), each with other names, region, cuisine, a lookalike group (so two near-identical foods are never offered together) and the spot where the zoom starts. The host picks Mix, Indian or World foods in the lobby; wrong answers always come from the same cuisine and kind (sweet or savoury). Photos are real photographs from Pexels and Unsplash in `food/`, listed in `food/CREDITS.md`. To add a food, drop a 4:3 photo in `food/` and add a line to `foods.js`.
@@ -28,7 +28,7 @@ The food list lives in `foods.js`: 80 vegetarian dishes (51 Indian, 29 from arou
 Live sync uses public MQTT relays (broker.emqx.io, broker.hivemq.com and mqtt.eclipseprojects.io), so nobody needs an account.
 
 ## Music
-The TV plays game-show music by Kevin MacLeod that changes with the game: a bouncy lobby track, a fast quiz track for Pehchaan Kaun? turns, a sneaky track for Find the Ravana, thinking music for the vote, a quiet track for the verdict and "Winner Winner!" for reveals and the finale. It dips under the fanfares. The host can pick any of the 12 tracks (or Auto mix) in TV Settings → Song or on their phone under Host controls; the TV remembers the pick. Files are in `music/` (credits in `music/CREDITS.md`); if they can't load, the TV falls back to its built-in score. Sound effects (fireworks booms and whistles, thunder and a villain laugh when the Ravana rises, a drum roll before the verdict, clock ticks in the last seconds, a ding for right answers and a buzzer for wrong ones, cheers and a fanfare at the end) are in `sfx/`. Phones never play music or effects.
+The TV plays game-show music by Kevin MacLeod that changes with the game: a bouncy lobby track, a fast quiz track for Thali Thriller turns, a sneaky track for Find the Ravana, thinking music for the vote, a quiet track for the verdict and "Winner Winner!" for reveals and the finale. It dips under the fanfares. The host can pick any of the 12 tracks (or Auto mix) in TV Settings → Song or on their phone under Host controls; the TV remembers the pick. Files are in `music/` (credits in `music/CREDITS.md`); if they can't load, the TV falls back to its built-in score. Sound effects (fireworks booms and whistles, thunder and a villain laugh when the Ravana rises, a drum roll before the verdict, clock ticks in the last seconds, a ding for right answers and a buzzer for wrong ones, cheers and a fanfare at the end) are in `sfx/`. Phones never play music or effects.
 
 ## If a phone leaves the page
 Switching apps or locking the phone is fine. After the first tap, the phone plays a silent track (it shows on the lock screen as "Diwali Games · Connected to room …") so the browser keeps the game running in the background. If the phone still drops (for example another app takes over the audio), the player shows as away on the TV but stays in the game, and the phone reconnects within a second of coming back. If the phone's browser reloads the tab, it rejoins the room by itself as the same player; a reloaded TV tab resumes the same room.

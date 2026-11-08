@@ -1,4 +1,4 @@
-/* Food database for Pehchaan Kaun?
+/* Food database for Thali Thriller
    id: photo file in food/<id>.jpg   n: name shown   aka: other names   t: s = sweet, n = snack or savoury
    c: in = Indian, w = from around the world (the lobby can pick Mix, Indian or World)
    g: lookalike group (two foods from the same group are never offered together)   r: where it is from

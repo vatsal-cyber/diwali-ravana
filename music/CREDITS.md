@@ -7,7 +7,7 @@ The host picks a track in TV Settings → Song (or on their phone under Host con
 1. Happy Happy Game Show — lobby and turn summaries (Auto mix)
 2. Monkeys Spinning Monkeys
 3. Fluffing a Duck
-4. Pixelland — Pehchaan Kaun? turns (Auto mix)
+4. Pixelland — Thali Thriller turns (Auto mix)
 5. Run Amok
 6. Bit Shift
 7. Voxel Revolution

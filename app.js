@@ -31,7 +31,7 @@ var WORDS = {
 /* ================= utils ================= */
 var GAMES = {
   ravana: { name: "Find the Ravana", blurb: "Everyone gets the same secret word, except the Ravana, who only gets a hint. Give clues, talk, vote, find them.", minP: 3, foot: "3 to 8 players. Rounds take about 3 minutes." },
-  zoom: { name: "Pehchaan Kaun?", blurb: "A sweet or snack, Indian or from around the world, starts zoomed way in and slowly zooms out. Name it on your phone before time runs out. One player at a time, most right wins.", minP: 2, foot: "2 to 8 players. Each turn is one minute." }
+  zoom: { name: "Thali Thriller", blurb: "A sweet or snack, Indian or from around the world, starts zoomed way in and slowly zooms out. Name it on your phone before time runs out. One player at a time, most right wins.", minP: 2, foot: "2 to 8 players. Each turn is one minute." }
 };
 var FOOD_FALLBACK = [["jalebi", "Jalebi", "s"], ["gulab_jamun", "Gulab jamun", "s"], ["kaju_katli", "Kaju katli", "s"], ["rasgulla", "Rasgulla", "s"], ["samosa", "Samosa", "n"], ["pani_puri", "Pani puri", "n"], ["dhokla", "Dhokla", "n"], ["vada_pav", "Vada pav", "n"]];
 var FOOD_INFO = {};
@@ -1251,7 +1251,7 @@ function doResume() {
   h.paused = false; h.pauseLeft = null; T.pend = null;
 }
 
-/* ================= game 2: Pehchaan Kaun? (zoom-out food quiz) ================= */
+/* ================= game 2: Thali Thriller (zoom-out food quiz) ================= */
 var ZOOM = { ms: 10000, z0: 7, revealMs: 1600, introMs: 4000, endMs: 7000, minLeft: 2500, awayMs: 8000 };
 function zTurnLabel(sec) { return sec === 60 ? "1 minute" : sec === 90 ? "1½ minutes" : sec === 120 ? "2 minutes" : sec + " seconds"; }
 function zFoodByKey(k) { for (var i = 0; i < FOODS.length; i++) if (FOODS[i][0] === k) return FOODS[i]; return FOODS[0]; }
@@ -1565,7 +1565,7 @@ function tvSky(h) {
     return '<div class="lobbysky"><div class="qrcard"><div class="qr">' + qrSvg(JOIN_URL + "#join-" + h.code) + '</div></div>' +
       '<div class="lobbytxt"><h1 class="h1">Scan to join</h1><p class="joinat">or go to <b>' + CFG.short + '</b> and enter <b class="codeinline disp">' + h.code + "</b></p>" +
       '<p class="note">' + (roster().length < minPlayers(h) ? "Need at least " + minPlayers(h) + " players." : (h.notice ? esc(h.notice) : "The host (crown) can run the game from their phone.")) + "</p>" +
-      '<div class="lobbyopts">' + optRow("Game", [["ravana", "Find the Ravana"], ["zoom", "Pehchaan Kaun?"]], h.game, "setGame") + "</div>" +
+      '<div class="lobbyopts">' + optRow("Game", [["ravana", "Find the Ravana"], ["zoom", "Thali Thriller"]], h.game, "setGame") + "</div>" +
       '<p class="gblurb">' + esc(GAMES[h.game].blurb) + "</p>" +
       '<div class="lobbyopts">' + (h.game === "zoom" ? optRow("Each turn", [[45, "45 sec"], [60, "1 min"], [90, "1½ min"]], h.settings.zturn, "setZturn") + optRow("Foods", ZFOOD, zFoodMode(h), "setZfood") : optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk")) + "</div></div></div>";
   }
@@ -1828,7 +1828,7 @@ function phMain(h, stt) {
     return '<div class="center">' + avHTML(P.me.name, h.roster[me].av, 120, "pop") + '<h2 class="h2 disp">You\'re in, ' + esc(P.me.name) + "!</h2>" +
       '<div class="mini">' + ids.map(function (id) { return '<span class="mchip">' + pAv(h, id, 34) + esc(pName(h, id)) + "</span>"; }).join("") + "</div>" +
       (vipC ? '<div class="hostbox"><span class="hb-t">' + ic("crown") + " You're the host</span>" +
-        '<div class="hrow"><span>Game</span><div class="seg">' + [["ravana", "Find the Ravana"], ["zoom", "Pehchaan Kaun?"]].map(function (o) { return B(o[1], "cmd", "setGame|" + o[0], "chip" + (h.game === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
+        '<div class="hrow"><span>Game</span><div class="seg">' + [["ravana", "Find the Ravana"], ["zoom", "Thali Thriller"]].map(function (o) { return B(o[1], "cmd", "setGame|" + o[0], "chip" + (h.game === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
         (h.game === "zoom" ? '<div class="hrow"><span>Each turn</span><div class="seg">' + [[45, "45s"], [60, "1 min"], [90, "1½ min"]].map(function (o) { return B(o[1], "cmd", "setZturn|" + o[0], "chip" + (h.settings.zturn === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
           '<div class="hrow"><span>Foods</span><div class="seg">' + ZFOOD.map(function (o) { return B(o[1], "cmd", "setZfood|" + o[0], "chip" + (zFoodMode(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
         '<div class="hrow"><span>Rounds</span><div class="seg">' + [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]].map(function (o) { return B(o[1], "cmd", "setRounds|" + o[0], "chip" + (h.settings.rounds === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
@@ -1957,7 +1957,7 @@ function homeLan() {
 function renderHome() {
   var sr = savedRoom(), sh = savedHost();
   setRoot('<div class="home"><div class="hpool">' + [0, 4, 2].map(function (i, k) { return '<div class="hl p' + k + '">' + lotus(i, k === 1 ? 170 : 130, "", { ripples: false, refl: true }) + "</div>"; }).join("") + "</div>" +
-    '<div class="hero"><h1 class="title disp">Diwali Games</h1><p class="tag">Find the Ravana · Pehchaan Kaun? The TV is the stage, your phones are the controllers.</p></div>' +
+    '<div class="hero"><h1 class="title disp">Diwali Games</h1><p class="tag">Find the Ravana · Thali Thriller. The TV is the stage, your phones are the controllers.</p></div>' +
     '<div class="choices"><div id="homeLan">' + homeLan() + "</div>" +
     (sr && P.me.name ? B("Rejoin room " + esc(sr.code) + " as " + esc(P.me.name), "rejoin", sr.code, "rani big") : "") +
     B("Join a game", "join1", null, "big", IS_TOUCH ? "data-primary" : "") +
