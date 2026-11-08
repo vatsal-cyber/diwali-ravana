@@ -1590,9 +1590,9 @@ function cPhone(h, stt, vipC) {
   var c = h.c, me = P.me.id, pl = h.paused ? h.pauseLeft : null, turns = c.mode === "turns", mine = turns ? c.pid === me : true;
   if (stt === "cintro") {
     if (!turns) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">Calorie Clash!</h2><p class="sub">' + c.pairs.length + " pairs. Tap the food with <b>more calories</b>. A point for each right answer, plus one for the fastest.</p>" +
-      '<div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? '<div class="acts">' + B("Start now", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
+      '<div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? hostBar([["Start now", "skip"]]) : "") + "</div>";
     if (mine) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">You’re up, ' + esc(P.me.name) + '!</h2><p class="sub">' + c.pairs.length + " pairs. Tap the food with <b>more calories</b>.</p>" +
-      '<div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? '<div class="acts">' + B("Start now", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
+      '<div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? hostBar([["Start now", "skip"]]) : "") + "</div>";
     return '<div class="center">' + pAv(h, c.pid, 110, "pop") + '<h2 class="h2 disp">' + esc(pName(h, c.pid)) + ' is up next</h2><p class="sub">Watch along. No helping!</p>' + cPhBoard(h) + "</div>";
   }
   if (stt === "cplay" || stt === "creveal") {
@@ -1619,7 +1619,7 @@ function cPhone(h, stt, vipC) {
       else st = '<p class="zres no">' + (mp ? "Not this time" : "Too slow!") + "</p>";
     } else if (!mine) st = '<p class="status">' + esc(pName(h, c.pid)) + " is choosing…</p>";
     else st = '<p class="status">' + (chosen >= 0 ? (turns ? "Locked in" : "Locked in. Waiting for the others…") : "Tap the one with more calories") + "</p>";
-    var hostActs = vipC ? '<div class="acts small">' + (rev ? B("Next pair", "cmd", "skip", "ghost") : B("Reveal now", "cmd", "skip", "ghost")) + (turns ? B("End this turn", "cmd", "skipturn", "ghost") : "") + "</div>" : "";
+    var hostActs = vipC ? hostBar((rev ? [["Next pair", "skip"]] : [["Reveal now", "skip", "reveal"]]).concat(turns ? [["End this turn", "skipturn", "end the turn"]] : [])) : "";
     return '<div class="cph2">' + head + bar + '<p class="cqp">Which has <b>more calories</b>?</p><div class="pcards">' + cards + "</div>" + st + hostActs + "</div>";
   }
   var g = c.done[c.pid] || 0;
@@ -1765,22 +1765,22 @@ function pSky(h) {
 /* phones: the puzzle, the answer buttons or a number pad, and the pass */
 function pPhone(h, stt, vipC) {
   var c = h.pc, me = P.me.id, pl = h.paused ? h.pauseLeft : null, alive = !!c.alive[me];
-  if (stt === "pintro") return '<div class="center">' + '<div class="pbig disp">1%</div><h2 class="h2 disp">Ek Percent</h2><p class="sub">' + c.qs.length + " puzzles, from easy to the 1% question. Get one wrong and you’re out." + (c.pass ? " You have one pass." : "") + '</p><div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? '<div class="acts">' + B("Start now", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
+  if (stt === "pintro") return '<div class="center">' + '<div class="pbig disp">1%</div><h2 class="h2 disp">Ek Percent</h2><p class="sub">' + c.qs.length + " puzzles, from easy to the 1% question. Get one wrong and you’re out." + (c.pass ? " You have one pass." : "") + '</p><div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? hostBar([["Start now", "skip"]]) : "") + "</div>";
   var q = pQ(h); if (!q) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">Get ready…</h2></div>';
   var rev = stt === "preveal", res = c.res || { right: [], out: [], passed: [], funRight: [] }, lvl = pLevel(h);
   var mine = c.picks[me] || c.fun[me] || (P.st.pct && P.st.pct.qk === c.qk ? P.st.pct : null);
   if (P.pnumQk !== c.qk) { P.pnumQk = c.qk; P.pnum = ""; }
-  var head = '<div class="zhead"><span>' + lvl + "% question</span><span>" + (rev ? "" : tText(h.timerEnd, pl ? pl.timer : null) + "s") + '</span><span class="' + (alive ? "pin" : "pgone") + '">' + (alive ? "You’re in" : "You’re out") + "</span></div>";
+  var head = '<div class="zhead"><span class="lvlp">' + lvl + "% question</span><span>" + (rev ? "" : ic("clock") + tText(h.timerEnd, pl ? pl.timer : null) + "s") + '</span><span class="' + (alive ? "pin" : "pgone") + '">' + (alive ? "You’re in" : "You’re out") + "</span></div>";
   var bar = rev ? "" : tBar(h.timerEnd, h.timerTot, pl ? pl.timer : null).replace('class="tbar"', 'class="tbar zpb"');
   var out = head + bar + '<p class="pqp' + (q.q.length > 110 ? " long" : "") + '">' + esc(q.q) + "</p>" + (q.svg ? '<div class="part">' + pctArt(q.svg, 110) + "</div>" : "");
   if (!rev) {
     if (!alive) out += '<p class="pfun">You’re out, but you can still answer for fun.</p>';
     if (mine) out += '<p class="plock">' + (mine.pass ? "You passed this one" : "Locked in: <b>" + esc(pAnsText(q, mine.a)) + "</b>") + "</p>" + (alive ? '<p class="status">Waiting for the others…</p>' : "");
-    else if (q.t === "c") out += '<div class="zgrid' + (q.o.length === 3 ? " three" : "") + '">' + q.o.map(function (o, i) { return '<button type="button" class="zbtn" data-act="pans" data-arg="' + i + '" data-k="pans:' + i + '"' + (h.paused ? " disabled" : "") + ">" + esc(o) + "</button>"; }).join("") + "</div>";
+    else if (q.t === "c") out += '<div class="zgrid lettered' + (q.o.length === 3 || q.o.some(function (o) { return o.length > 18; }) ? " one" : "") + '">' + q.o.map(function (o, i) { return '<button type="button" class="zbtn" data-act="pans" data-arg="' + i + '" data-k="pans:' + i + '"' + (h.paused ? " disabled" : "") + '><span class="zl">' + "ABCD"[i] + '</span><span class="zt">' + esc(o) + "</span></button>"; }).join("") + "</div>";
     else out += '<div class="pdisp disp">' + (P.pnum ? esc(P.pnum) : '<span class="phq">?</span>') + '</div><div class="pkeys">' + ["1", "2", "3", "4", "5", "6", "7", "8", "9", "del", "0", "ok"].map(function (k) {
       return k === "ok" ? '<button type="button" class="pk ok" data-act="psend" data-k="psend"' + (P.pnum ? "" : " disabled") + ">" + ic("check") + "</button>" : '<button type="button" class="pk' + (k === "del" ? " del" : "") + '" data-act="pkey" data-arg="' + k + '" data-k="pkey:' + k + '">' + (k === "del" ? ic("back") : k) + "</button>";
     }).join("") + "</div>";
-    if (!mine && pCanPass(h, me)) out += '<div class="acts small">' + B("Use my pass (only one)", "ppass", null, "ghost") + "</div>";
+    if (!mine && pCanPass(h, me)) { var pa = armed("ppass", ""); out += '<div class="ppassrow"><span>Stuck?</span><button type="button" class="passb' + (pa ? " armed" : "") + '" data-act="ppass" data-k="ppass" data-confirm>' + (pa ? "Tap again to use your only pass" : "Use my pass") + "</button></div>"; }
   } else {
     var ans = q.t === "c" ? q.o[q.a] : String(q.a), st;
     if (res.right.indexOf(me) >= 0) st = '<p class="zres ok">Correct! You’re still in.</p>';
@@ -1789,7 +1789,7 @@ function pPhone(h, stt, vipC) {
     else st = '<p class="zres ' + (res.funRight.indexOf(me) >= 0 ? "ok" : "no") + '">' + (c.fun[me] ? (res.funRight.indexOf(me) >= 0 ? "You’d have got it!" : "You’d have missed this one.") : "Watching for fun.") + "</p>";
     out += '<div class="pansp"><span>Answer</span><b class="disp">' + esc(ans) + "</b></div>" + st + '<p class="pwhyp">' + esc(q.why) + '</p><p class="note">' + pAlive(h).length + " still in</p>";
   }
-  if (vipC) out += '<div class="acts small">' + B(rev ? (c.qi + 1 >= c.qs.length || !pAlive(h).length ? "See final results" : "Next question") : "Reveal now", "cmd", "skip", "ghost") + "</div>";
+  if (vipC) hostBar(rev ? [[c.qi + 1 >= c.qs.length || !pAlive(h).length ? "See final results" : "Next question", "skip"]] : [["Reveal now", "skip", "reveal for everyone"]]);
   return '<div class="pph">' + out + "</div>";
 }
 /* ---- clock: timers + auto steps ---- */
@@ -2251,14 +2251,27 @@ function pAv(h, id, size, cls) { var p = h.roster[id] || (h.ghosts && h.ghosts[i
 
 function phRender() {
   if (S.view !== "phone") return;
-  if (!document.getElementById("phMain")) setRoot('<div class="ph"><header class="phh" id="phHead"></header><main class="phm" id="phMain"></main><div id="phOv"></div></div>');
+  if (!document.getElementById("phMain")) setRoot('<div class="ph"><header class="phh" id="phHead"></header><main class="phm" id="phMain"></main><div id="phHost"></div><div id="phOv"></div></div>');
   var h = HS(), stt = phStatus(h);
   patch("phHead", phHead(h));
+  P.hb = [];
   patch("phMain", phMain(h, stt), stt + "|" + (h ? h.rk + "|" + h.phase : ""));
+  patch("phHost", hostBarHTML(P.hb));
   patch("phOv", phOv(h, stt));
   updateTimers(P.off);
   if (h && h.z && h.phase === "zplay" && !T.zraf) T.zraf = requestAnimationFrame(zoomTick);
   countUp();
+}
+/* Host-only controls on the host's phone live in their own strip at the bottom, apart from the game,
+   so nobody mistakes them for an answer. Anything that cuts the clock short for everyone needs a second tap. */
+function armed(act, arg) { return P.arm === act + ":" + arg && now() - P.armAt <= 3500; }
+function hostBar(items) { P.hb = (P.hb || []).concat(items); return ""; }
+function hostBarHTML(items) {
+  if (!items || !items.length) return "";
+  return '<div class="hbar"><span class="hb-l">' + ic("crown") + "<span>Host</span></span><div class=\"hb-b\">" + items.map(function (it) {
+    var arg = it[1], conf = it[2], on = conf && armed("cmd", arg);
+    return '<button type="button" class="hbb' + (on ? " armed" : "") + '" data-act="cmd" data-arg="' + esc(arg) + '" data-k="hb:' + esc(arg) + '"' + (conf ? " data-confirm" : "") + ">" + (on ? "Tap again to " + esc(conf) : esc(it[0])) + "</button>";
+  }).join("") + "</div></div>";
 }
 function phHead(h) {
   var conn = P.net && P.net.connected > 0, vip = h && h.vip === P.me.id;
@@ -2277,7 +2290,7 @@ function card(h, small) {
 function zPhone(h, stt, vipC) {
   var z = h.z, me = P.me.id, mine = z.pid === me, pl = h.paused ? h.pauseLeft : null;
   if (stt === "zintro") {
-    if (mine) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">You’re up, ' + esc(P.me.name) + '!</h2><p class="sub">' + zTurnLabel(h.settings.zturn) + ', ' + z.list.length + ' ' + (zFoodLabel(h) ? zFoodLabel(h) + ' ' : '') + 'foods. Tap the name of the food on the TV as soon as you know it.</p><div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? '<div class="acts">' + B("Start now", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
+    if (mine) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">You’re up, ' + esc(P.me.name) + '!</h2><p class="sub">' + zTurnLabel(h.settings.zturn) + ', ' + z.list.length + ' ' + (zFoodLabel(h) ? zFoodLabel(h) + ' ' : '') + 'foods. Tap the name of the food on the TV as soon as you know it.</p><div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? hostBar([["Start now", "skip"]]) : "") + "</div>";
     return '<div class="center">' + pAv(h, z.pid, 110, "pop") + '<h2 class="h2 disp">' + esc(pName(h, z.pid)) + ' is up next</h2><p class="sub">Watch the TV. No shouting the answers!</p>' + zPhBoard(h) + "</div>";
   }
   if (stt === "zplay") {
@@ -2286,7 +2299,7 @@ function zPhone(h, stt, vipC) {
     var rev = z.picked != null, sent = mine && P.st.ans && P.st.ans.fk === z.fk, rem = pl ? pl.timer : (z.fStart + z.dur - (now() + P.off)), frac = Math.max(0, Math.min(1, rem / z.dur));
     var btns = f.opts.map(function (o, i) {
       var c = rev ? (i === f.ans ? " ok" : (i === z.picked ? " no" : " dim")) : (sent && P.st.ans.pick === i ? " sel" : "");
-      return '<button type="button" class="zbtn' + c + '" data-act="zans" data-arg="' + i + '" data-k="zans:' + i + '"' + (rev || sent || !mine ? " disabled" : "") + ">" + esc(o) + "</button>";
+      return '<button type="button" class="zbtn' + c + '" data-act="zans" data-arg="' + i + '" data-k="zans:' + i + '"' + (rev || sent || !mine ? " disabled" : "") + '><span class="zl">' + "ABCD"[i] + '</span><span class="zt">' + esc(o) + "</span></button>";
     }).join("");
     var st = rev ? '<p class="zres ' + (z.ok ? "ok" : "no") + '">' + (mine ? (z.ok ? "Correct! +1" : (z.picked === -1 ? "Time’s up. It was " + esc(f.n) : "It was " + esc(f.n))) : esc(pName(h, z.pid)) + (z.ok ? " got it: " : " missed it: ") + esc(f.n)) + "</p>"
       : (mine ? (sent ? '<p class="status">Sending…</p>' : '<p class="status">What food is this?</p>') : '<p class="status">' + esc(pName(h, z.pid)) + " is guessing. No shouting!</p>");
@@ -2294,8 +2307,8 @@ function zPhone(h, stt, vipC) {
       : '<span class="zwhoph">' + pAv(h, z.pid, 24) + esc(pName(h, z.pid)) + "</span><span>Food " + z.seen + "</span><span><b>" + z.got + "</b> right</span>";
     return '<div class="zph wp">' + '<div class="zhead">' + head + "</div>" +
       '<div class="tbar zpb"><i style="transform:scaleX(' + frac.toFixed(3) + ')"' + (pl || rev ? "" : ' data-dl="' + (z.fStart + z.dur) + '" data-tot="' + z.dur + '" data-fmt="bar"') + "></i></div>" +
-      zPhFrame(h, f, rev) + '<div class="zgrid' + (mine ? "" : " watch") + '">' + btns + "</div>" + st +
-      (!mine ? zPhBoard(h) : "") + (vipC && !mine ? '<div class="acts small">' + B("Skip this food", "cmd", "skip", "ghost") + B("End this turn", "cmd", "skipturn", "ghost") + "</div>" : "") + "</div>";
+      zPhFrame(h, f, rev) + '<div class="zgrid lettered' + (mine ? "" : " watch") + '">' + btns + "</div>" + st +
+      (!mine ? zPhBoard(h) : "") + (vipC && !mine ? hostBar([["Skip this food", "skip", "skip it"], ["End this turn", "skipturn", "end the turn"]]) : "") + "</div>";
   }
   var g = z.done[z.pid] || 0;
   return '<div class="center">' + pAv(h, z.pid, 110, "pop") + '<h2 class="h2 disp">' + (mine ? "You got " : esc(pName(h, z.pid)) + " got ") + '<span class="pts2 disp">' + g + "</span> right</h2>" + zPhBoard(h) + (vipC ? '<div class="acts">' + B("Next player", "cmd", "next", "big") + "</div>" : "") + "</div>";
@@ -2340,28 +2353,28 @@ function phMain(h, stt) {
   if (stt === "peek") {
     var seen = P.st.saw === h.rk, acked = h.ack.saw.indexOf(me) >= 0;
     return card(h) + '<div class="acts">' + (seen ? '<p class="status">' + (acked ? ic("check") + " Got it. Waiting for the others (" + h.ack.saw.length + " of " + h.players.length + ")" : "Sending…") + "</p>" : B("Got it", "saw", null, "big")) +
-      (vipC ? B("Start the clues now", "cmd", "skip", "ghost") : "") + "</div>";
+      (vipC ? hostBar([["Start the clues now", "skip", "start the clues"]]) : "") + "</div>";
   }
   if (stt === "clues") {
     var cur = h.order[h.clueIdx], mine = cur === me, pos = h.order.indexOf(me);
     return card(h, true) + (mine ? '<div class="turn">Your turn! Say one word.</div><div class="acts">' + B("I said my word", "cmd", "done", "big") + "</div>"
       : '<div class="upnow">' + pAv(h, cur, 52) + '<div><span class="k">Up now</span><b>' + esc(pName(h, cur)) + "</b></div></div>" +
       '<p class="sub">' + (pos > h.clueIdx ? "You're number " + (pos + 1) + "." : "You've given your clue.") + "</p>" +
-      (vipC ? '<div class="acts">' + B("Skip to next speaker", "cmd", "skip", "ghost") + "</div>" : ""));
+      (vipC ? hostBar([["Skip to next speaker", "skip", "skip them"]]) : ""));
   }
   if (stt === "discuss") {
     var ready = P.st.ready === h.rk, pl = h.paused ? h.pauseLeft.timer : null;
     return card(h, true) + '<h2 class="h2 disp">Talk it out</h2><p class="sub">Who doesn\'t know the word? ' + tText(h.timerEnd, pl) + " left.</p>" +
-      '<div class="acts">' + B(ready ? ic("check") + " You’re ready <small>Tap to undo</small>" : "I’m ready to vote", "ready", null, ready ? "ghost big isready" : "big") + (vipC ? '<div class="hrow2">' + B("Start the vote now", "cmd", "votenow", "ghost") + B("+30 sec", "cmd", "addtime", "ghost") + "</div>" : "") + "</div>";
+      '<div class="acts">' + B(ready ? ic("check") + " You’re ready <small>Tap to undo</small>" : "I’m ready to vote", "ready", null, ready ? "ghost big isready" : "big") + "</div>" + (vipC ? hostBar([["+30 sec", "addtime"], ["Start the vote now", "votenow", "start the vote"]]) : "");
   }
   if (stt === "vote") {
     var my = P.st.vote && P.st.vote.rk === h.rk ? P.st.vote.t : "", ok = h.ack.voted.indexOf(me) >= 0, pl2 = h.paused ? h.pauseLeft.timer : null;
     var opts = h.players.filter(function (id) { return id !== me; }).map(function (id) { return '<button type="button" class="vbtn' + (my === id ? " sel" : "") + '" data-act="vote" data-arg="' + id + '" data-k="vote:' + id + '">' + pAv(h, id, 46) + '<span class="vnm">' + esc(pName(h, id)) + "</span>" + (my === id ? ic("check") : "") + "</button>"; }).join("");
     return '<h2 class="h2 disp">Who is the Ravana?</h2><p class="sub">' + tText(h.timerEnd, pl2) + "s left to vote</p>" + '<div class="vlist">' + opts + "</div>" +
       '<p class="status">' + (my ? (ok ? ic("check") + " The TV has your vote. You can change it." : "Sending your vote…") : "Tap a name to vote.") + "</p>" +
-      (vipC ? '<div class="acts">' + B("Count the votes now (" + h.ack.voted.length + " of " + h.players.length + ")", "cmd", "count", "ghost") + "</div>" : "");
+      (vipC ? hostBar([["Count votes now (" + h.ack.voted.length + "/" + h.players.length + ")", "count", "count now"]]) : "");
   }
-  if (stt === "verdict") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">Look at the TV!</h2><p class="sub">The votes are in.</p>' + (vipC ? '<div class="acts">' + B("Continue", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
+  if (stt === "verdict") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">Look at the TV!</h2><p class="sub">The votes are in.</p>' + (vipC ? hostBar([["Continue", "skip"]]) : "") + "</div>";
   if (stt === "guess") {
     if (h.ravanaId === me) {
       var sent = P.st.guess && P.st.guess.rk === h.rk;
@@ -2373,7 +2386,7 @@ function phMain(h, stt) {
     var G = h.result || {};
     return '<div class="center">' + pAv(h, h.ravanaId, 110, "red") + '<h2 class="h2 disp">' + esc(pName(h, h.ravanaId)) + "'s last chance</h2>" +
       (G.guess == null ? '<p class="sub">They\'re guessing the word on their phone.</p>' : '<p class="sub">They guessed <b>' + esc(G.guess || "nothing") + "</b>. " + (G.guessOk ? "That counts as the word." : "That doesn't count.") + "</p>") +
-      (vipC ? '<div class="acts">' + (G.guess == null ? B("Skip the guess", "cmd", "skip", "ghost") : B("Show the results", "cmd", "skip", "") + B(G.guessOk ? "Don't count it" : "Count it", "cmd", "override|" + (G.guessOk ? "0" : "1"), "ghost")) + "</div>" : "") + "</div>";
+      (vipC ? hostBar(G.guess == null ? [["Skip the guess", "skip", "skip it"]] : [[G.guessOk ? "Don’t count it" : "Count it", "override|" + (G.guessOk ? "0" : "1"), G.guessOk ? "not count it" : "count it"], ["Show the results", "skip"]]) : "") + "</div>";
   }
   if (stt === "reveal") {
     var R = h.result, d = R.delta[me] || 0;
@@ -2611,6 +2624,11 @@ document.addEventListener("click", function (e) {
   var t = e.target && e.target.closest ? e.target.closest("[data-act]") : null;
   if (!t || t.disabled) return;
   SND.unlock();
+  if (t.hasAttribute("data-confirm")) {
+    var ckey = t.getAttribute("data-act") + ":" + (t.getAttribute("data-arg") || "");
+    if (P.arm !== ckey || now() - P.armAt > 3500) { e.preventDefault(); P.arm = ckey; P.armAt = now(); vibrate(12); if (S.view === "phone") phRender(); return; }
+    P.arm = null;
+  }
   var f = ACT[t.getAttribute("data-act")];
   if (f) { e.preventDefault(); f(t.getAttribute("data-arg"), t); }
 });
@@ -2649,7 +2667,7 @@ window.addEventListener("hashchange", function () { route(); });
 
 setInterval(function () {
   if (S.view === "tv") tvTick();
-  else if (S.view === "phone") { updateTimers(P.off); if (P.net) { var h = HS(); phAutoResend(h); patch("phOv", phOv(h, phStatus(h))); } }
+  else if (S.view === "phone") { if (P.arm && now() - P.armAt > 3500) { P.arm = null; phRender(); } updateTimers(P.off); if (P.net) { var h = HS(); phAutoResend(h); patch("phOv", phOv(h, phStatus(h))); } }
   else if (S.view === "finding" && P.finding && now() - P.joinStart > 12000) {
     P.finding = false; P.err = "No TV found with code " + P.code + ". Check the code on the TV screen.";
     if (P.net) { P.net.stop(false); P.net = null; } setView("join1");
