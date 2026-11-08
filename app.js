@@ -356,6 +356,7 @@ var SND = {
   unlock: function () {
     if (!this.ctx) { try { var A = window.AudioContext || window.webkitAudioContext; if (A) this.ctx = new A(); } catch (e) { } }
     if (this.ctx && this.ctx.state === "suspended") { try { this.ctx.resume(); } catch (e) { } }
+    if (S.view === "tv" && this.ctx) this.load();
     if (S.view === "tv" && typeof MUS !== "undefined" && MUS.on && !MUS.master && T.H) { MUS.mood = null; MUS.setMood(T.H.paused ? "off" : T.H.phase); }
   },
   ok: function () { return this.on && this.ctx && this.ctx.state === "running"; },
@@ -376,19 +377,51 @@ var SND = {
     if (!this.ok()) return; var t = this.ctx.currentTime + (delay || 0);
     this.osc("sine", f, t, 0.005, 0.22, 1.4); this.osc("sine", f * 2.01, t, 0.005, 0.08, 0.9); this.osc("sine", f * 3.02, t, 0.005, 0.04, 0.5);
   },
-  join: function () { this.bell(988); this.bell(1319, 0.09); },
+  /* recorded effects (sfx/*.mp3), TV only; each falls back to the synth version if not loaded */
+  buf: {}, loading: false, lastBoom: 0, lastWhistle: 0,
+  NAMES: ["correct", "wrong", "timeup", "tick", "boom1", "boom2", "boom3", "boom4", "boom5", "whistle", "drumroll", "cheer", "cheer_small", "fanfare", "reveal", "aww", "join", "whoosh", "hit", "ravana"],
+  load: function () {
+    if (this.loading || !this.ctx || (window.RAVANA_CFG && window.RAVANA_CFG.noSfx)) return; this.loading = true; var me = this;
+    this.NAMES.forEach(function (n) {
+      try {
+        fetch("sfx/" + n + ".mp3").then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (b) {
+          me.ctx.decodeAudioData(b, function (buf) { me.buf[n] = buf; }, function () { });
+        }).catch(function () { });
+      } catch (e) { }
+    });
+  },
+  play: function (n, vol, delay, dur) {
+    if (!this.ok() || !this.buf[n]) return false;
+    var c = this.ctx, s0 = c.createBufferSource(), g = c.createGain(), t = c.currentTime + (delay || 0), v = vol == null ? 0.8 : vol;
+    s0.buffer = this.buf[n]; g.gain.setValueAtTime(v, t);
+    if (dur) { g.gain.setValueAtTime(v, t + Math.max(0, dur - 0.2)); g.gain.linearRampToValueAtTime(0.0001, t + dur); }
+    s0.connect(g); g.connect(c.destination); s0.start(t); if (dur) s0.stop(t + dur + 0.05);
+    return true;
+  },
+  ravana: function (d) { if (!this.play("ravana", 0.95, d)) { this.boo(d); } },
+  cheer: function (big, d) { this.play(big ? "cheer" : "cheer_small", big ? 0.6 : 0.5, d, big ? 0 : 4.5); },
+  aww: function (d) { if (!this.play("aww", 0.7, d)) this.boo(d); },
+  reveal: function (d) { if (!this.play("reveal", 0.8, d)) this.chime(); },
+  bigFanfare: function (d) { if (!this.play("fanfare", 0.7, d)) { this.fanfare(d); this.fanfare((d || 0) + 0.8); } },
+  whistle: function () { var t = now(); if (t - this.lastWhistle < 700) return; this.lastWhistle = t; this.play("whistle", 0.32); },
+  join: function () { if (this.play("join", 0.55)) return; this.bell(988); this.bell(1319, 0.09); },
   chime: function () { this.bell(1760); this.bell(2217, 0.08); this.bell(1760, 0.5); this.bell(2637, 0.58); },
   dhol: function (delay, big) {
     if (!this.ok()) return; var t = this.ctx.currentTime + (delay || 0);
     this.osc("sine", big ? 140 : 190, t, 0.004, big ? 0.7 : 0.45, 0.32, 48); this.noise(t, 0.06, 0.18, 2500);
   },
-  tick: function () { if (!this.ok()) return; var t = this.ctx.currentTime; this.osc("square", 1500, t, 0.002, 0.05, 0.05); },
-  roll: function () { for (var i = 0; i < 14; i++) this.dhol(i * 0.1 * (1 - i * 0.025), i === 13); },
+  tick: function (loud) { if (!this.ok()) return; if (this.play("tick", loud ? 0.95 : 0.6)) return; var t = this.ctx.currentTime; this.osc("square", 1500, t, 0.002, 0.05, 0.05); },
+  roll: function (dur) { if (this.play("drumroll", 0.85, 0, dur || 2.3)) return; for (var i = 0; i < 14; i++) this.dhol(i * 0.1 * (1 - i * 0.025), i === 13); },
   fanfare: function (delay) { var d = delay || 0;[784, 988, 1175, 1568].forEach(function (f, i) { SND.bell(f, d + i * 0.12); }); },
   boo: function (delay) { if (!this.ok()) return; var t = this.ctx.currentTime + (delay || 0); this.osc("sawtooth", 220, t, 0.05, 0.12, 1.1, 90); this.osc("sawtooth", 233, t, 0.05, 0.08, 1.1, 95); },
-  pop: function () { if (!this.ok()) return; var t = this.ctx.currentTime; this.noise(t, 0.35, 0.25, 900 + Math.random() * 900); },
-  ding: function () { this.bell(1319); this.bell(1760, 0.1); this.bell(2637, 0.2); },
-  buzz: function () { if (!this.ok()) return; var t = this.ctx.currentTime; this.osc("square", 160, t, 0.01, 0.1, 0.35, 120); this.osc("sawtooth", 165, t, 0.01, 0.06, 0.35, 118); }
+  pop: function () {
+    if (!this.ok()) return; var tm = now();
+    if (this.buf.boom1) { if (tm - this.lastBoom < 220) return; this.lastBoom = tm; this.play("boom" + (1 + Math.floor(Math.random() * 5)), 0.35 + Math.random() * 0.3); return; }
+    var t = this.ctx.currentTime; this.noise(t, 0.35, 0.25, 900 + Math.random() * 900);
+  },
+  ding: function () { if (this.play("correct", 0.9)) return; this.bell(1319); this.bell(1760, 0.1); this.bell(2637, 0.2); },
+  timeup: function () { if (!this.play("timeup", 0.8)) this.buzz(); },
+  buzz: function () { if (this.play("wrong", 0.8)) return; if (!this.ok()) return; var t = this.ctx.currentTime; this.osc("square", 160, t, 0.01, 0.1, 0.35, 120); this.osc("sawtooth", 165, t, 0.01, 0.06, 0.35, 118); }
 };
 
 /* ================= music: tanpura drone, dhol/tabla groove, santoor shimmer, bansuri melody, hall reverb ================= */
@@ -689,6 +722,7 @@ var FX = {
   },
   launch: function () {
     var W = this.c.width, H = this.c.height;
+    if (Math.random() < 0.4) SND.whistle();
     this.rockets.push({ x: W * (0.12 + Math.random() * 0.76), y: H + 10, vx: (Math.random() - 0.5) * 1.4, vy: -(Math.sqrt(H) * 0.3 + Math.random() * 2.2), ty: H * (0.1 + Math.random() * 0.38), pal: this.PAL[(Math.random() * this.PAL.length) | 0], kind: this.KINDS[(Math.random() * this.KINDS.length) | 0], t0x: 0, t0y: 0 });
   },
   burst: function (x, y, pal, kind) {
@@ -996,7 +1030,7 @@ function tvStart(resume) {
   T.net = Net(T.H.code, { peers: tvOnPeers, status: function () { tvRender(); } });
   T.net.start(T.H.id);
   lanKey(function (k) { T.lanKey = k; tvAnnounce(); });
-  S.view = "tv"; setRoot(tvShell()); fitTV(); ssSet("ravana_tvtab", 1);
+  S.view = "tv"; setRoot(tvShell()); fitTV(); ssSet("ravana_tvtab", 1); SND.load();
   try { if (navigator.wakeLock) navigator.wakeLock.request("screen").catch(function () { }); } catch (e) { }
   tvPub();
 }
@@ -1069,7 +1103,7 @@ function guessIntake() {
     h.result.guess = String(p.guess.text).trim().slice(0, 40);
     h.result.guessOk = judgeGuess(h.result.guess, h.word);
     h.timerEnd = now() + CFG.afterGuessMs; h.timerTot = CFG.afterGuessMs;
-    if (h.result.guessOk) SND.fanfare(); else SND.boo();
+    if (h.result.guessOk) SND.ravana(); else SND.buzz();
     return true;
   }
   return false;
@@ -1168,7 +1202,7 @@ function tally() {
 }
 function afterVerdict() {
   var h = T.H;
-  if (h.result.caught) { h.phase = "guess"; h.timerEnd = now() + CFG.guessMs; h.timerTot = CFG.guessMs; SND.dhol(0, true); }
+  if (h.result.caught) { h.phase = "guess"; h.timerEnd = now() + CFG.guessMs; h.timerTot = CFG.guessMs; if (!SND.play("hit", 0.7)) SND.dhol(0, true); }
   else finishRound();
 }
 function finishRound() {
@@ -1332,7 +1366,10 @@ function tvTick() {
   var h = T.H; if (!h || S.view !== "tv") return;
   if (T.toast && now() > T.toast.until) { T.toast = null; patch("tvToast", ""); }
   var ch = recomputeDerived();
-  if (!h.paused && h.z && isZoomPhase(h.phase)) { if (zTick(now())) ch = true; }
+  if (!h.paused && h.z && isZoomPhase(h.phase)) {
+    if (zTick(now())) ch = true;
+    if (h.phase === "zplay" && h.z.food && h.z.picked == null) { var zs = Math.ceil((h.z.fStart + h.z.dur - now()) / 1000), zkey = h.z.fk + ":" + zs; if (zs <= 4 && zs >= 1 && T.zTickKey !== zkey) { T.zTickKey = zkey; SND.tick(zs <= 2); } }
+  }
   else if (!h.paused) {
     var t = now(), on = onlinePlayers();
     var allIn = function (list) { return on.length > 0 && on.every(function (id) { return list.indexOf(id) >= 0; }); };
@@ -1353,7 +1390,7 @@ function tvTick() {
     } else if (T.pend && !ch) T.pend = null;
     if ((h.phase === "discuss" || h.phase === "vote") && !h.paused) {
       var sec = Math.ceil((h.timerEnd - t) / 1000);
-      if (sec <= 5 && sec >= 1 && sec !== T.lastTick) { T.lastTick = sec; SND.tick(); }
+      if (sec <= 5 && sec >= 1 && sec !== T.lastTick) { T.lastTick = sec; SND.tick(sec <= 3); }
     }
   }
   if (ch) tvPub();
@@ -1431,8 +1468,9 @@ function tvRender() {
   patch("tvRav", showRav ? ravanaSVG() : "");
   var tvel = document.getElementById("tv"); if (tvel) { tvel.classList.toggle("rav-on", !!showRav); tvel.classList.toggle("ring", h.phase === "verdict" || h.phase === "reveal" || h.phase === "final" || h.phase === "zturnend"); tvel.classList.toggle("zoomg", h.phase === "zplay"); }
   if (h.phase === "zplay" && !T.zraf) T.zraf = requestAnimationFrame(zoomTick);
-  if (h.z && h.phase === "zplay" && h.z.food && h.z.picked != null) { var zk = h.z.fk + ":" + h.z.picked; if (T.zKey !== zk) { T.zKey = zk; if (h.z.ok) SND.ding(); else if (h.z.picked !== -2) SND.buzz(); } }
-  if (h.phase === "zturnend" && T.zEndKey !== h.rk) { T.zEndKey = h.rk; SND.chime(); var gg = h.z ? (h.z.done[h.z.pid] || 0) : 0; if (gg >= 5) { FX.show(3, "joy"); SND.fanfare(); } else if (gg >= 3) SND.fanfare(); }
+  if (h.z && h.phase === "zplay" && h.z.food && h.z.picked != null) { var zk = h.z.fk + ":" + h.z.picked; if (T.zKey !== zk) { T.zKey = zk; if (h.z.ok) SND.ding(); else if (h.z.picked === -1) SND.timeup(); else if (h.z.picked === -2) SND.play("whoosh", 0.5); else SND.buzz(); } }
+  if (h.z && h.phase === "zplay" && h.z.food && h.z.picked == null && T.zNewKey !== h.z.fk) { T.zNewKey = h.z.fk; SND.play("whoosh", 0.35); }
+  if (h.phase === "zturnend" && T.zEndKey !== h.rk) { T.zEndKey = h.rk; var gg = h.z ? (h.z.done[h.z.pid] || 0) : 0; if (gg >= 5) { FX.show(3, "joy"); SND.reveal(); SND.cheer(false, 0.2); } else if (gg >= 1) { SND.reveal(); SND.cheer(false, 0.2); } else SND.aww(); }
   tvSpot(h);
   patch("tvToast", T.toast && now() < T.toast.until ? '<div class="toast">' + ic("note") + "<span>" + esc(T.toast.t) + "</span></div>" : "");
   T.newIds = {};
@@ -1442,12 +1480,12 @@ function tvRender() {
     var R = h.result;
     SND.chime();
     if (h.phase === "verdict") {
-      if (R.picked) { SND.roll(); setTimeout(function () { if (R.caught) { FX.show(3.5, "joy"); SND.fanfare(); } else { FX.show(2, "boo"); SND.boo(); } }, 2300); }
-      else SND.boo(0.2);
+      if (R.picked) { SND.roll(2.3); setTimeout(function () { if (R.caught) { FX.show(3.5, "joy"); SND.reveal(); SND.cheer(false, 0.15); } else { FX.show(2, "boo"); SND.ravana(); } }, 2300); }
+      else SND.aww(0.2);
     } else if (h.phase === "reveal") {
-      if (R.caught) { setTimeout(function () { if (R.guessOk) { FX.show(2, "boo"); SND.boo(); } else { FX.show(3, "joy"); SND.fanfare(); } }, 500); }
-      else { SND.roll(); setTimeout(function () { FX.show(2.5, "boo"); SND.boo(); }, 1550); }
-    } else { FX.show(7, "joy"); SND.fanfare(); SND.fanfare(0.8); }
+      if (R.caught) { setTimeout(function () { if (R.guessOk) { FX.show(2, "boo"); SND.ravana(); } else { FX.show(3, "joy"); SND.reveal(); SND.cheer(false, 0.1); } }, 500); }
+      else { SND.roll(1.5); setTimeout(function () { FX.show(2.5, "boo"); SND.ravana(); }, 1550); }
+    } else { FX.show(7, "joy"); SND.bigFanfare(); SND.cheer(true, 0.6); }
   }
   ensureFocus(phaseChanged || ovChanged);
   MUS.setMood(h.paused ? "off" : (T.showSet ? (MUS.phase || h.phase) : h.phase));
@@ -1498,7 +1536,7 @@ function tvCast(h) {
     out += '<div class="' + cls.join(" ") + '" style="left:' + L.pos[id] + "px;--sw:" + (4.2 + (i % 4) * 0.55).toFixed(2) + "s;--sd:-" + (i * 0.9).toFixed(1) + 's">' +
       '<div class="fig"><div class="tilt">' + fig + "</div></div>" +
       (num ? '<span class="num">' + num + "</span>" : "") + '<div class="lampi">' + ic("check") + "</div>" +
-      '<div class="plate"><span class="pn">' + esc(rname(id)) + (id === h.vip ? '<span class="crown">' + ic("crown") + "</span>" : "") + plateStatus(h, id) + "</span>" +
+      '<div class="plate">' + (isRav ? '<span class="ravtag">Ravana</span>' : "") + '<span class="pn">' + esc(rname(id)) + (id === h.vip ? '<span class="crown">' + ic("crown") + "</span>" : "") + plateStatus(h, id) + "</span>" +
       (h.phase !== "lobby" ? '<span class="sc disp">' + (h.scores[id] || 0) + "</span>" : "") + (d ? '<span class="delta">+' + d + "</span>" : "") + "</div></div>";
   });
   if (h.phase === "lobby") for (var k = L.ids.length; k < L.nSlots; k++) {
@@ -1675,6 +1713,24 @@ function goPhone() {
   setView("phone");
   phPub();
 }
+/* Phones: a silent looping track keeps the browser running this page while you use another app,
+   so the connection to the TV stays up. Starts on your first tap after joining; stops when you leave. */
+var KEEP = {
+  el: null, want: false,
+  start: function () {
+    if (S.view !== "phone" && S.view !== "join2" && S.view !== "finding") return;
+    this.want = true;
+    try {
+      if (!this.el) { var a = new Audio("sfx/silence.mp3"); a.loop = true; a.preload = "auto"; a.setAttribute("playsinline", ""); a.setAttribute("webkit-playsinline", ""); this.el = a; }
+      if (this.el.paused) { var pr = this.el.play(); if (pr && pr.catch) pr.catch(function () { }); }
+      if (navigator.mediaSession && window.MediaMetadata) {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: "Diwali Games", artist: "Connected to room " + (P.code || ""), artwork: [{ src: "art/lotus0.png", sizes: "600x600", type: "image/png" }] });
+      }
+    } catch (e) { }
+  },
+  stop: function () { this.want = false; try { if (this.el) this.el.pause(); if (navigator.mediaSession) navigator.mediaSession.metadata = null; } catch (e) { } },
+  playing: function () { return !!(this.el && !this.el.paused); }
+};
 function setHash(hsh) { try { if ((location.hash || "") !== hsh) history.replaceState(null, "", location.pathname + location.search + hsh); } catch (e) { } }
 function phPub() { if (!P.st || !P.net) return; P.net.publish(P.st); lsSet("ravana_pst", P.st); var r = savedRoom(); if (r) { r.ts = now(); lsSet("ravana_room", r); } phRender(); }
 function phCmd(type, arg) { var h = HS(); if (!h) return; P.st.cmd = { seq: now(), type: type, rk: h.rk, idx: h.clueIdx, arg: arg == null ? "" : String(arg) }; phPub(); }
@@ -2000,9 +2056,9 @@ var ACT = {
   leaveyes: function () {
     if (P.st && P.net) { P.st.left = true; P.net.publish(P.st); }
     var n = P.net; P.net = null; setTimeout(function () { if (n) n.stop(false); }, 1500);
-    lsDel("ravana_room"); lsDel("ravana_pst"); ssSet("ravana_inroom", ""); setHash(""); P.menu = false; P.confirmLeave = false; P.st = null; setView("home");
+    lsDel("ravana_room"); lsDel("ravana_pst"); ssSet("ravana_inroom", ""); setHash(""); KEEP.stop(); P.menu = false; P.confirmLeave = false; P.st = null; setView("home");
   },
-  newcode: function () { if (P.net) { P.net.stop(false); P.net = null; } lsDel("ravana_room"); ssSet("ravana_inroom", ""); setHash(""); P.code = ""; setView("join1"); },
+  newcode: function () { KEEP.stop(); if (P.net) { P.net.stop(false); P.net = null; } lsDel("ravana_room"); ssSet("ravana_inroom", ""); setHash(""); P.code = ""; setView("join1"); },
   changename: function () { setView("join2"); },
   joinagain: function () { P.me = { id: "p_" + rid(12), name: P.me.name, av: P.me.av }; lsSet("ravana_me", P.me); lsDel("ravana_pst"); var c = P.code; if (P.net) { P.net.stop(false); P.net = null; } startJoin(c); }
 };
@@ -2026,13 +2082,14 @@ var FORMS = {
 
 /* ================= events ================= */
 document.addEventListener("click", function (e) {
+  if (S.view === "phone" && !KEEP.playing()) KEEP.start();
   var t = e.target && e.target.closest ? e.target.closest("[data-act]") : null;
   if (!t || t.disabled) return;
   SND.unlock();
   var f = ACT[t.getAttribute("data-act")];
   if (f) { e.preventDefault(); f(t.getAttribute("data-arg"), t); }
 });
-document.addEventListener("submit", function (e) { e.preventDefault(); var f = FORMS[e.target.getAttribute("data-form")]; if (f) f(); });
+document.addEventListener("submit", function (e) { e.preventDefault(); if (e.target.getAttribute("data-form") === "name") KEEP.start(); var f = FORMS[e.target.getAttribute("data-form")]; if (f) f(); });
 document.addEventListener("input", function (e) {
   var t = e.target;
   if (t.id === "guessIn") P.guessDraft = t.value;
@@ -2059,6 +2116,7 @@ function onHold(on) {
   else { c.classList.remove("flip"); S.holding = false; if (S.view === "phone") setTimeout(phRender, 50); }
 }
 document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("[data-hold]")) { e.preventDefault(); onHold(true); } });
+document.addEventListener("touchend", function () { if (S.view === "phone" && !KEEP.playing()) KEEP.start(); }, { passive: true });
 ["pointerup", "pointercancel"].forEach(function (ev) { document.addEventListener(ev, function () { if (S.holding) onHold(false); }); });
 document.addEventListener("contextmenu", function (e) { if (e.target.closest && e.target.closest("[data-hold]")) e.preventDefault(); });
 window.addEventListener("resize", function () { fitTV(); });
@@ -2093,4 +2151,4 @@ function applyTheme(t) { if (["velvet", "ivory", "rose"].indexOf(t) < 0) t = "ve
   if (inroom && sr && sr.code === inroom && P.me.name) { startJoin(inroom); return; } /* this phone tab was reloaded mid-game */
   setView("home");
 })();
-window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, REC: REC };
+window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, REC: REC, KEEP: KEEP };
