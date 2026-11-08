@@ -31,6 +31,7 @@ var WORDS = {
 /* ================= utils ================= */
 var GAMES = {
   ravana: { name: "Find the Ravana", blurb: "Everyone gets the same secret word, except the Ravana, who only gets a hint. Give clues, talk, vote, find them.", minP: 3, foot: "3 to 8 players. Rounds take about 3 minutes." },
+  tp: { name: "Teen Patti", blurb: "Three-card poker with play coins. Play blind or look at your cards, chaal, raise or pack, and ask for a show when two are left.", minP: 2, foot: "2 to 8 players." },
   pct: { name: "Ek Percent", blurb: "Logic puzzles that get harder every round, from the 90% question to the 1% question. Get one wrong and you’re out.", minP: 2, foot: "2 to 8 players." },
   cal: { name: "Calorie Clash", blurb: "Two foods side by side. Tap the one with more calories on your phone before time runs out. Everyone plays at once, or take turns.", minP: 2, foot: "2 to 8 players." },
   zoom: { name: "Thali Thriller", blurb: "A sweet or snack, Indian or from around the world, starts zoomed way in and slowly zooms out. Name it on your phone before time runs out. One player at a time, most right wins.", minP: 2, foot: "2 to 8 players. Each turn is one minute." }
@@ -39,7 +40,7 @@ var FOOD_FALLBACK = [["jalebi", "Jalebi", "s"], ["gulab_jamun", "Gulab jamun", "
 var FOOD_INFO = {};
 var FOODS = (window.FOOD_DB && window.FOOD_DB.length ? window.FOOD_DB : FOOD_FALLBACK.map(function (x) { return { id: x[0], n: x[1], t: x[2], g: "", aka: "", r: "", c: "in", f: [50, 50] }; })).map(function (f) { FOOD_INFO[f.id] = f; return [f.id, f.n, f.t, f.c || "in"]; });
 function foodSrc(k, small) { return "food/" + (small ? "m/" : "") + k + ".jpg?v=20"; }
-var GAME_OPTS = [["ravana", "Find the Ravana"], ["zoom", "Thali Thriller"], ["cal", "Calorie Clash"], ["pct", "Ek Percent"]];
+var GAME_OPTS = [["ravana", "Find the Ravana"], ["zoom", "Thali Thriller"], ["cal", "Calorie Clash"], ["pct", "Ek Percent"], ["tp", "Teen Patti"]];
 var ZFOOD = [["mix", "Mix"], ["in", "Indian"], ["w", "World"]];
 function now() { return Date.now(); }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -425,6 +426,10 @@ var SND = {
     if (this.buf.boom1) { if (tm - this.lastBoom < 220) return; this.lastBoom = tm; this.play("boom" + (1 + Math.floor(Math.random() * 5)), 0.35 + Math.random() * 0.3); return; }
     var t = this.ctx.currentTime; this.noise(t, 0.35, 0.25, 900 + Math.random() * 900);
   },
+  coin: function (delay) {
+    if (!this.ok()) return; var t = this.ctx.currentTime + (delay || 0), f = 2200 + Math.random() * 500;
+    this.osc("sine", f, t, 0.002, 0.12, 0.22); this.osc("sine", f * 1.5, t + 0.05, 0.002, 0.09, 0.28); this.osc("triangle", f * 2.7, t, 0.001, 0.03, 0.08); this.noise(t, 0.03, 0.05, 6000);
+  },
   ding: function () { if (this.play("correct", 0.9)) return; this.bell(1319); this.bell(1760, 0.1); this.bell(2637, 0.2); },
   timeup: function () { if (!this.play("timeup", 0.8)) this.buzz(); },
   buzz: function () { if (this.play("wrong", 0.8)) return; if (!this.ok()) return; var t = this.ctx.currentTime; this.osc("square", 160, t, 0.01, 0.1, 0.35, 120); this.osc("sawtooth", 165, t, 0.01, 0.06, 0.35, 118); }
@@ -450,6 +455,9 @@ var MUS = {
     zturnend: { vol: 0.85, tempo: 104, groove: "full", melody: 1, santoor: 1, duck: 1.2 },
     cintro: { vol: 0.65, tempo: 100, groove: "light", melody: 0, santoor: 0.5 },
     pintro: { vol: 0.65, tempo: 100, groove: "light", melody: 0, santoor: 0.5 },
+    tdeal: { vol: 0.6, tempo: 96, groove: "light", melody: 0, santoor: 0.5 },
+    tturn: { vol: 0.55, tempo: 92, groove: "light", melody: 0, santoor: 0.3 },
+    tshow: { vol: 0.75, tempo: 104, groove: "full", melody: 1, santoor: 1 },
     pq: { vol: 0.7, tempo: 112, groove: "tense", melody: 0, santoor: 0 },
     preveal: { vol: 0.6, tempo: 96, groove: "light", melody: 0, santoor: 0.4 },
     cplay: { vol: 0.75, tempo: 120, groove: "tense", melody: 0, santoor: 0 },
@@ -646,7 +654,8 @@ var REC = {
     verdict: ["investigations", 0.32], guess: ["investigations", 0.38], reveal: ["winner", 0.85], skipped: ["sneaky_snitch", 0.4], final: ["winner", 1],
     zintro: ["pixelland", 0.5], zplay: ["pixelland", 0.7], zturnend: ["game_show", 0.8],
     cintro: ["run_amok", 0.5], cplay: ["bit_shift", 0.62], creveal: ["bit_shift", 0.5], cturnend: ["game_show", 0.8],
-    pintro: ["run_amok", 0.5], pq: ["thinking", 0.55], preveal: ["investigations", 0.42]
+    pintro: ["run_amok", 0.5], pq: ["thinking", 0.55], preveal: ["investigations", 0.42],
+    tdeal: ["sneaky_snitch", 0.4], tturn: ["investigations", 0.34], tshow: ["sneaky_snitch", 0.45]
   },
   choice: "auto",
   label: function (c) { c = c || this.choice; return c === "auto" ? "Auto mix" : (this.TRACKS[c] ? this.TRACKS[c].n : "Auto mix"); },
@@ -1017,7 +1026,7 @@ function avOf(id, size, cls) { return avHTML(rname(id), rav(id), size, cls); }
 function pst(id) { var p = T.net && T.net.peers[id]; return p && p.st.role === "player" ? p.st : null; }
 function online(id) { return T.net ? T.net.alive(id) : false; }
 function onlinePlayers() { return T.H.players.filter(online); }
-function isRoundPhase(ph) { return ["peek", "clues", "discuss", "vote", "verdict", "guess", "zintro", "zplay", "zturnend", "cintro", "cplay", "creveal", "cturnend", "pintro", "pq", "preveal"].indexOf(ph) >= 0; }
+function isRoundPhase(ph) { return ["peek", "clues", "discuss", "vote", "verdict", "guess", "zintro", "zplay", "zturnend", "cintro", "cplay", "creveal", "cturnend", "pintro", "pq", "preveal", "tdeal", "tturn", "tshow"].indexOf(ph) >= 0; }
 function isZoomPhase(ph) { return ph === "zintro" || ph === "zplay" || ph === "zturnend"; }
 function minPlayers(h) { return (GAMES[(h || T.H).game] || GAMES.ravana).minP; }
 function gameName(h) { return (GAMES[(h || T.H).game] || GAMES.ravana).name; }
@@ -1025,7 +1034,7 @@ function gameName(h) { return (GAMES[(h || T.H).game] || GAMES.ravana).name; }
 function newHost() {
   return {
     app: "ravana", role: "host", id: "tv_" + rid(10), code: String(1000 + Math.floor(Math.random() * 9000)), sess: rid(10), created: now(),
-    v: 0, game: "ravana", z: null, phase: "lobby", roster: {}, ghosts: {}, removed: {}, rejected: {}, scores: {}, settings: { rounds: 5, talk: 90, zturn: 60, zfood: "mix", cmode: "all", clen: "m", plen: "full", ppass: "on" },
+    v: 0, game: "ravana", z: null, phase: "lobby", roster: {}, ghosts: {}, removed: {}, rejected: {}, scores: {}, settings: { rounds: 5, talk: 90, zturn: 60, zfood: "mix", cmode: "all", clen: "m", plen: "full", ppass: "on", thands: 10, tcoins: 1000 },
     round: 0, rk: "", players: [], word: "", cat: "", ravanaId: "", order: [], clueIdx: 0, turnEnd: 0, timerEnd: 0, timerTot: 1,
     paused: false, pauseLeft: null, result: null, used: [], cmdSeen: {}, away: [], vip: "", notice: "", ack: { saw: [], ready: [], voted: [] }
   };
@@ -1099,6 +1108,7 @@ function tvOnPeers() {
   if (zIntake()) changed = true;
   if (cIntake()) changed = true;
   if (pIntake()) changed = true;
+  if (tpIntake()) changed = true;
   if (changed) tvPub(); else tvRender();
 }
 function recomputeDerived() {
@@ -1150,6 +1160,9 @@ function runCmd(id, c) {
   if (c.type === "setGame" && h.phase === "lobby" && GAMES[a]) h.game = a;
   else if (c.type === "setZturn" && h.phase === "lobby" && [45, 60, 90].indexOf(+a) >= 0) h.settings.zturn = +a;
   else if (c.type === "setZfood" && h.phase === "lobby" && ["mix", "in", "w"].indexOf(a) >= 0) h.settings.zfood = a;
+  else if (c.type === "setThands" && h.phase === "lobby" && [5, 10, 20].indexOf(+a) >= 0) h.settings.thands = +a;
+  else if (c.type === "setTcoins" && h.phase === "lobby" && [500, 1000, 2000].indexOf(+a) >= 0) h.settings.tcoins = +a;
+  else if (c.type === "tpskip" && h.phase === "tturn" && h.tp && h.tp.turn) tpAct(h.tp.turn, "pack", true);
   else if (c.type === "setPlen" && h.phase === "lobby" && ["full", "quick"].indexOf(a) >= 0) h.settings.plen = a;
   else if (c.type === "setPpass" && h.phase === "lobby" && ["on", "off"].indexOf(a) >= 0) h.settings.ppass = a;
   else if (c.type === "setCmode" && h.phase === "lobby" && ["all", "turns"].indexOf(a) >= 0) h.settings.cmode = a;
@@ -1162,6 +1175,7 @@ function runCmd(id, c) {
   else if (c.type === "skip" && same) {
     if (h.phase === "zintro") zBeginTurn(); else if (h.phase === "zplay") { if (h.z.picked == null) zResolve(-2); else zNextFood(); } else if (h.phase === "zturnend") zNextTurn();
     else if (h.phase === "pintro" || h.phase === "preveal") pNextQ(); else if (h.phase === "pq") pResolve();
+    else if (h.phase === "tdeal") { h.timerEnd = 0; tpTick(now()); } else if (h.phase === "tshow") tpNextHand();
     else if (h.phase === "cintro" || h.phase === "creveal") cNextPair(); else if (h.phase === "cplay") cResolve(); else if (h.phase === "cturnend") cNextTurn();
     else if (h.phase === "peek") toClues(); else if (h.phase === "clues") nextSpeaker(); else if (h.phase === "discuss") toVote();
     else if (h.phase === "vote") tally(); else if (h.phase === "verdict") afterVerdict();
@@ -1184,6 +1198,7 @@ function startGame() {
   if (h.game === "zoom") { zStartGame(); return; }
   if (h.game === "cal") { cStartGame(); return; }
   if (h.game === "pct") { pStartGame(); return; }
+  if (h.game === "tp") { tpStartGame(); return; }
   roster().forEach(function (id) { h.scores[id] = 0; });
   h.round = 0; h.ghosts = {};
   startRound();
@@ -1250,7 +1265,7 @@ function nextRound() {
   if (h.settings.rounds && h.round >= h.settings.rounds) { h.phase = "final"; h.rk = rid(6); return; }
   startRound();
 }
-function playAgain() { FX.calm(); var h = T.H; roster().forEach(function (id) { h.scores[id] = 0; }); h.round = 0; h.phase = "lobby"; h.rk = ""; h.result = null; h.ghosts = {}; h.z = null; h.c = null; h.pc = null; h.paused = false; h.pauseLeft = null; h.notice = ""; }
+function playAgain() { FX.calm(); var h = T.H; roster().forEach(function (id) { h.scores[id] = 0; }); h.round = 0; h.phase = "lobby"; h.rk = ""; h.result = null; h.ghosts = {}; h.z = null; h.c = null; h.pc = null; h.tp = null; h.paused = false; h.pauseLeft = null; h.notice = ""; }
 function skipRound(reason) { var h = T.H; h.phase = "skipped"; h.notice = reason; h.result = null; T.pend = null; }
 function removePlayer(id, why) {
   var h = T.H; if (!h.roster[id]) return;
@@ -1260,6 +1275,7 @@ function removePlayer(id, why) {
   var inRound = h.players.indexOf(id) >= 0 && (isRoundPhase(h.phase));
   if (!inRound) { h.players = h.players.filter(function (x) { return x !== id; }); return; }
   if (h.z && isZoomPhase(h.phase)) { h.players = h.players.filter(function (x) { return x !== id; }); if (h.z.pid === id) { h.notice = rname(id) + " left, so their turn ends."; zEndTurn(); } return; }
+  if (h.tp && isTpPhase(h.phase)) { h.players = h.players.filter(function (x) { return x !== id; }); var tpo = h.tp; if (tpo.active[id]) { delete tpo.active[id]; tpLog(tpo, rname(id) + " left the table."); var left = tpActive(h); if (h.phase === "tturn" && left.length === 1) tpWin(left, "fold"); } return; }
   if (h.pc && isPctPhase(h.phase)) { h.players = h.players.filter(function (x) { return x !== id; }); delete h.pc.alive[id]; delete h.pc.picks[id]; return; }
   if (h.c && isCalPhase(h.phase)) { h.players = h.players.filter(function (x) { return x !== id; }); delete h.c.picks[id]; if (h.c.mode === "turns" && h.c.pid === id) { h.notice = rname(id) + " left, so their turn ends."; cEndTurn(); } return; }
   if (id === h.ravanaId) { skipRound(rname(id) + " was the Ravana and left the game."); return; }
@@ -1279,6 +1295,8 @@ function doResume() {
   if (h.z && isZoomPhase(h.phase)) {
     var z = h.z; h.timerEnd = now() + Math.max(1500, pl.timer); h.turnEnd = h.phase === "zplay" ? now() + Math.max(3000, pl.turn) : 0;
     if (h.phase === "zplay" && z.food) { if (z.picked == null) z.fStart = h.timerEnd - z.dur; else z.revealUntil = h.timerEnd; }
+  } else if (h.tp && isTpPhase(h.phase)) {
+    h.timerEnd = now() + Math.max(3000, pl.timer); h.turnEnd = 0; h.tp.awayAt = 0;
   } else if (h.pc && isPctPhase(h.phase)) {
     h.timerEnd = now() + Math.max(1500, pl.timer); h.turnEnd = 0;
     if (h.phase === "pq") h.pc.start = h.timerEnd - h.pc.dur;
@@ -1792,6 +1810,202 @@ function pPhone(h, stt, vipC) {
   if (vipC) hostBar(rev ? [[c.qi + 1 >= c.qs.length || !pAlive(h).length ? "See final results" : "Next question", "skip"]] : [["Reveal now", "skip", "reveal for everyone"]]);
   return '<div class="pph">' + out + "</div>";
 }
+/* ================= game 5: Teen Patti (three-card poker, play coins only) =================
+   Standard rules: boot from everyone; a blind player bets 1x or 2x the stake, a seen player 2x or 4x;
+   a blind bet becomes the stake, a seen bet sets the stake to half of it. With two players left either can
+   ask for a show (blind pays the stake, seen pays double; a seen player can't show a blind one); on equal
+   hands whoever asked for the show loses. House limits keep a party game moving: the stake can't go above
+   16x the boot, a pot of 200x the boot forces a show, and going all in forces a show. */
+var TP = { dealMs: 3500, turnMs: 45000, awayMs: 10000, showMs: 9000, foldMs: 6000, CAPX: 16, POTX: 200 };
+var SUITS = ["♠", "♥", "♦", "♣"], RANKN = { 11: "J", 12: "Q", 13: "K", 14: "A" }, RANKW = { 11: "Jacks", 12: "Queens", 13: "Kings", 14: "Aces" }, RANKW1 = { 11: "Jack", 12: "Queen", 13: "King", 14: "Ace" };
+function isTpPhase(ph) { return ph === "tdeal" || ph === "tturn" || ph === "tshow"; }
+function tpHandsSet(h) { var v = h.settings && +h.settings.thands; return [5, 10, 20].indexOf(v) >= 0 ? v : 10; }
+function tpCoinsSet(h) { var v = h.settings && +h.settings.tcoins; return [500, 1000, 2000].indexOf(v) >= 0 ? v : 1000; }
+function cRank(c) { return 2 + (c % 13); }
+function cSuit(c) { return Math.floor(c / 13); }
+function cName(c) { var r = cRank(c); return RANKN[r] || String(r); }
+function rWord(r, plural) { return plural ? (RANKW[r] || r + "s") : (RANKW1[r] || String(r)); }
+/* score a 3-card hand: higher array wins, compared left to right */
+function tpEval(cards) {
+  var r = cards.map(cRank).sort(function (a, b) { return b - a; }), s = cards.map(cSuit);
+  var flush = s[0] === s[1] && s[1] === s[2], trail = r[0] === r[1] && r[1] === r[2];
+  var seq = 0;
+  if (r[0] === 14 && r[1] === 3 && r[2] === 2) seq = 15;              /* A-2-3: the top run */
+  else if (r[0] - r[1] === 1 && r[1] - r[2] === 1) seq = r[0];          /* A-K-Q = 14 … 4-3-2 = 4 */
+  var runName = function () { return seq === 15 ? "A-2-3" : [r[0], r[1], r[2]].map(function (x) { return RANKN[x] || x; }).join("-"); };
+  if (trail) return { s: [6, r[0]], name: "Trail of " + rWord(r[0], true), cat: 6 };
+  if (seq && flush) return { s: [5, seq], name: "Pure sequence " + runName(), cat: 5 };
+  if (seq) return { s: [4, seq], name: "Sequence " + runName(), cat: 4 };
+  if (flush) return { s: [3, r[0], r[1], r[2]], name: "Colour, " + rWord(r[0]) + " high", cat: 3 };
+  if (r[0] === r[1] || r[1] === r[2]) { var p = r[1], k = r[0] === r[1] ? r[2] : r[0]; return { s: [2, p, k], name: "Pair of " + rWord(p, true), cat: 2 }; }
+  return { s: [1, r[0], r[1], r[2]], name: rWord(r[0]) + " high", cat: 1 };
+}
+function tpCmp(a, b) { for (var i = 0; i < Math.max(a.length, b.length); i++) { var d = (a[i] || 0) - (b[i] || 0); if (d) return d; } return 0; }
+/* cards travel in the shared state lightly scrambled per player, so they don't sit there in plain sight */
+function tpHash(str) { var x = 2166136261; for (var i = 0; i < str.length; i++) { x ^= str.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; }
+function tpEnc(id, hk, cards) { var k = tpHash(id + "|" + hk); return cards.map(function (c, i) { return ((c ^ ((k >>> (i * 7)) & 63)) + 64).toString(36); }).join("."); }
+function tpDec(id, hk, enc) { if (!enc) return null; var k = tpHash(id + "|" + hk); return String(enc).split(".").map(function (x, i) { return (parseInt(x, 36) - 64) ^ ((k >>> (i * 7)) & 63); }); }
+function tpDeck() {
+  var d = []; for (var i = 0; i < 52; i++) d.push(i);
+  var rnd = new Uint32Array(52); try { crypto.getRandomValues(rnd); } catch (e) { for (var j = 0; j < 52; j++) rnd[j] = Math.floor(Math.random() * 4294967296); }
+  for (var k = 51; k > 0; k--) { var m = rnd[k] % (k + 1), t = d[k]; d[k] = d[m]; d[m] = t; }
+  return d;
+}
+function tpActive(h) { var t = h.tp; return t ? t.seats.filter(function (id) { return t.active[id] && h.roster[id]; }) : []; }
+function tpNextSeat(t, from, pred) { var n = t.seats.length, i = t.seats.indexOf(from); for (var k = 1; k <= n; k++) { var id = t.seats[(i + k + n) % n]; if (pred(id)) return id; } return ""; }
+function tpLog(t, s) { t.log.push(s); if (t.log.length > 6) t.log.shift(); }
+function tpStartGame() {
+  var h = T.H, ids = roster().filter(online); if (ids.length < minPlayers(h)) ids = roster();
+  var coins = tpCoinsSet(h), boot = Math.round(coins / 100);
+  roster().forEach(function (id) { h.scores[id] = coins; });
+  h.round = 0; h.ghosts = {}; h.players = ids; h.z = null; h.c = null; h.pc = null;
+  h.tp = { hand: 0, hands: tpHandsSet(h), start: coins, boot: boot, cap: boot * TP.CAPX, potLimit: boot * TP.POTX, seats: ids.slice(), dealer: "", hk: "", inHand: {}, active: {}, seen: {}, put: {}, pot: 0, stake: boot, turn: "", log: [], cards: {}, res: null, seq: {}, awayAt: 0 };
+  h.word = ""; h.cat = ""; h.ravanaId = ""; h.order = []; h.clueIdx = 0; h.result = null; h.notice = ""; h.ack = { saw: [], ready: [], voted: [] };
+  tpNextHand();
+}
+function tpFinish() { var h = T.H; h.phase = "final"; h.rk = rid(6); if (h.tp) h.tp.turn = ""; T.pend = null; }
+function tpNextHand() {
+  var h = T.H, t = h.tp;
+  var able = t.seats.filter(function (id) { return h.roster[id] && (h.scores[id] || 0) >= t.boot; });
+  if (t.hand >= t.hands || able.length < 2) { tpFinish(); return; }
+  t.hand++; h.round = t.hand; t.hk = rid(6); h.rk = t.hk;
+  t.dealer = tpNextSeat(t, t.dealer || t.seats[t.seats.length - 1], function (id) { return able.indexOf(id) >= 0; });
+  t.inHand = {}; t.active = {}; t.seen = {}; t.put = {}; t.pot = 0; t.stake = t.boot; t.res = null; t.log = []; t.cards = {}; t.turn = ""; t.awayAt = 0;
+  var deck = tpDeck();
+  able.forEach(function (id) {
+    t.cards[id] = tpEnc(id, t.hk, deck.splice(0, 3));
+    t.inHand[id] = 1; t.active[id] = 1; h.scores[id] -= t.boot; t.put[id] = t.boot; t.pot += t.boot;
+  });
+  tpLog(t, "Everyone put in the boot of " + t.boot + ".");
+  h.phase = "tdeal"; h.timerEnd = now() + TP.dealMs; h.timerTot = TP.dealMs; h.turnEnd = 0; h.paused = false; h.pauseLeft = null; T.pend = null;
+  SND.dhol(0, true);
+}
+function tpSetTurn(id) { var h = T.H, t = h.tp; t.turn = id; t.awayAt = 0; h.phase = "tturn"; h.timerEnd = now() + TP.turnMs; h.timerTot = TP.turnMs; }
+function tpOpts(h, id) {
+  var t = h.tp, blind = !t.seen[id], coins = h.scores[id] || 0, act = tpActive(h);
+  var call = blind ? t.stake : 2 * t.stake, raise = 2 * call, canRaise = 2 * t.stake <= t.cap;
+  var opp = act.length === 2 ? act.filter(function (x) { return x !== id; })[0] : "";
+  var showCost = blind ? t.stake : 2 * t.stake, showOk = act.length === 2 && (blind || !!t.seen[opp]);
+  return { blind: blind, coins: coins, call: call, raise: raise, canCall: coins >= call, canRaise: canRaise && coins >= raise, showCost: showCost, canShow: showOk && coins >= showCost, showBlocked: act.length === 2 && !showOk, allin: coins < call && coins > 0 ? coins : 0 };
+}
+function tpPay(h, id, amt) { var t = h.tp; amt = Math.max(0, Math.min(amt, h.scores[id] || 0)); h.scores[id] -= amt; t.put[id] = (t.put[id] || 0) + amt; t.pot += amt; return amt; }
+function tpAct(id, type, auto) {
+  var h = T.H, t = h.tp; if (h.phase !== "tturn" || t.turn !== id || !t.active[id]) return false;
+  var o = tpOpts(h, id), who = rname(id);
+  if (type === "pack") { delete t.active[id]; tpLog(t, who + (auto ? " ran out of time and packed." : " packed.")); }
+  else if (type === "call" && o.canCall) { tpPay(h, id, o.call); tpLog(t, who + (o.blind ? " played blind: " : " chaal: ") + o.call + "."); }
+  else if (type === "raise" && o.canRaise) { tpPay(h, id, o.raise); t.stake *= 2; tpLog(t, who + " raised to " + o.raise + (o.blind ? ", still blind." : ".")); }
+  else if (type === "show" && o.canShow) { tpPay(h, id, o.showCost); tpLog(t, who + " paid " + o.showCost + " for a show."); tpShowdown("show", id); return true; }
+  else if (type === "allin" && o.allin) { tpPay(h, id, o.allin); tpLog(t, who + " went all in with " + o.allin + "."); tpShowdown("allin", id); return true; }
+  else return false;
+  var act = tpActive(h);
+  if (act.length === 1) tpWin(act, "fold");
+  else if (t.pot >= t.potLimit) { tpLog(t, "The pot reached the limit of " + t.potLimit + "."); tpShowdown("limit", ""); }
+  else tpSetTurn(tpNextSeat(t, id, function (x) { return t.active[x] && h.roster[x]; }));
+  return true;
+}
+function tpShowdown(type, by) {
+  var h = T.H, t = h.tp, ids = tpActive(h), hands = {}, names = {}, ev = {};
+  ids.forEach(function (id) { var c = tpDec(id, t.hk, t.cards[id]); hands[id] = c; ev[id] = tpEval(c); names[id] = ev[id].name; });
+  var best = [];
+  ids.forEach(function (id) { if (!best.length) { best = [id]; return; } var d = tpCmp(ev[id].s, ev[best[0]].s); if (d > 0) best = [id]; else if (d === 0) best.push(id); });
+  if (type === "show" && best.length > 1) best = best.filter(function (id) { return id !== by; });   /* equal hands: whoever asked loses */
+  tpWin(best, type, { by: by, hands: hands, names: names });
+}
+function tpWin(ids, type, extra) {
+  var h = T.H, t = h.tp, share = Math.floor(t.pot / ids.length), rest = t.pot - share * ids.length;
+  ids.forEach(function (id, i) { h.scores[id] = (h.scores[id] || 0) + share + (i === 0 ? rest : 0); });
+  t.res = Object.assign({ type: type, winners: ids, pot: t.pot, share: share, by: "", hands: {}, names: {} }, extra || {});
+  if (type === "fold") tpLog(t, rname(ids[0]) + " wins the pot of " + t.pot + ".");
+  t.turn = ""; h.phase = "tshow"; var ms = type === "fold" ? TP.foldMs : TP.showMs; h.timerEnd = now() + ms; h.timerTot = ms;
+}
+function tpIntake() {
+  var h = T.H; if (!h || !h.tp || !isTpPhase(h.phase) || h.paused) return false;
+  var t = h.tp, ch = false;
+  t.seats.forEach(function (id) {
+    var p = pst(id); if (!p || !p.tp || p.tp.hk !== t.hk || !t.inHand[id]) return;
+    if (p.tp.seen && !t.seen[id] && h.phase !== "tshow") { t.seen[id] = 1; tpLog(t, rname(id) + " looked at their cards."); ch = true; }
+    var a = p.tp.act;
+    if (a && a.hk === t.hk && a.seq > (t.seq[id] || 0)) { t.seq[id] = a.seq; if (tpAct(id, a.type)) ch = true; }
+  });
+  return ch;
+}
+function tpTick(tm) {
+  var h = T.H, t = h.tp, ch = false; if (!t) return false;
+  if (h.phase === "tdeal") { if (tm > h.timerEnd) { tpSetTurn(tpNextSeat(t, t.dealer, function (x) { return t.active[x] && h.roster[x]; })); ch = true; } }
+  else if (h.phase === "tturn") {
+    if (!h.roster[t.turn] || !t.active[t.turn]) { var nx = tpNextSeat(t, t.turn, function (x) { return t.active[x] && h.roster[x]; }); if (nx) tpSetTurn(nx); ch = true; }
+    else if (!online(t.turn)) { t.awayAt = t.awayAt || tm; if (tm - t.awayAt > TP.awayMs) { tpAct(t.turn, "pack", true); ch = true; } }
+    else { t.awayAt = 0; if (tm > h.timerEnd) { tpAct(t.turn, "pack", true); ch = true; } }
+  }
+  else if (h.phase === "tshow") { if (tm > h.timerEnd) { tpNextHand(); ch = true; } }
+  return ch;
+}
+/* cards */
+function tcard(c, cls) {
+  if (c == null || c < 0) return '<span class="tcard back' + (cls ? " " + cls : "") + '"><i></i></span>';
+  var s = cSuit(c), red = s === 1 || s === 2;
+  return '<span class="tcard' + (red ? " red" : "") + (cls ? " " + cls : "") + '"><b class="tr">' + cName(c) + '</b><i class="ts">' + SUITS[s] + '</i><b class="tr2">' + cName(c) + "</b></span>";
+}
+function tcards(cards, cls) { return '<span class="tcards">' + (cards || [-1, -1, -1]).map(function (c) { return tcard(c, cls); }).join("") + "</span>"; }
+var TP_RANKS = [["Trail", "Three of a kind", [12, 25, 38]], ["Pure sequence", "Run in one suit", [13 + 12, 13 + 11, 13 + 10]], ["Sequence", "Run in any suits", [8, 20, 32]], ["Colour", "Three of one suit", [39 + 11, 39 + 6, 39 + 2]], ["Pair", "Two of a kind", [4, 17, 9]], ["High card", "None of these", [12, 23, 31]]];
+function tpRanksHTML() { return '<ol class="tpranks">' + TP_RANKS.map(function (r) { return "<li>" + tcards(r[2], "mini") + "<span class=\"tprk\"><b>" + r[0] + "</b><small>" + r[1] + "</small></span></li>"; }).join("") + "</ol>"; }
+function tpSky(h) {
+  var t = h.tp, pl = h.paused ? h.pauseLeft : null, ph = h.phase, act = tpActive(h);
+  var pot = '<div class="tppot"><span class="tpcoins"><i></i><i></i><i></i><i></i></span><b class="disp">' + t.pot + '</b><span class="k">in the pot</span><small>Stake ' + t.stake + " · boot " + t.boot + "</small></div>";
+  var log = '<ol class="tplog">' + t.log.slice(-4).map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol>";
+  if (ph === "tdeal") {
+    return '<div class="tpwrap">' + pot + '<div class="tpmid"><span class="k">Hand ' + t.hand + " of " + t.hands + '</span><h1 class="h1">Dealing…</h1><div class="tpdeal">' + tcards(null, "deal") + "</div>" +
+      '<p class="sub small">' + esc(rname(t.dealer)) + " deals. Look at your cards, or play blind for cheaper bets.</p></div>" + (t.hand === 1 ? '<div class="tpside">' + tpRanksHTML() + "</div>" : log) + "</div>";
+  }
+  if (ph === "tturn") {
+    var o = tpOpts(h, t.turn);
+    return '<div class="tpwrap">' + pot + '<div class="tpmid"><span class="k">Now playing</span><h1 class="h1 tpname">' + esc(rname(t.turn)) + "</h1>" +
+      '<div class="tpchips"><span class="tpst ' + (o.blind ? "blind" : "seen") + '">' + (o.blind ? "Blind" : "Seen") + '</span><span class="tpst">To stay in: ' + o.call + "</span>" + (act.length === 2 ? '<span class="tpst two">Two left: show is open</span>' : "") + "</div>" +
+      tBar(h.timerEnd, h.timerTot, pl ? pl.timer : null) + "</div>" + log + "</div>";
+  }
+  var R = t.res; if (!R) return "";
+  var win = R.winners.map(function (id) { return esc(rname(id)); }).join(" and ");
+  if (R.type === "fold") return '<div class="tpwrap">' + pot.replace("in the pot", "won") + '<div class="tpmid"><span class="k">Hand ' + t.hand + " of " + t.hands + '</span><h1 class="h1">' + win + " wins " + R.pot + '</h1><p class="sub">Everyone else packed, so the cards stay hidden.</p></div>' + log + "</div>";
+  var ids = Object.keys(R.hands);
+  var rows = ids.map(function (id) { var w = R.winners.indexOf(id) >= 0; return '<div class="tphand' + (w ? " win" : "") + '"><div class="tpwho">' + avOf(id, 46) + "<b>" + esc(rname(id)) + "</b>" + (id === R.by ? '<span class="tpst">' + (R.type === "allin" ? "went all in" : "asked for the show") + "</span>" : "") + "</div>" + tcards(R.hands[id], "big") + '<span class="tpname2">' + esc(R.names[id]) + "</span>" + (w ? '<span class="tpwin">+' + R.share + "</span>" : "") + "</div>"; }).join("");
+  var why = R.type === "limit" ? "The pot hit its limit, so everyone showed." : R.type === "allin" ? "Someone went all in, so everyone showed." : "";
+  return '<div class="tpshow"><h1 class="h1 tptitle">' + win + (R.winners.length > 1 ? " split " : " wins ") + R.pot + '</h1><div class="tphands n' + Math.min(ids.length, 6) + '">' + rows + "</div>" + (why ? '<p class="sub small">' + why + "</p>" : "") + "</div>";
+}
+function tpPhone(h, stt, vipC) {
+  var t = h.tp, me = P.me.id, inHand = !!t.inHand[me], active = !!t.active[me], pl = h.paused ? h.pauseLeft : null;
+  var mineSeen = !!t.seen[me] || !!(P.st.tp && P.st.tp.hk === t.hk && P.st.tp.seen);
+  var cards = inHand ? tpDec(me, t.hk, t.cards[me]) : null, ev = cards ? tpEval(cards) : null;
+  var head = '<div class="zhead"><span>Hand ' + t.hand + "/" + t.hands + '</span><span class="tpotp">Pot ' + t.pot + '</span><span class="tcoin">' + (h.scores[me] || 0) + "</span></div>";
+  var show = stt === "tshow" && t.res;
+  var faceUp = inHand && (mineSeen || show);
+  var hand = inHand ? '<div class="tpmine' + (active || show ? "" : " packed") + '">' + tcards(faceUp ? cards : null, "tph") + "</div>" : '<p class="sub">You’re sitting out this hand: not enough coins for the boot.</p>';
+  var line = !inHand ? "" : (!active && !show ? '<p class="tpline">You packed this hand.</p>' : (faceUp ? '<p class="tpline"><b>' + esc(ev.name) + "</b></p>" : '<p class="tpline">Playing blind</p>'));
+  var out = head + hand + line;
+  if (stt === "tdeal") { out += '<p class="status">Dealing hand ' + t.hand + "… you put in the boot of " + t.boot + ".</p>"; if (inHand && !mineSeen) out += '<div class="acts small">' + B("Look at my cards", "tpsee", null, "ghost") + "</div>"; if (vipC) hostBar([["Start betting", "skip"]]); }
+  if (stt === "tturn") {
+    if (inHand && active && !mineSeen) out += '<div class="acts small">' + B("Look at my cards", "tpsee", null, "ghost") + "</div>";
+    if (t.turn === me && active) {
+      var o = tpOpts(h, me), btn = function (lbl, type, cls, ok, conf) { return '<button type="button" class="btn ' + cls + '" data-act="tpact" data-arg="' + type + '" data-k="tp:' + type + '"' + (ok ? "" : " disabled") + (conf ? " data-confirm" : "") + ">" + lbl + "</button>"; };
+      var pk = armed("tpact", "pack");
+      out += '<div class="tpturnme"><p class="tpyour">Your turn ' + tText(h.timerEnd, pl ? pl.timer : null) + "s</p>" +
+        (o.allin ? btn("All in · " + o.allin, "allin", "big", true) : btn((o.blind ? "Blind · " : "Chaal · ") + o.call, "call", "big", o.canCall)) +
+        '<div class="tprow">' + (o.allin ? "" : btn("Raise · " + o.raise, "raise", "ghost", o.canRaise)) + (o.canShow || o.showBlocked ? btn("Show · " + o.showCost, "show", "ghost", o.canShow) : "") + "</div>" +
+        (o.showBlocked ? '<p class="tphint">You can’t ask a blind player for a show.</p>' : "") +
+        '<div class="tppackrow"><button type="button" class="passb' + (pk ? " armed" : "") + '" data-act="tpact" data-arg="pack" data-k="tp:pack" data-confirm>' + (pk ? "Tap again to pack" : "Pack (fold)") + "</button></div></div>";
+    } else if (inHand) {
+      out += '<p class="tpwait"><b>' + esc(pName(h, t.turn)) + "</b>’s turn</p>" + tBar(h.timerEnd, h.timerTot, pl ? pl.timer : null).replace('class="tbar"', 'class="tbar zpb"');
+    }
+    out += '<button type="button" class="linkbtn" data-act="tphelp">' + (P.tpHelp ? "Hide hand rankings" : "Hand rankings") + "</button>" + (P.tpHelp ? tpRanksHTML() : "");
+    if (vipC && t.turn && t.turn !== me) hostBar([["Pack for " + pName(h, t.turn), "tpskip", "pack them"]]);
+  }
+  if (show) {
+    var R = t.res, won = R.winners.indexOf(me) >= 0;
+    out += '<p class="zres ' + (won ? "ok" : "no") + '">' + (won ? "You win " + R.share + "!" : esc(R.winners.map(function (id) { return pName(h, id); }).join(" and ")) + " won " + R.pot + (R.names[R.winners[0]] ? " with " + esc(R.names[R.winners[0]]) : "") + ".") + "</p>";
+    if (vipC) hostBar([[t.hand >= t.hands ? "See final results" : "Next hand", "skip"]]);
+  }
+  return '<div class="tpph">' + out + "</div>";
+}
 /* ---- clock: timers + auto steps ---- */
 function tvTick() {
   var h = T.H; if (!h || S.view !== "tv") return;
@@ -1800,6 +2014,10 @@ function tvTick() {
   if (!h.paused && h.z && isZoomPhase(h.phase)) {
     if (zTick(now())) ch = true;
     if (h.phase === "zplay" && h.z.food && h.z.picked == null) { var zs = Math.ceil((h.z.fStart + h.z.dur - now()) / 1000), zkey = h.z.fk + ":" + zs; if (zs <= 4 && zs >= 1 && T.zTickKey !== zkey) { T.zTickKey = zkey; SND.tick(zs <= 2); } }
+  }
+  else if (!h.paused && h.tp && isTpPhase(h.phase)) {
+    if (tpTick(now())) ch = true;
+    if (h.phase === "tturn") { var ts = Math.ceil((h.timerEnd - now()) / 1000), tkey = h.tp.hk + h.tp.turn + ":" + ts; if (ts <= 5 && ts >= 1 && T.tTickKey !== tkey) { T.tTickKey = tkey; SND.tick(ts <= 3); } }
   }
   else if (!h.paused && h.pc && isPctPhase(h.phase)) {
     if (pTick(now())) ch = true;
@@ -1886,6 +2104,7 @@ function spotTarget(h) {
   if (h.paused) return "";
   if (isZoomPhase(h.phase)) return h.phase === "zplay" ? "" : (h.z ? h.z.pid : "");
   if (isPctPhase(h.phase)) return "";
+  if (isTpPhase(h.phase)) return h.tp ? (h.phase === "tturn" ? h.tp.turn : (h.phase === "tshow" && h.tp.res && h.tp.res.winners.length === 1 ? h.tp.res.winners[0] : "")) : "";
   if (isCalPhase(h.phase)) return h.c && h.c.mode === "turns" && (h.phase === "cintro" || h.phase === "cturnend") ? h.c.pid : "";
   if (h.phase === "clues") return h.order[h.clueIdx] || "";
   if (h.phase === "verdict") return h.result && h.result.picked || "";
@@ -1898,7 +2117,7 @@ function tvRender() {
   var h = T.H; if (!h || S.view !== "tv") return;
   if (!document.getElementById("tvMain")) { setRoot(tvShell()); fitTV(); }
   patch("tvHead", tvSign(h)); patch("tvTools", tvTools(h)); patch("tvBrand", h.phase === "lobby" ? "Diwali Games" : esc(gameName(h)));
-  var mainKey = h.phase + "|" + h.rk + "|" + h.clueIdx + (h.z ? "|" + h.z.fk : "") + (h.c ? "|" + h.c.ck : "") + (h.pc ? "|" + h.pc.qk : "");
+  var mainKey = h.phase + "|" + h.rk + "|" + h.clueIdx + (h.z ? "|" + h.z.fk : "") + (h.c ? "|" + h.c.ck : "") + (h.pc ? "|" + h.pc.qk : "") + (h.tp ? "|" + h.tp.hk : "");
   if (S.lastMainKey !== mainKey && h.phase + "|" + h.rk !== String(S.lastMainKey).split("|").slice(0, 2).join("|")) T.phaseAt = now();
   var phaseChanged = patch("tvMain", tvSky(h), mainKey) && S.lastMainKey !== mainKey;
   S.lastMainKey = mainKey;
@@ -1907,11 +2126,14 @@ function tvRender() {
   var ovChanged = patch("tvOv", tvOverlay(h));
   var showRav = (h.phase === "verdict" && h.result && h.result.picked && !h.result.caught) || h.phase === "guess" || (h.phase === "reveal" && h.result && !h.result.caught);
   patch("tvRav", showRav ? ravanaSVG() : "");
-  var tvel = document.getElementById("tv"); if (tvel) { tvel.classList.toggle("rav-on", !!showRav); tvel.classList.toggle("ring", h.phase === "verdict" || h.phase === "reveal" || h.phase === "final" || h.phase === "zturnend" || h.phase === "cturnend"); tvel.classList.toggle("zoomg", h.phase === "zplay"); tvel.classList.toggle("calg", h.phase === "cplay" || h.phase === "creveal"); tvel.classList.toggle("lobbyg", h.phase === "lobby"); tvel.classList.toggle("pctg", h.phase === "pq" || h.phase === "preveal"); }
+  var tvel = document.getElementById("tv"); if (tvel) { tvel.classList.toggle("rav-on", !!showRav); tvel.classList.toggle("ring", h.phase === "verdict" || h.phase === "reveal" || h.phase === "final" || h.phase === "zturnend" || h.phase === "cturnend"); tvel.classList.toggle("zoomg", h.phase === "zplay"); tvel.classList.toggle("calg", h.phase === "cplay" || h.phase === "creveal"); tvel.classList.toggle("lobbyg", h.phase === "lobby"); tvel.classList.toggle("pctg", h.phase === "pq" || h.phase === "preveal"); tvel.classList.toggle("tpg", isTpPhase(h.phase)); }
   if (h.phase === "zplay" && !T.zraf) T.zraf = requestAnimationFrame(zoomTick);
   if (h.z && h.phase === "zplay" && h.z.food && h.z.picked != null) { var zk = h.z.fk + ":" + h.z.picked; if (T.zKey !== zk) { T.zKey = zk; if (h.z.ok) SND.ding(); else if (h.z.picked === -1) SND.timeup(); else if (h.z.picked === -2) SND.play("whoosh", 0.5); else SND.buzz(); } }
   if (h.z && h.phase === "zplay" && h.z.food && h.z.picked == null && T.zNewKey !== h.z.fk) { T.zNewKey = h.z.fk; SND.play("whoosh", 0.35); }
   if (h.phase === "zturnend" && T.zEndKey !== h.rk) { T.zEndKey = h.rk; var gg = h.z ? (h.z.done[h.z.pid] || 0) : 0; if (gg >= 5) { FX.show(3, "joy"); SND.reveal(); SND.cheer(false, 0.2); } else if (gg >= 1) { SND.reveal(); SND.cheer(false, 0.2); } else SND.aww(); }
+  if (h.tp && h.phase === "tdeal" && T.tDealKey !== h.tp.hk) { T.tDealKey = h.tp.hk; for (var di = 0; di < 3; di++) SND.play("whoosh", 0.28, di * 0.18); }
+  if (h.tp && h.phase === "tturn") { var tlk = h.tp.hk + ":" + h.tp.log.length + ":" + h.tp.pot; if (T.tLogKey !== tlk) { if (T.tLogKey && T.tLogKey.split(":")[0] === h.tp.hk && +T.tLogKey.split(":")[2] !== h.tp.pot) SND.coin(); T.tLogKey = tlk; } }
+  if (h.tp && h.phase === "tshow" && h.tp.res && T.tShowKey !== h.tp.hk) { T.tShowKey = h.tp.hk; if (h.tp.res.type === "fold") { SND.coin(); SND.coin(0.12); } else { SND.roll(1.0); setTimeout(function () { SND.reveal(); SND.cheer(false, 0.1); for (var ci = 0; ci < 4; ci++) SND.coin(0.3 + ci * 0.09); }, 1050); } }
   if (h.pc && h.phase === "pq" && T.pNewKey !== h.pc.qk) { T.pNewKey = h.pc.qk; SND.play("whoosh", 0.35); }
   if (h.pc && h.phase === "preveal" && h.pc.res && T.pRevKey !== h.pc.qk) {
     T.pRevKey = h.pc.qk; var PR = h.pc.res; SND.roll(1.0);
@@ -1961,6 +2183,7 @@ function tvSpot(h) {
 function tvSign(h) {
   if (h.phase === "lobby") return '<span class="k">Room</span><span class="code disp">' + h.code + "</span>";
   if (h.phase === "final") return '<span class="k">Final results</span>';
+  if (isTpPhase(h.phase) && h.tp) return '<span class="k">Hand ' + h.tp.hand + " of " + h.tp.hands + '</span><span class="lvl tpl">Pot ' + h.tp.pot + "</span>";
   if (isPctPhase(h.phase) && h.pc) return '<span class="k">' + (h.pc.qi >= 0 ? "Question " + (h.pc.qi + 1) + " of " + h.pc.qs.length : h.pc.qs.length + " puzzles") + "</span>" + (h.pc.qi >= 0 ? '<span class="lvl">' + pLevel(h) + "%</span>" : "");
   if (isCalPhase(h.phase) && h.c) return h.c.mode === "turns" ? '<span class="k">Turn ' + h.round + " of " + h.c.order.filter(function (id) { return h.roster[id]; }).length + (h.c.pi >= 0 && h.phase !== "cturnend" ? " · pair " + (h.c.pi + 1) + " of " + h.c.pairs.length : "") + "</span>" : '<span class="k">' + (h.c.pi >= 0 ? "Pair " + (h.c.pi + 1) + " of " + h.c.pairs.length : h.c.pairs.length + " pairs") + "</span>";
   if (isZoomPhase(h.phase)) return '<span class="k">Turn ' + h.round + " of " + (h.z ? h.z.order.filter(function (id) { return h.roster[id]; }).length : "?") + "</span>";
@@ -1977,6 +2200,7 @@ function plateStatus(h, id) {
   if (!online(id)) return '<span class="ps away">' + ic("moon") + "</span>";
   if (h.players.indexOf(id) < 0 && isRoundPhase(h.phase)) return '<span class="ps wait">next round</span>';
   if (h.pc && isPctPhase(h.phase) && !h.pc.alive[id]) return '<span class="ps outp">out</span>';
+  if (h.tp && isTpPhase(h.phase)) { var tq = h.tp; return (tq.dealer === id ? '<span class="ps tdl">D</span>' : "") + (!tq.inHand[id] ? '<span class="ps outp">out</span>' : (!tq.active[id] ? '<span class="ps tpk">packed</span>' : (tq.seen[id] ? '<span class="ps tsn">seen</span>' : '<span class="ps tbl">blind</span>'))); }
   return "";
 }
 /* 1, 2 or 3 for the podium on the final screen (ties share a place; nobody on 0 gets a medal) */
@@ -1996,12 +2220,13 @@ function tvCast(h) {
     if (isRoundPhase(h.phase) && !inRound) cls.push("out");
     if (h.phase === "cplay" && h.c && h.c.picks[id]) cls.push("lamp");
     if (h.pc && isPctPhase(h.phase) && inRound && !h.pc.alive[id]) cls.push("out");
+    if (h.tp && isTpPhase(h.phase) && (!h.tp.inHand[id] || (!h.tp.active[id] && h.phase !== "tshow"))) cls.push("out");
     if (h.phase === "pq" && h.pc && h.pc.alive[id] && h.pc.picks[id]) cls.push("lamp");
     if ((h.phase === "peek" && h.ack.saw.indexOf(id) >= 0) || (h.phase === "discuss" && h.ack.ready.indexOf(id) >= 0) || (h.phase === "vote" && h.ack.voted.indexOf(id) >= 0)) cls.push("lamp");
     if (isRav) cls.push("ravana");
     if (winner && id === winner) cls.push("winner");
     var rk = h.phase === "final" ? rankOf(h, id) : 0;
-    var d = h.phase === "reveal" && R ? (R.delta[id] || 0) : (h.phase === "creveal" && h.c && h.c.res ? (h.c.res.pts[id] || 0) : (h.phase === "preveal" && h.pc && h.pc.res && (h.pc.res.right.indexOf(id) >= 0 || h.pc.res.passed.indexOf(id) >= 0) ? 1 : 0)), num = h.phase === "clues" ? h.order.indexOf(id) + 1 : 0;
+    var d = h.phase === "reveal" && R ? (R.delta[id] || 0) : (h.phase === "creveal" && h.c && h.c.res ? (h.c.res.pts[id] || 0) : (h.phase === "preveal" && h.pc && h.pc.res && (h.pc.res.right.indexOf(id) >= 0 || h.pc.res.passed.indexOf(id) >= 0) ? 1 : (h.phase === "tshow" && h.tp && h.tp.res && h.tp.res.winners.indexOf(id) >= 0 ? h.tp.res.share : 0))), num = h.phase === "clues" ? h.order.indexOf(id) + 1 : 0;
     var av = h.roster[id].av, fig = lotus(av, L.w, "", { uid: id.slice(-6) + "a", dark: isRav, crown: !!winner && id === winner, refl: true });
     out += '<div class="' + cls.join(" ") + '" style="left:' + L.pos[id] + "px;--sw:" + (4.2 + (i % 4) * 0.55).toFixed(2) + "s;--sd:-" + (i * 0.9).toFixed(1) + 's">' +
       '<div class="fig"><div class="tilt">' + fig + "</div></div>" +
@@ -2019,12 +2244,14 @@ function tvSky(h) {
   if (isZoomPhase(ph)) return zSky(h);
   if (isCalPhase(ph)) return cSky(h);
   if (isPctPhase(ph)) return pSky(h);
+  if (isTpPhase(ph)) return tpSky(h);
   if (ph === "lobby") {
     return '<div class="lobbysky"><div class="qrcard"><div class="qr">' + qrSvg(JOIN_URL + "#join-" + h.code) + '</div></div>' +
       '<div class="lobbytxt"><h1 class="h1">Scan to join</h1><p class="joinat">or go to <b>' + CFG.short + '</b> and enter <b class="codeinline disp">' + h.code + "</b></p>" +
       '<p class="note">' + (roster().length < minPlayers(h) ? "Need at least " + minPlayers(h) + " players." : (h.notice ? esc(h.notice) : "The host (crown) can run the game from their phone.")) + "</p>" +
       gameTiles(h) +
       '<div class="lobbyopts">' + (h.game === "zoom" ? optRow("Each turn", [[45, "45 sec"], [60, "1 min"], [90, "1½ min"]], h.settings.zturn, "setZturn") + optRow("Foods", ZFOOD, zFoodMode(h), "setZfood") :
+        h.game === "tp" ? optRow("Hands", [[5, "5"], [10, "10"], [20, "20"]], tpHandsSet(h), "setThands") + optRow("Coins each", [[500, "500"], [1000, "1,000"], [2000, "2,000"]], tpCoinsSet(h), "setTcoins") :
         h.game === "pct" ? optRow("Puzzles", [["full", "All 11"], ["quick", "Quick 6"]], pLen(h), "setPlen") + optRow("Pass", [["on", "One each"], ["off", "No passes"]], pPassOn(h) ? "on" : "off", "setPpass") :
         h.game === "cal" ? optRow("Who answers", [["all", "Everyone"], ["turns", "One at a time"]], cMode(h), "setCmode") + optRow("Length", cLenOpts(h), cLen(h), "setClen") + optRow("Foods", ZFOOD, zFoodMode(h), "setZfood") : optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk")) + "</div></div></div>";
   }
@@ -2068,6 +2295,10 @@ function tvSky(h) {
     return '<div class="reveal bad"><p class="r1">The real Ravana was</p><h1 class="h1 rname disp r2">' + rn + '</h1><p class="r3">The word was <span class="rword disp">' + esc(h.word) + "</span></p><p class=\"r4\">" + out + "</p></div>";
   }
   if (ph === "skipped") return '<h1 class="h1">Round skipped</h1><p class="sub">' + esc(h.notice) + "</p>";
+  if (ph === "final" && h.game === "tp" && h.tp) {
+    var tids = roster().sort(function (a, b) { return (h.scores[b] || 0) - (h.scores[a] || 0); }), ttop = h.scores[tids[0]] || 0, tw = tids.filter(function (id) { return (h.scores[id] || 0) === ttop; });
+    return '<h1 class="h1 ftitle">' + (tw.length === 1 ? esc(rname(tw[0])) + " wins!" : tw.map(function (id) { return esc(rname(id)); }).join(" and ") + " tie!") + '</h1><p class="sub">' + ttop + " coins after " + h.tp.hand + " hands. Happy Diwali, everyone.</p>";
+  }
   if (ph === "final" && h.game === "pct" && h.pc) { var pf = pFinalText(h); return '<h1 class="h1 ftitle">' + pf.title + '</h1><p class="sub">' + pf.sub + "</p>"; }
   if (ph === "final") {
     var ids = roster().sort(function (a, b) { return (h.scores[b] || 0) - (h.scores[a] || 0); });
@@ -2077,9 +2308,10 @@ function tvSky(h) {
   }
   return "";
 }
-var GAME_TAG = { ravana: "Find who doesn’t know the word", zoom: "Name the food as it zooms out", cal: "Pick the food with more calories", pct: "Puzzles get harder until only 1% can solve them" };
+var GAME_TAG = { ravana: "Find who doesn’t know the word", zoom: "Name the food as it zooms out", cal: "Pick the food with more calories", pct: "Puzzles get harder until only 1% can solve them", tp: "Three-card poker with play coins" };
 function gameArt(k) {
   if (k === "ravana") return '<span class="gart ravana"><img src="art/lotus_dark.png" alt=""></span>';
+  if (k === "tp") return '<span class="gart tp"><i></i><i></i><i></i></span>';
   if (k === "pct") return '<span class="gart pct"><b class="disp">1%</b></span>';
   if (k === "zoom") return '<span class="gart zoom"><img src="' + foodSrc("jalebi", true) + '" alt=""></span>';
   return '<span class="gart cal"><img src="' + foodSrc("samosa", true) + '" alt=""><img src="' + foodSrc("donut", true) + '" alt=""></span>';
@@ -2102,6 +2334,9 @@ function tvApron(h) {
   } else if (ph === "zintro") { acts = B("Start now", "skip", null, "", "data-primary"); cap = rname(h.z.pid) + " picks the answers on their phone."; }
   else if (ph === "zplay") { acts = B("Skip this food", "skip", null, "ghost") + B("End this turn", "skipturn", null, "ghost"); cap = "Only " + rname(h.z.pid) + " answers. Everyone else, no shouting."; }
   else if (ph === "zturnend") { var lastT = !h.z.order.slice(h.z.ti + 1).some(function (id) { return h.roster[id]; }); acts = B(lastT ? "See final results" : "Next player", "next", null, "big", "data-primary") + '<span class="tchip">' + ic("clock") + tText(h.timerEnd, pl ? pl.timer : null) + "</span>"; cap = lastT ? "" : "Next turn starts by itself in a moment.";
+  } else if (ph === "tdeal") { acts = B("Start betting", "skip", null, "", "data-primary"); cap = "Everyone looks at their phone. Playing blind makes your bets cheaper.";
+  } else if (ph === "tturn") { acts = B("Pack for " + rname(h.tp.turn), "tpskip", null, "ghost"); cap = "Blind bets the stake, seen bets double. Pack to fold. With two left, ask for a show.";
+  } else if (ph === "tshow") { var lastT2 = h.tp.hand >= h.tp.hands; acts = B(lastT2 ? "See final results" : "Next hand", "skip", null, "", "data-primary") + '<span class="tchip">' + ic("clock") + tText(h.timerEnd, pl ? pl.timer : null) + "</span>"; cap = "Play coins only. Richest player after " + h.tp.hands + " hands wins.";
   } else if (ph === "pintro") { acts = B("Start now", "skip", null, "", "data-primary"); cap = "Everyone answers on their phone.";
   } else if (ph === "pq") { acts = B("Reveal now", "skip", null, "ghost"); cap = "Answer on your phone. Wrong answer or no answer and you’re out.";
   } else if (ph === "preveal") { var lastP = h.pc.qi + 1 >= h.pc.qs.length || !pAlive(h).length; acts = B(lastP ? "See final results" : "Next question", "skip", null, "", "data-primary") + '<span class="tchip">' + ic("clock") + tText(h.timerEnd, pl ? pl.timer : null) + "</span>"; cap = "The difficulty levels are our estimates, not a survey.";
@@ -2185,6 +2420,7 @@ function phOnPeers() {
     if (H2 && H2.phase === "zintro" && H2.z && H2.z.pid === P.me.id) { var kz = H2.rk + ":zi"; if (P.lastTurn !== kz) { P.lastTurn = kz; vibrate([120, 60, 120]); } }
     if (H2 && H2.phase === "cintro" && H2.c && H2.c.pid === P.me.id) { var kc = H2.rk + ":ci"; if (P.lastTurn !== kc) { P.lastTurn = kc; vibrate([120, 60, 120]); } }
     if (H2 && H2.phase === "cplay" && H2.c && (H2.c.mode === "all" || H2.c.pid === P.me.id) && H2.players.indexOf(P.me.id) >= 0) { var kp = H2.c.ck + ":cp"; if (P.lastTurn !== kp) { P.lastTurn = kp; vibrate(30); } }
+    if (H2 && H2.phase === "tturn" && H2.tp && H2.tp.turn === P.me.id) { var kt = H2.tp.hk + ":" + H2.tp.log.length + ":tt"; if (P.lastTurn !== kt) { P.lastTurn = kt; vibrate([60, 40, 60]); } }
     if (H2 && H2.phase === "pq" && H2.pc && H2.players.indexOf(P.me.id) >= 0) { var kq = H2.pc.qk + ":pq"; if (P.lastTurn !== kq) { P.lastTurn = kq; vibrate(30); } }
     phPreload(H2);
     phAutoResend(H2);
@@ -2200,12 +2436,13 @@ function phAutoResend(h) {
   if (h.z && h.phase === "zplay" && h.z.pid === P.me.id && P.st.ans && P.st.ans.fk === h.z.fk && h.z.picked == null) need = true;
   if (h.c && h.phase === "cplay" && P.st.cal && P.st.cal.ck === h.c.ck && !h.c.picks[P.me.id]) need = true;
   if (h.pc && h.phase === "pq" && P.st.pct && P.st.pct.qk === h.pc.qk && !h.pc.picks[P.me.id] && !h.pc.fun[P.me.id]) need = true;
+  if (h.tp && isTpPhase(h.phase) && P.st.tp && P.st.tp.hk === h.tp.hk && ((P.st.tp.seen && !h.tp.seen[P.me.id] && h.phase !== "tshow") || (P.st.tp.act && P.st.tp.act.hk === h.tp.hk && P.st.tp.act.seq > (h.tp.seq[P.me.id] || 0) && h.tp.turn === P.me.id))) need = true;
   if (need && (!P.lastResend || now() - P.lastResend > 3000)) { P.lastResend = now(); P.net.publish(P.st); }
 }
 function goPhone() {
   var h = HS(); if (!h) return;
   var saved = lsGet("ravana_pst");
-  var base = { app: "ravana", role: "player", id: P.me.id, code: P.code, sess: h.sess, name: P.me.name, av: P.me.av, left: false, joinedAt: now(), saw: "", ready: "", vote: null, guess: null, ans: null, cal: null, pct: null, cmd: null };
+  var base = { app: "ravana", role: "player", id: P.me.id, code: P.code, sess: h.sess, name: P.me.name, av: P.me.av, left: false, joinedAt: now(), saw: "", ready: "", vote: null, guess: null, ans: null, cal: null, pct: null, tp: null, cmd: null };
   if (saved && saved.id === P.me.id && saved.sess === h.sess && saved.code === P.code) base = Object.assign(base, { saw: saved.saw || "", ready: saved.ready || "", vote: saved.vote || null, guess: saved.guess || null, joinedAt: saved.joinedAt || base.joinedAt });
   P.st = base;
   lsSet("ravana_room", { code: P.code, sess: h.sess, ts: now() });
@@ -2336,6 +2573,8 @@ function phMain(h, stt) {
         '<div class="hrow game"><span>Game</span><div class="seg">' + GAME_OPTS.map(function (o) { return B(o[1], "cmd", "setGame|" + o[0], "chip" + (h.game === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
         (h.game === "zoom" ? '<div class="hrow"><span>Each turn</span><div class="seg">' + [[45, "45s"], [60, "1 min"], [90, "1½ min"]].map(function (o) { return B(o[1], "cmd", "setZturn|" + o[0], "chip" + (h.settings.zturn === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
           '<div class="hrow"><span>Foods</span><div class="seg">' + ZFOOD.map(function (o) { return B(o[1], "cmd", "setZfood|" + o[0], "chip" + (zFoodMode(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
+        h.game === "tp" ? '<div class="hrow"><span>Hands</span><div class="seg">' + [[5, "5"], [10, "10"], [20, "20"]].map(function (o) { return B(o[1], "cmd", "setThands|" + o[0], "chip" + (tpHandsSet(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
+          '<div class="hrow"><span>Coins each</span><div class="seg">' + [[500, "500"], [1000, "1,000"], [2000, "2,000"]].map(function (o) { return B(o[1], "cmd", "setTcoins|" + o[0], "chip" + (tpCoinsSet(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
         h.game === "pct" ? '<div class="hrow"><span>Puzzles</span><div class="seg">' + [["full", "All 11"], ["quick", "Quick 6"]].map(function (o) { return B(o[1], "cmd", "setPlen|" + o[0], "chip" + (pLen(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
           '<div class="hrow"><span>Pass</span><div class="seg">' + [["on", "One each"], ["off", "No passes"]].map(function (o) { return B(o[1], "cmd", "setPpass|" + o[0], "chip" + ((pPassOn(h) ? "on" : "off") === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
         h.game === "cal" ? '<div class="hrow"><span>Who answers</span><div class="seg">' + [["all", "Everyone"], ["turns", "One at a time"]].map(function (o) { return B(o[1], "cmd", "setCmode|" + o[0], "chip" + (cMode(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
@@ -2346,10 +2585,11 @@ function phMain(h, stt) {
         B("Start " + gameName(h), "cmd", "start", "big", n < minPlayers(h) ? "disabled" : "") + '<p class="note">' + (n < minPlayers(h) ? "Need at least " + minPlayers(h) + " players." : (h.game === "zoom" || (h.game === "cal" && cMode(h) === "turns") ? "Everyone takes a turn, one at a time." : "Everyone's phone will light up.")) + "</p></div>"
         : '<p class="sub">Waiting for ' + (h.vip ? esc(pName(h, h.vip)) : "the host") + ' to start the game.</p><button type="button" class="linkbtn" data-act="cmd" data-arg="claim" data-k="claim">Want to run the game? Become the host</button>') + "</div>";
   }
-  if (stt === "waiting") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">' + (h.game === "zoom" || h.game === "cal" || h.game === "pct" ? "Game in progress" : "Round " + h.round + " is on") + "</h2><p class=\"sub\">" + (h.game === "zoom" ? "You'll be in the next game. Watch the TV for now." : "You'll be dealt in next round. Watch the TV and enjoy the chaos.") + "</p></div>";
+  if (stt === "waiting") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">' + (h.game === "zoom" || h.game === "cal" || h.game === "pct" || h.game === "tp" ? "Game in progress" : "Round " + h.round + " is on") + "</h2><p class=\"sub\">" + (h.game === "zoom" ? "You'll be in the next game. Watch the TV for now." : "You'll be dealt in next round. Watch the TV and enjoy the chaos.") + "</p></div>";
   if (stt === "zintro" || stt === "zplay" || stt === "zturnend") return zPhone(h, stt, vipC);
   if (isCalPhase(stt) && h.c) return cPhone(h, stt, vipC);
   if (isPctPhase(stt) && h.pc) return pPhone(h, stt, vipC);
+  if (isTpPhase(stt) && h.tp) return tpPhone(h, stt, vipC);
   if (stt === "peek") {
     var seen = P.st.saw === h.rk, acked = h.ack.saw.indexOf(me) >= 0;
     return card(h) + '<div class="acts">' + (seen ? '<p class="status">' + (acked ? ic("check") + " Got it. Waiting for the others (" + h.ack.saw.length + " of " + h.players.length + ")" : "Sending…") + "</p>" : B("Got it", "saw", null, "big")) +
@@ -2398,7 +2638,7 @@ function phMain(h, stt) {
   if (stt === "final") {
     var ids2 = Object.keys(h.roster), mine2 = h.scores[me] || 0, rank = 1 + ids2.filter(function (o) { return (h.scores[o] || 0) > mine2; }).length;
     var suf = rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th";
-    return '<div class="center">' + avHTML(P.me.name, P.me.av, 110, "pop") + '<h2 class="h2 disp">You came ' + rank + suf + '</h2><div class="pts disp got">' + mine2 + '</div><p class="sub">' + (h.game === "pct" ? (mine2 === 1 ? "puzzle solved" : "puzzles solved") : "points") + '. Happy Diwali!</p>' +
+    return '<div class="center">' + avHTML(P.me.name, P.me.av, 110, "pop") + '<h2 class="h2 disp">You came ' + rank + suf + '</h2><div class="pts disp got">' + mine2 + '</div><p class="sub">' + (h.game === "pct" ? (mine2 === 1 ? "puzzle solved" : "puzzles solved") : h.game === "tp" ? "coins" : "points") + '. Happy Diwali!</p>' +
       (vipC ? '<div class="acts">' + B("Play again", "cmd", "again", "big") + "</div>" : "") + "</div>";
   }
   return "";
@@ -2427,7 +2667,7 @@ function phOv(h, stt) {
 function phHostSheet(h) {
   var ph = h.phase, last = h.settings.rounds && h.round >= h.settings.rounds;
   var step = {
-    lobby: ["Start " + gameName(h), "start"], pintro: ["Start now", "skip"], pq: ["Reveal now", "skip"], preveal: ["Next question", "skip"], cintro: ["Start now", "skip"], cplay: ["Reveal now", "skip"], creveal: ["Next pair", "skip"], cturnend: ["Next player", "next"], zintro: ["Start now", "skip"], zplay: ["Skip this food", "skip"], zturnend: ["Next player", "next"], peek: ["Start the clues", "skip"], clues: ["Next speaker", "skip"], discuss: ["Start the vote", "skip"],
+    lobby: ["Start " + gameName(h), "start"], tdeal: ["Start betting", "skip"], tshow: ["Next hand", "skip"], pintro: ["Start now", "skip"], pq: ["Reveal now", "skip"], preveal: ["Next question", "skip"], cintro: ["Start now", "skip"], cplay: ["Reveal now", "skip"], creveal: ["Next pair", "skip"], cturnend: ["Next player", "next"], zintro: ["Start now", "skip"], zplay: ["Skip this food", "skip"], zturnend: ["Next player", "next"], peek: ["Start the clues", "skip"], clues: ["Next speaker", "skip"], discuss: ["Start the vote", "skip"],
     vote: ["Count the votes", "skip"], verdict: ["Continue", "skip"], guess: [h.result && h.result.guess != null ? "Show the results" : "Skip the guess", "skip"],
     reveal: [last ? "See final results" : "Next round", "next"], skipped: ["Next round", "next"], final: ["Play again", "again"]
   }[ph];
@@ -2532,6 +2772,12 @@ var ACT = {
   setZturn: function (v) { T.H.settings.zturn = +v; tvPub(); },
   setZfood: function (v) { if (["mix", "in", "w"].indexOf(v) >= 0) { T.H.settings.zfood = v; if (T.H.z) zRefill(T.H); tvPub(); } },
   skipturn: function () { if (T.H.phase === "zplay") { zEndTurn(); tvPub(); } else if ((T.H.phase === "cplay" || T.H.phase === "creveal") && T.H.c && T.H.c.mode === "turns") { cEndTurn(); tvPub(); } },
+  setThands: function (v) { if ([5, 10, 20].indexOf(+v) >= 0 && T.H.phase === "lobby") { T.H.settings.thands = +v; tvPub(); } },
+  setTcoins: function (v) { if ([500, 1000, 2000].indexOf(+v) >= 0 && T.H.phase === "lobby") { T.H.settings.tcoins = +v; tvPub(); } },
+  tpskip: function () { var h = T.H; if (h.phase === "tturn" && h.tp && h.tp.turn) { tpAct(h.tp.turn, "pack", true); tvPub(); } },
+  tpsee: function () { var h = HS(); if (!h || !h.tp || !h.tp.inHand[P.me.id]) return; var cur = P.st.tp && P.st.tp.hk === h.tp.hk ? P.st.tp : { hk: h.tp.hk, act: null }; P.st.tp = { hk: h.tp.hk, seen: true, act: cur.act }; vibrate(15); phPub(); },
+  tpact: function (type) { var h = HS(); if (!h || !h.tp || h.phase !== "tturn" || h.tp.turn !== P.me.id || h.paused) return; var cur = P.st.tp && P.st.tp.hk === h.tp.hk ? P.st.tp : { hk: h.tp.hk, seen: false }; P.st.tp = { hk: h.tp.hk, seen: !!cur.seen, act: { seq: now(), type: type, hk: h.tp.hk } }; vibrate(20); phPub(); },
+  tphelp: function () { P.tpHelp = !P.tpHelp; phRender(); },
   setPlen: function (v) { if (["full", "quick"].indexOf(v) >= 0 && T.H.phase === "lobby") { T.H.settings.plen = v; tvPub(); } },
   setPpass: function (v) { if (["on", "off"].indexOf(v) >= 0 && T.H.phase === "lobby") { T.H.settings.ppass = v; tvPub(); } },
   pans: function (a) { var h = HS(); if (!h || h.phase !== "pq" || !h.pc || h.paused || h.players.indexOf(P.me.id) < 0) return; if (P.st.pct && P.st.pct.qk === h.pc.qk) return; P.st.pct = { qk: h.pc.qk, a: String(a) }; vibrate(15); phPub(); },
@@ -2544,7 +2790,7 @@ var ACT = {
   zans: function (i) { var h = HS(); if (!h || h.phase !== "zplay" || !h.z || h.z.pid !== P.me.id || h.z.picked != null) return; P.st.ans = { fk: h.z.fk, pick: +i }; vibrate(15); phPub(); },
   setTalk: function (v) { T.H.settings.talk = +v; tvPub(); },
   start: function () { startGame(); tvPub(); },
-  skip: function () { var ph = T.H.phase; if (ph === "pintro" || ph === "preveal") { pNextQ(); tvPub(); return; } if (ph === "pq") { pResolve(); tvPub(); return; } if (ph === "cintro" || ph === "creveal") { cNextPair(); tvPub(); return; } if (ph === "cplay") { cResolve(); tvPub(); return; } if (ph === "cturnend") { cNextTurn(); tvPub(); return; } if (ph === "zintro") zBeginTurn(); else if (ph === "zplay") { if (T.H.z.picked == null) zResolve(-2); else zNextFood(); } else if (ph === "zturnend") zNextTurn(); else if (ph === "peek") toClues(); else if (ph === "clues") nextSpeaker(); tvPub(); },
+  skip: function () { var ph = T.H.phase; if (ph === "tdeal") { T.H.timerEnd = 0; tpTick(now()); tvPub(); return; } if (ph === "tshow") { tpNextHand(); tvPub(); return; } if (ph === "pintro" || ph === "preveal") { pNextQ(); tvPub(); return; } if (ph === "pq") { pResolve(); tvPub(); return; } if (ph === "cintro" || ph === "creveal") { cNextPair(); tvPub(); return; } if (ph === "cplay") { cResolve(); tvPub(); return; } if (ph === "cturnend") { cNextTurn(); tvPub(); return; } if (ph === "zintro") zBeginTurn(); else if (ph === "zplay") { if (T.H.z.picked == null) zResolve(-2); else zNextFood(); } else if (ph === "zturnend") zNextTurn(); else if (ph === "peek") toClues(); else if (ph === "clues") nextSpeaker(); tvPub(); },
   votenow: function () { toVote(); tvPub(); },
   addtime: function () { T.H.timerEnd += 30000; T.H.timerTot += 30000; tvPub(); },
   count: function () { tally(); tvPub(); },
@@ -2694,4 +2940,4 @@ function applyTheme(t) { if (["velvet", "ivory", "rose"].indexOf(t) < 0) t = "ve
   if (inroom && sr && sr.code === inroom && P.me.name) { startJoin(inroom); return; } /* this phone tab was reloaded mid-game */
   setView("home");
 })();
-window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, zRefill: zRefill, PCT: PCT, PCT_BY: PCT_BY, pCorrect: pCorrect, CAL: CAL, cMakePairs: cMakePairs, cFit: cFit, REC: REC, KEEP: KEEP };
+window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, zRefill: zRefill, PCT: PCT, PCT_BY: PCT_BY, pCorrect: pCorrect, TP: TP, tpEval: tpEval, tpCmp: tpCmp, tpDec: tpDec, tpEnc: tpEnc, tpOpts: tpOpts, tvPub: tvPub, CAL: CAL, cMakePairs: cMakePairs, cFit: cFit, REC: REC, KEEP: KEEP };

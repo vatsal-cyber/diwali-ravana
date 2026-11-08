@@ -1,6 +1,6 @@
 # Diwali Games
 
-Live party games for the TV and everyone's phones: **Find the Ravana**, **Thali Thriller**, **Calorie Clash** and **Ek Percent**. The TV runs the show; phones are the controllers.
+Live party games for the TV and everyone's phones: **Find the Ravana**, **Thali Thriller**, **Calorie Clash**, **Ek Percent** and **Teen Patti**. The TV runs the show; phones are the controllers.
 
 **Play:** open **tinyurl.com/ravanatv** on the TV browser and choose **Use this screen as the TV**. Everyone scans the QR code. Phones on the same Wi-Fi also get a one-tap **Join** button on the home page. Pick the game in the lobby (on the TV or the host's phone); Play again returns to the lobby so you can switch.
 
@@ -21,6 +21,14 @@ Pairs are never closer than 35% apart (so rough calorie values can't flip the an
 Inspired by the TV show *The 1% Club*. Logic puzzles get harder every round, from the 90% question down to the 1% question. Everyone answers each puzzle on their phone (multiple choice, or a number pad for number answers) within 30 seconds (45 for the 10% and 5% puzzles, 60 for the 1%). A wrong answer or no answer puts you out; out players can keep answering for fun. Everyone gets one pass to skip a puzzle, except the 1% one. The reveal shows the answer, who picked what and a one-line explanation.
 
 Settings: all 11 levels (90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 1) or a quick 6 (90, 70, 50, 30, 10, 1), passes on or off. The puzzles are original and live in `pct.js` (44 puzzles, 4 per level); the percentages are our estimates of difficulty, not survey results.
+
+## Teen Patti (2 to 8 players)
+Three-card poker with **play coins only** (no real money). Everyone starts with 500, 1,000 or 2,000 coins; the game lasts 5, 10 or 20 hands and the richest player at the end wins. Each hand everyone puts in a boot (1% of the starting coins), gets three cards on their phone and can play **blind** or tap **Look at my cards**. The TV shows the pot, whose turn it is, blind or seen for each player and a running log; cards stay on the phones until a show.
+
+- **On your turn:** blind players bet the stake (Blind) or double it (Raise). Seen players pay double: Chaal is 2x the stake, Raise 4x. Raising doubles the stake for everyone. **Pack** (fold) needs two taps.
+- **Show:** only when two players are left. A blind player pays the stake; a seen player pays double and can only ask a player who has also seen. Equal hands at a show: whoever asked loses.
+- **Hand ranks:** Trail (three of a kind) > Pure sequence > Sequence > Colour > Pair > High card. A-2-3 is the highest run, then A-K-Q, down to 4-3-2.
+- **House limits** so a hand can't run forever: the stake tops out at 16x the boot, the pot at 200x the boot (then everyone shows), and a player who can't cover the bet can go all in, which forces a show. 45 seconds a turn; running out of time or leaving the room packs you. No side shows yet.
 
 ## Photos on phones
 In both food games every phone shows the same photo as the TV: in Thali Thriller the photo zooms out on the phone in step with the TV, and in Calorie Clash both foods appear as big tap targets. Phones load smaller 720px copies from `food/m/`.
