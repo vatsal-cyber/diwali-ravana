@@ -26,3 +26,6 @@ The food list lives in `foods.js`: 97 vegetarian sweets and snacks with other na
 - Music (tanpura, dhol and bansuri) is generated live on the TV. Phones stay silent.
 
 Live sync uses public MQTT relays (broker.emqx.io, broker.hivemq.com and mqtt.eclipseprojects.io), so nobody needs an account.
+
+## Music
+The TV plays recorded Bollywood / bhangra tracks that change with the game: a party track in the lobby, a lighter bed while people talk, a driving bhangra track for Pehchaan Kaun? turns, and a celebration track for reveals and the finale. The music dips under the fanfares and drops low with a heartbeat drum during the verdict. Files are in `music/` (credits in `music/CREDITS.md`); if they can't load, the TV falls back to its built-in score. Phones never play music.

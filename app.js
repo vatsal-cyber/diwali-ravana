@@ -408,7 +408,8 @@ var MUS = {
     final: { vol: 0.95, tempo: 108, groove: "full", melody: 1, santoor: 1, duck: 2.5 },
     zintro: { vol: 0.65, tempo: 100, groove: "light", melody: 0, santoor: 0.5 },
     zplay: { vol: 0.8, tempo: 124, groove: "tense", melody: 0, santoor: 0 },
-    zturnend: { vol: 0.85, tempo: 104, groove: "full", melody: 1, santoor: 1, duck: 1.2 }
+    zturnend: { vol: 0.85, tempo: 104, groove: "full", melody: 1, santoor: 1, duck: 1.2 },
+    heartonly: { vol: 0.55, tempo: 70, groove: "heart", melody: 0, santoor: 0, nodrone: 1 }
   },
   /* phrases in eighth notes: [semitones from Sa, length]. 16 eighths = 2 keherwa cycles */
   PH: {
@@ -424,7 +425,15 @@ var MUS = {
   ARP: [[0, 7, 12, 16, 12, 7, 4, 7], [-5, 0, 4, 7, 12, 7, 4, 0], [2, 7, 9, 14, 9, 7, 2, 4], [0, 4, 7, 12, 19, 12, 7, 4]],
   setMood: function (name, force) {
     if (!this.on && name !== "off") name = "off";
+    if (name !== "heartonly" && name !== "off") this.phase = name;
     if (name === this.mood && !force) return;
+    if (name !== "off" && name !== "heartonly" && REC.ok() && SND.ctx) {
+      this.mood = name; REC.set(name);
+      var layer = (name === "verdict" || name === "guess") ? "heartonly" : "off";
+      if (this.synthLayer === layer) return; this.synthLayer = layer;
+      this.mood = null; this._nest = true; this.setMood(layer, true); this._nest = false; this.mood = name; return;
+    }
+    if (name === "off" && !this._nest) { REC.set("off"); this.synthLayer = "off"; }
     var prev = this.mood; this.mood = name;
     var cfg = this.MOODS[name] || null;
     if (!SND.ctx) return;
@@ -458,7 +467,7 @@ var MUS = {
   f: function (semi, oct) { return this.SA * Math.pow(2, semi / 12 + (oct || 0)); },
   play: function (s, t) {
     var cfg = this.cfg, p = s % 8, sd = 30 / cfg.tempo, gr = cfg.groove, bar = Math.floor(s / 16);
-    if (p % 2 === 0) this.tanpura([this.f(7, -2), this.f(0, -1), this.f(0, -1), this.f(0, -2)][p / 2], t);
+    if (p % 2 === 0 && !cfg.nodrone) this.tanpura([this.f(7, -2), this.f(0, -1), this.f(0, -1), this.f(0, -2)][p / 2], t);
     if (gr === "full" || gr === "light") {
       /* keherwa: dha ge na ti | na ka dhi na */
       var bass = [1, 0.7, 0, 0, 0, 0, 0.9, 0][p], hi = [0.8, 0, 0.9, 0.5, 0.8, 0, 0.8, 0.9][p], tak = [0, 0.5, 0, 0.7, 0, 0.6, 0, 0.5][p];
@@ -564,6 +573,83 @@ var MUS = {
     o.start(t); o2.start(t); lfo.start(t); o.stop(end + 0.15); o2.stop(end + 0.15); lfo.stop(end + 0.15);
     this.noise(t, 0.08, 0.025, 2200, 0);
     this.prevF = f;
+  }
+};
+
+/* ================= recorded music: real tracks per game phase, crossfaded on the TV ================= */
+var REC = {
+  /* src, where looping restarts (from) and where it loops (end), seconds. Swap a track by replacing the file in music/. */
+  TRACKS: {
+    party: { src: "music/party.mp3", from: 25, end: 208 },
+    chill: { src: "music/chill.mp3", from: 15, end: 255 },
+    drive: { src: "music/drive.mp3", from: 10, end: 104 },
+    finale: { src: "music/finale.mp3", from: 15, end: 228 }
+  },
+  /* phase: [track, volume 0..1] */
+  MAP: {
+    lobby: ["party", 0.75], peek: ["chill", 0.5], clues: ["chill", 0.32], discuss: ["chill", 0.42], vote: ["chill", 0.6],
+    verdict: ["chill", 0.14], guess: ["chill", 0.18], reveal: ["finale", 0.9], skipped: ["chill", 0.4], final: ["finale", 1],
+    zintro: ["drive", 0.5], zplay: ["drive", 0.72], zturnend: ["party", 0.8]
+  },
+  els: {}, cur: "", failed: false, bus: null, timer: 0,
+  ok: function () { return !this.failed && !!SND.ctx && typeof Audio !== "undefined" && !(window.RAVANA_CFG && window.RAVANA_CFG.noRec); },
+  setup: function () {
+    if (this.bus || !SND.ctx) return;
+    var c = SND.ctx, comp = c.createDynamicsCompressor(); comp.threshold.value = -12; comp.ratio.value = 3;
+    this.bus = c.createGain(); this.bus.gain.value = 1; this.bus.connect(comp); comp.connect(c.destination);
+    var me = this; this.timer = setInterval(function () { me.watch(); }, 250);
+  },
+  track: function (k) {
+    if (this.els[k]) return this.els[k];
+    var T0 = this.TRACKS[k], c = SND.ctx, me = this, t = { k: k, cfg: T0, a: [], g: [], i: 0, vol: 0, pos: 0 };
+    for (var n = 0; n < 2; n++) {
+      var a = new Audio(); a.src = T0.src; a.preload = n === 0 ? "auto" : "none"; a.crossOrigin = "anonymous";
+      a.addEventListener("error", function () { if (!me.failed) { me.failed = true; me.stopAll(); MUS.mood = null; if (S.view === "tv" && T.H) MUS.setMood(MUS.phase || T.H.phase, true); } });
+      var src = c.createMediaElementSource(a), g = c.createGain(); g.gain.value = 0.0001; src.connect(g); g.connect(this.bus);
+      t.a.push(a); t.g.push(g);
+    }
+    this.els[k] = t; return t;
+  },
+  fade: function (g, to, sec) { var c = SND.ctx, now0 = c.currentTime; g.gain.cancelScheduledValues(now0); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), now0); g.gain.exponentialRampToValueAtTime(Math.max(0.0001, to), now0 + sec); },
+  play: function (t, vol, sec) {
+    var a = t.a[t.i], g = t.g[t.i];
+    if (a.paused) { try { if (t.pos) a.currentTime = t.pos; } catch (e) { } var pr = a.play(); if (pr && pr.catch) pr.catch(function () { }); }
+    t.vol = vol; this.fade(g, vol, sec);
+  },
+  stop: function (t, sec) {
+    var me = this; t.vol = 0;
+    t.g.forEach(function (g) { me.fade(g, 0.0001, sec); });
+    var stamp = (t.stopAt = now());
+    setTimeout(function () { if (t.stopAt !== stamp || t.vol > 0) return; t.a.forEach(function (a, i) { if (i === t.i) t.pos = a.currentTime || 0; try { a.pause(); } catch (e) { } }); }, sec * 1000 + 120);
+  },
+  stopAll: function () { var me = this; Object.keys(this.els).forEach(function (k) { me.stop(me.els[k], 0.6); }); this.cur = ""; },
+  set: function (phase) {
+    if (!this.ok()) return false;
+    this.setup();
+    var m = phase === "off" ? null : this.MAP[phase];
+    if (!m) { this.stopAll(); return true; }
+    var t = this.track(m[0]), me = this;
+    if (this.cur && this.cur !== m[0] && this.els[this.cur]) this.stop(this.els[this.cur], 1.4);
+    this.cur = m[0];
+    this.play(t, m[1], this.cur && t.vol > 0 ? 0.9 : 1.6);
+    if (phase === "reveal" || phase === "final" || phase === "zturnend") { /* let the fanfare and bells land first */
+      var g = t.g[t.i], c = SND.ctx, n0 = c.currentTime; g.gain.cancelScheduledValues(n0); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), n0);
+      g.gain.exponentialRampToValueAtTime(m[1] * 0.25, n0 + 0.25); g.gain.setValueAtTime(m[1] * 0.25, n0 + 1.8); g.gain.exponentialRampToValueAtTime(m[1], n0 + 3.2);
+    }
+    return true;
+  },
+  watch: function () {
+    /* seamless loop: before the end, start the twin element at the loop point and crossfade */
+    var me = this; if (!this.cur) return;
+    var t = this.els[this.cur]; if (!t || t.vol <= 0) return;
+    var a = t.a[t.i]; if (a.paused || !(a.currentTime > 0)) return;
+    if (a.currentTime >= t.cfg.end - 2.5 || a.ended) {
+      var j = 1 - t.i, b = t.a[j]; b.preload = "auto";
+      try { b.currentTime = t.cfg.from; } catch (e) { }
+      var pr = b.play(); if (pr && pr.catch) pr.catch(function () { });
+      this.fade(t.g[j], t.vol, 2.2); this.fade(t.g[t.i], 0.0001, 2.2);
+      var old = t.i; t.i = j; setTimeout(function () { if (t.i !== old) { try { t.a[old].pause(); } catch (e) { } } }, 2500);
+    }
   }
 };
 
@@ -1339,7 +1425,7 @@ function tvRender() {
     } else { FX.show(7, "joy"); SND.fanfare(); SND.fanfare(0.8); }
   }
   ensureFocus(phaseChanged || ovChanged);
-  MUS.setMood(h.paused || T.showSet ? (T.showSet ? MUS.mood : "off") : h.phase);
+  MUS.setMood(h.paused ? "off" : (T.showSet ? (MUS.phase || h.phase) : h.phase));
   updateTimers(0);
 }
 function tvSpot(h) {
@@ -1965,4 +2051,4 @@ function applyTheme(t) { if (["velvet", "ivory", "rose"].indexOf(t) < 0) t = "ve
   FX.init();
   if (!route()) setView("home");
 })();
-window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions };
+window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, REC: REC };
