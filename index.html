@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1A0B2E">
-<title>Diwali Games: Find the Ravana · Thali Thriller</title>
+<title>Diwali Games: Find the Ravana · Thali Thriller · Calorie Clash</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@500;600;700;800&family=Rozha+One&display=swap" rel="stylesheet">
@@ -479,6 +479,91 @@ h1,h2,h3,p{margin:0}
 .shnote{font-size:15px;color:var(--muted);text-align:center;line-height:1.4}
 @media (min-width:900px) and (min-height:600px){ .home .btn:focus{outline:4px solid var(--text);outline-offset:6px;transform:scale(1.03)} .hpool{gap:60px} }
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important} .petalfall{display:none} }
+
+/* ---- Calorie Clash (TV) ---- */
+.tv.calg .sky{left:90px;right:90px;top:186px;height:672px;animation:none}
+.tv.calg .cast,.tv.calg .medal,.tv.calg .sparks{display:none}
+.cwrap{display:flex;align-items:flex-start;justify-content:center;width:100%;height:100%}
+.ccard{flex:none;width:700px;display:flex;flex-direction:column;align-items:center;gap:12px;transition:opacity .5s,transform .5s}
+.cph{position:relative;width:700px;height:525px;border-radius:28px;overflow:hidden;background:#2B1424;box-shadow:0 30px 70px rgba(90,40,40,.35),0 0 0 7px #fff,0 0 0 9px rgba(217,164,65,.65);transition:box-shadow .5s}
+.cph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cside{position:absolute;top:18px;left:18px;padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.88);font-size:22px;font-weight:800;color:var(--text);letter-spacing:.06em;text-transform:uppercase}
+.ccap{display:flex;flex-direction:column;align-items:center;gap:0;line-height:1.15}
+.cn{font-size:46px;font-weight:800;color:var(--text)}
+.csv{font-size:27px;color:var(--muted);font-weight:600}
+.ccal{position:absolute;left:0;right:0;bottom:26px;margin:0 auto;width:max-content;display:flex;align-items:baseline;gap:10px;padding:10px 34px;border-radius:999px;background:rgba(30,12,24,.84);color:#fff;animation:popin .35s both}
+.ccal b{font-size:76px;line-height:1}
+.ccal span{font-size:30px;font-weight:700;opacity:.85}
+.cmore{position:absolute;top:22px;left:0;right:0;margin:0 auto;width:max-content;padding:10px 26px;border-radius:14px;background:#FFB22E;color:#3A1A08;font-size:34px;font-weight:800;box-shadow:0 10px 24px rgba(0,0,0,.25);animation:stamp .45s 1.1s both}
+.ccard.win .cph{box-shadow:0 30px 70px rgba(90,40,40,.35),0 0 0 7px #fff,0 0 0 14px var(--jade),0 0 70px rgba(31,157,110,.55)}
+.ccard.win .ccal{background:var(--jade)}
+.ccard.lose{opacity:.78}
+.ccard.lose .cph img{filter:saturate(.65)}
+.cwho{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:50px}
+.cwav{display:inline-flex;border-radius:50%;animation:popin .3s .9s both}
+.cwav.fast{box-shadow:0 0 0 4px #FFB22E;border-radius:50%}
+.cmid{flex:none;width:280px;height:525px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center}
+.cmid .ringwrap{transform:scale(.8)}
+.cq{font-size:32px;font-weight:700;line-height:1.15;color:var(--text);margin:0}
+.cq b{color:var(--pink)}
+.cvs{width:124px;height:124px;border-radius:50%;display:grid;place-items:center;font-size:52px;color:#fff;background:linear-gradient(145deg,var(--pink),#B5175F);box-shadow:0 0 0 6px #fff,0 0 0 8px rgba(217,164,65,.7),0 16px 30px rgba(120,30,60,.35)}
+.cdone{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:24px;font-weight:700;color:var(--muted)}
+.cavs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:260px}
+.cavs>*{animation:popin .3s both}
+.cturn{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:26px;font-weight:700;color:var(--text)}
+.cres{display:flex;align-items:center;gap:8px;font-size:40px;font-weight:800;margin:0;line-height:1.1;animation:popin .35s 1.05s both}
+.cres.ok{color:var(--jade)}.cres.no{color:#D9342B}
+.cres .ic{width:40px;height:40px}
+.cdiff{font-size:24px;font-weight:700;color:var(--muted);margin:0;animation:fade .4s 1.2s both}
+.cfast{display:flex;flex-direction:column;align-items:center;gap:6px;margin:0;font-size:22px;color:var(--text);animation:popin .35s 1.3s both}
+.cfast b{color:var(--gold2)}
+/* ---- food photos on phones ---- */
+.zph.wp{gap:10px}
+.zpframe{position:relative;width:100%;height:min(34vh,290px);border-radius:20px;overflow:hidden;background:#2B1424;box-shadow:0 0 0 4px #fff,0 0 0 6px rgba(217,164,65,.6),0 12px 26px rgba(90,40,40,.22)}
+.zpframe .zimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform}
+.zpframe.rev .zimg{animation:zsnap .5s ease-out both}
+.zpname{position:absolute;left:0;right:0;bottom:12px;margin:0 auto;width:max-content;max-width:90%;padding:6px 18px;border-radius:999px;font-size:20px;font-weight:800;color:#fff;background:var(--jade);animation:popin .3s both}
+.zpname.no{background:#D9342B}
+.zph.wp .zbtn{min-height:62px;font-size:18px;border-radius:18px}
+.zgrid.watch .zbtn{opacity:.85}
+.zgrid.watch .zbtn.dim{opacity:.4}
+.zwhoph{display:inline-flex;align-items:center;gap:6px;color:var(--text)}
+.acts.small{margin-top:4px;flex-direction:row;justify-content:center;flex-wrap:wrap}
+.acts.small .btn{flex:1}
+.cph2{display:flex;flex-direction:column;gap:10px;width:100%}
+.cqp{text-align:center;font-size:18px;margin:0;color:var(--text);font-weight:600}
+.cqp b{color:var(--pink)}
+.pcards{display:flex;flex-direction:column;gap:12px}
+@media (min-width:600px){.pcards{flex-direction:row}.pcards .pcard{flex:1}}
+.pcard{font:inherit;display:flex;flex-direction:column;padding:0;border:0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 2px rgba(217,164,65,.7),0 8px 18px rgba(120,70,60,.12);text-align:left;color:var(--text);cursor:pointer;transition:transform .15s,box-shadow .2s,opacity .3s}
+.pcard:active{transform:scale(.98)}
+.pcard[disabled]{cursor:default}
+.pimg{position:relative;display:block;width:100%;height:min(25vh,210px);overflow:hidden;background:#2B1424}
+.pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pimg .cside{top:10px;left:10px;font-size:12px;padding:3px 10px}
+.pcap{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:9px 14px}
+.pcap b{font-size:19px;line-height:1.15}
+.pcap small{font-size:14px;color:var(--muted);font-weight:600;white-space:nowrap}
+.pcard.sel{box-shadow:inset 0 0 0 4px var(--pink),0 8px 18px rgba(232,37,125,.25)}
+.pcard.win{box-shadow:inset 0 0 0 4px var(--jade),0 8px 22px rgba(31,157,110,.3)}
+.pcard.lose{opacity:.72}
+.pmine{position:absolute;right:10px;top:10px;padding:4px 10px;border-radius:999px;background:var(--pink);color:#fff;font-size:13px;font-weight:800}
+.pcal{position:absolute;right:10px;bottom:10px;padding:5px 14px;border-radius:999px;background:rgba(30,12,24,.84);color:#fff;font-size:15px;font-weight:700;animation:popin .3s both}
+.pcal b{font-size:26px}
+.pcard.win .pcal{background:var(--jade)}
+
+/* lobby: room for three settings rows */
+.tv.lobbyg .sky{top:156px;height:446px}
+.tv.lobbyg .lobbytxt{gap:10px}
+.tv.lobbyg .lobbytxt .h1{font-size:76px}
+.tv.lobbyg .lobbyopts{row-gap:10px;column-gap:30px}
+.tv.lobbyg .gblurb{font-size:23px}
+/* phone host box: game names wrap instead of running off the edge */
+.hostbox .hrow{flex-wrap:wrap}
+.hostbox .hrow .seg{flex-wrap:wrap;justify-content:flex-end;border-radius:18px;margin-left:auto}
+.hostbox .hrow.game{flex-direction:column;align-items:stretch;gap:8px}
+.hostbox .hrow.game .seg{display:grid;grid-template-columns:repeat(3,1fr);margin-left:0}
+.hostbox .hrow.game .chip{white-space:normal;line-height:1.15;padding:9px 6px;min-height:44px}
 </style>
 </head>
 <body>
@@ -486,7 +571,7 @@ h1,h2,h3,p{margin:0}
 <canvas id="fx" aria-hidden="true"></canvas>
 <script src="qrcode.min.js"></script>
 <script src="mqtt.min.js"></script>
-<script src="foods.js?v=19"></script>
-<script src="app.js?v=19"></script>
+<script src="foods.js?v=20"></script>
+<script src="app.js?v=20"></script>
 </body>
 </html>

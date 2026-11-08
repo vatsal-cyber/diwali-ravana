@@ -1,6 +1,6 @@
 # Diwali Games
 
-Live party games for the TV and everyone's phones: **Find the Ravana** and **Thali Thriller**. The TV runs the show; phones are the controllers.
+Live party games for the TV and everyone's phones: **Find the Ravana**, **Thali Thriller** and **Calorie Clash**. The TV runs the show; phones are the controllers.
 
 **Play:** open **tinyurl.com/ravanatv** on the TV browser and choose **Use this screen as the TV**. Everyone scans the QR code. Phones on the same Wi-Fi also get a one-tap **Join** button on the home page. Pick the game in the lobby (on the TV or the host's phone); Play again returns to the lobby so you can switch.
 
@@ -8,6 +8,17 @@ Live party games for the TV and everyone's phones: **Find the Ravana** and **Tha
 One player at a time gets a turn (45 s, 1 min or 1½ min). A food photo (Indian sweets and snacks, or favourites from around the world) starts zoomed way in and zooms out over 10 seconds; the player taps its name from four choices on their phone. One point per right answer, most right wins. The turn ends with a photo recap of every food.
 
 The food list lives in `foods.js`: 80 vegetarian dishes (51 Indian, 29 from around the world), each with other names, region, cuisine, a lookalike group (so two near-identical foods are never offered together) and the spot where the zoom starts. The host picks Mix, Indian or World foods in the lobby; wrong answers always come from the same cuisine and kind (sweet or savoury). Photos are real photographs from Pexels and Unsplash in `food/`, listed in `food/CREDITS.md`. To add a food, drop a 4:3 photo in `food/` and add a line to `foods.js`.
+
+## Calorie Clash (2 to 8 players)
+Inspired by the calorie round in Ranveer Brar's *Yess Chef!*. Two food photos appear side by side on the TV and on every phone, each with a serving size (for example "1 samosa" or "2 slices"). Players tap the one with more calories within 10 seconds. The reveal counts up both calorie numbers and shows who picked what.
+
+- **Everyone** (default): all players answer every pair. A right answer earns 1 point; the fastest right answer earns 1 more (only when at least two people answered). The reveal comes as soon as everyone has answered. Game length: 8, 12 or 16 pairs.
+- **One at a time**: each player gets a turn of 4, 6 or 8 pairs while the others watch on their phones. 1 point per right answer.
+
+Pairs are never closer than 35% apart (so rough calorie values can't flip the answer) and never more than 3x apart (so it isn't a no-brainer). The serving and calories for each food are in `foods.js` (`sv`, `cal`); they are typical values, and real numbers vary by recipe. The Mix / Indian / World foods setting applies here too.
+
+## Photos on phones
+In both food games every phone shows the same photo as the TV: in Thali Thriller the photo zooms out on the phone in step with the TV, and in Calorie Clash both foods appear as big tap targets. Phones load smaller 720px copies from `food/m/`.
 
 ## Find the Ravana (3 to 8 players): how a round works
 1. **Cards:** everyone holds their phone card to see the secret word. One player is the Ravana: they get a private hint (the topic) instead of the word. The TV never shows the topic.
