@@ -31,6 +31,7 @@ var WORDS = {
 /* ================= utils ================= */
 var GAMES = {
   ravana: { name: "Find the Ravana", blurb: "Everyone gets the same secret word, except the Ravana, who only gets a hint. Give clues, talk, vote, find them.", minP: 3, foot: "3 to 8 players. Rounds take about 3 minutes." },
+  pct: { name: "Ek Percent", blurb: "Logic puzzles that get harder every round, from the 90% question to the 1% question. Get one wrong and you’re out.", minP: 2, foot: "2 to 8 players." },
   cal: { name: "Calorie Clash", blurb: "Two foods side by side. Tap the one with more calories on your phone before time runs out. Everyone plays at once, or take turns.", minP: 2, foot: "2 to 8 players." },
   zoom: { name: "Thali Thriller", blurb: "A sweet or snack, Indian or from around the world, starts zoomed way in and slowly zooms out. Name it on your phone before time runs out. One player at a time, most right wins.", minP: 2, foot: "2 to 8 players. Each turn is one minute." }
 };
@@ -38,7 +39,7 @@ var FOOD_FALLBACK = [["jalebi", "Jalebi", "s"], ["gulab_jamun", "Gulab jamun", "
 var FOOD_INFO = {};
 var FOODS = (window.FOOD_DB && window.FOOD_DB.length ? window.FOOD_DB : FOOD_FALLBACK.map(function (x) { return { id: x[0], n: x[1], t: x[2], g: "", aka: "", r: "", c: "in", f: [50, 50] }; })).map(function (f) { FOOD_INFO[f.id] = f; return [f.id, f.n, f.t, f.c || "in"]; });
 function foodSrc(k, small) { return "food/" + (small ? "m/" : "") + k + ".jpg?v=20"; }
-var GAME_OPTS = [["ravana", "Find the Ravana"], ["zoom", "Thali Thriller"], ["cal", "Calorie Clash"]];
+var GAME_OPTS = [["ravana", "Find the Ravana"], ["zoom", "Thali Thriller"], ["cal", "Calorie Clash"], ["pct", "Ek Percent"]];
 var ZFOOD = [["mix", "Mix"], ["in", "Indian"], ["w", "World"]];
 function now() { return Date.now(); }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -161,6 +162,7 @@ function diya(cls) {
     '<path d="M36 89 Q60 95 84 89" stroke="#FFF6EC" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-dasharray="2 4"/></svg>';
 }
 var ICONS = {
+  bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/>',
   pause: '<rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor" stroke="none"/>',
   play: '<path d="M7 5l12 7-12 7z" fill="currentColor" stroke="none"/>',
   snd: '<path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none"/><path d="M16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/>',
@@ -447,6 +449,9 @@ var MUS = {
     zplay: { vol: 0.8, tempo: 124, groove: "tense", melody: 0, santoor: 0 },
     zturnend: { vol: 0.85, tempo: 104, groove: "full", melody: 1, santoor: 1, duck: 1.2 },
     cintro: { vol: 0.65, tempo: 100, groove: "light", melody: 0, santoor: 0.5 },
+    pintro: { vol: 0.65, tempo: 100, groove: "light", melody: 0, santoor: 0.5 },
+    pq: { vol: 0.7, tempo: 112, groove: "tense", melody: 0, santoor: 0 },
+    preveal: { vol: 0.6, tempo: 96, groove: "light", melody: 0, santoor: 0.4 },
     cplay: { vol: 0.75, tempo: 120, groove: "tense", melody: 0, santoor: 0 },
     creveal: { vol: 0.7, tempo: 120, groove: "light", melody: 0, santoor: 0.4 },
     cturnend: { vol: 0.85, tempo: 104, groove: "full", melody: 1, santoor: 1, duck: 1.2 },
@@ -640,7 +645,8 @@ var REC = {
     lobby: ["game_show", 0.7], peek: ["sneaky_snitch", 0.5], clues: ["sneaky_snitch", 0.34], discuss: ["sneaky_snitch", 0.45], vote: ["thinking", 0.7],
     verdict: ["investigations", 0.32], guess: ["investigations", 0.38], reveal: ["winner", 0.85], skipped: ["sneaky_snitch", 0.4], final: ["winner", 1],
     zintro: ["pixelland", 0.5], zplay: ["pixelland", 0.7], zturnend: ["game_show", 0.8],
-    cintro: ["run_amok", 0.5], cplay: ["bit_shift", 0.62], creveal: ["bit_shift", 0.5], cturnend: ["game_show", 0.8]
+    cintro: ["run_amok", 0.5], cplay: ["bit_shift", 0.62], creveal: ["bit_shift", 0.5], cturnend: ["game_show", 0.8],
+    pintro: ["run_amok", 0.5], pq: ["thinking", 0.55], preveal: ["investigations", 0.42]
   },
   choice: "auto",
   label: function (c) { c = c || this.choice; return c === "auto" ? "Auto mix" : (this.TRACKS[c] ? this.TRACKS[c].n : "Auto mix"); },
@@ -1011,7 +1017,7 @@ function avOf(id, size, cls) { return avHTML(rname(id), rav(id), size, cls); }
 function pst(id) { var p = T.net && T.net.peers[id]; return p && p.st.role === "player" ? p.st : null; }
 function online(id) { return T.net ? T.net.alive(id) : false; }
 function onlinePlayers() { return T.H.players.filter(online); }
-function isRoundPhase(ph) { return ["peek", "clues", "discuss", "vote", "verdict", "guess", "zintro", "zplay", "zturnend", "cintro", "cplay", "creveal", "cturnend"].indexOf(ph) >= 0; }
+function isRoundPhase(ph) { return ["peek", "clues", "discuss", "vote", "verdict", "guess", "zintro", "zplay", "zturnend", "cintro", "cplay", "creveal", "cturnend", "pintro", "pq", "preveal"].indexOf(ph) >= 0; }
 function isZoomPhase(ph) { return ph === "zintro" || ph === "zplay" || ph === "zturnend"; }
 function minPlayers(h) { return (GAMES[(h || T.H).game] || GAMES.ravana).minP; }
 function gameName(h) { return (GAMES[(h || T.H).game] || GAMES.ravana).name; }
@@ -1019,7 +1025,7 @@ function gameName(h) { return (GAMES[(h || T.H).game] || GAMES.ravana).name; }
 function newHost() {
   return {
     app: "ravana", role: "host", id: "tv_" + rid(10), code: String(1000 + Math.floor(Math.random() * 9000)), sess: rid(10), created: now(),
-    v: 0, game: "ravana", z: null, phase: "lobby", roster: {}, ghosts: {}, removed: {}, rejected: {}, scores: {}, settings: { rounds: 5, talk: 90, zturn: 60, zfood: "mix", cmode: "all", clen: "m" },
+    v: 0, game: "ravana", z: null, phase: "lobby", roster: {}, ghosts: {}, removed: {}, rejected: {}, scores: {}, settings: { rounds: 5, talk: 90, zturn: 60, zfood: "mix", cmode: "all", clen: "m", plen: "full", ppass: "on" },
     round: 0, rk: "", players: [], word: "", cat: "", ravanaId: "", order: [], clueIdx: 0, turnEnd: 0, timerEnd: 0, timerTot: 1,
     paused: false, pauseLeft: null, result: null, used: [], cmdSeen: {}, away: [], vip: "", notice: "", ack: { saw: [], ready: [], voted: [] }
   };
@@ -1092,6 +1098,7 @@ function tvOnPeers() {
   if (guessIntake()) changed = true;
   if (zIntake()) changed = true;
   if (cIntake()) changed = true;
+  if (pIntake()) changed = true;
   if (changed) tvPub(); else tvRender();
 }
 function recomputeDerived() {
@@ -1143,6 +1150,8 @@ function runCmd(id, c) {
   if (c.type === "setGame" && h.phase === "lobby" && GAMES[a]) h.game = a;
   else if (c.type === "setZturn" && h.phase === "lobby" && [45, 60, 90].indexOf(+a) >= 0) h.settings.zturn = +a;
   else if (c.type === "setZfood" && h.phase === "lobby" && ["mix", "in", "w"].indexOf(a) >= 0) h.settings.zfood = a;
+  else if (c.type === "setPlen" && h.phase === "lobby" && ["full", "quick"].indexOf(a) >= 0) h.settings.plen = a;
+  else if (c.type === "setPpass" && h.phase === "lobby" && ["on", "off"].indexOf(a) >= 0) h.settings.ppass = a;
   else if (c.type === "setCmode" && h.phase === "lobby" && ["all", "turns"].indexOf(a) >= 0) h.settings.cmode = a;
   else if (c.type === "setClen" && h.phase === "lobby" && ["s", "m", "l"].indexOf(a) >= 0) h.settings.clen = a;
   else if (c.type === "skipturn" && (h.phase === "cplay" || h.phase === "creveal") && h.c && h.c.mode === "turns" && same) cEndTurn();
@@ -1152,6 +1161,7 @@ function runCmd(id, c) {
   else if (c.type === "start" && h.phase === "lobby") startGame();
   else if (c.type === "skip" && same) {
     if (h.phase === "zintro") zBeginTurn(); else if (h.phase === "zplay") { if (h.z.picked == null) zResolve(-2); else zNextFood(); } else if (h.phase === "zturnend") zNextTurn();
+    else if (h.phase === "pintro" || h.phase === "preveal") pNextQ(); else if (h.phase === "pq") pResolve();
     else if (h.phase === "cintro" || h.phase === "creveal") cNextPair(); else if (h.phase === "cplay") cResolve(); else if (h.phase === "cturnend") cNextTurn();
     else if (h.phase === "peek") toClues(); else if (h.phase === "clues") nextSpeaker(); else if (h.phase === "discuss") toVote();
     else if (h.phase === "vote") tally(); else if (h.phase === "verdict") afterVerdict();
@@ -1173,6 +1183,7 @@ function startGame() {
   FX.calm();
   if (h.game === "zoom") { zStartGame(); return; }
   if (h.game === "cal") { cStartGame(); return; }
+  if (h.game === "pct") { pStartGame(); return; }
   roster().forEach(function (id) { h.scores[id] = 0; });
   h.round = 0; h.ghosts = {};
   startRound();
@@ -1239,7 +1250,7 @@ function nextRound() {
   if (h.settings.rounds && h.round >= h.settings.rounds) { h.phase = "final"; h.rk = rid(6); return; }
   startRound();
 }
-function playAgain() { FX.calm(); var h = T.H; roster().forEach(function (id) { h.scores[id] = 0; }); h.round = 0; h.phase = "lobby"; h.rk = ""; h.result = null; h.ghosts = {}; h.z = null; h.c = null; h.paused = false; h.pauseLeft = null; h.notice = ""; }
+function playAgain() { FX.calm(); var h = T.H; roster().forEach(function (id) { h.scores[id] = 0; }); h.round = 0; h.phase = "lobby"; h.rk = ""; h.result = null; h.ghosts = {}; h.z = null; h.c = null; h.pc = null; h.paused = false; h.pauseLeft = null; h.notice = ""; }
 function skipRound(reason) { var h = T.H; h.phase = "skipped"; h.notice = reason; h.result = null; T.pend = null; }
 function removePlayer(id, why) {
   var h = T.H; if (!h.roster[id]) return;
@@ -1249,6 +1260,7 @@ function removePlayer(id, why) {
   var inRound = h.players.indexOf(id) >= 0 && (isRoundPhase(h.phase));
   if (!inRound) { h.players = h.players.filter(function (x) { return x !== id; }); return; }
   if (h.z && isZoomPhase(h.phase)) { h.players = h.players.filter(function (x) { return x !== id; }); if (h.z.pid === id) { h.notice = rname(id) + " left, so their turn ends."; zEndTurn(); } return; }
+  if (h.pc && isPctPhase(h.phase)) { h.players = h.players.filter(function (x) { return x !== id; }); delete h.pc.alive[id]; delete h.pc.picks[id]; return; }
   if (h.c && isCalPhase(h.phase)) { h.players = h.players.filter(function (x) { return x !== id; }); delete h.c.picks[id]; if (h.c.mode === "turns" && h.c.pid === id) { h.notice = rname(id) + " left, so their turn ends."; cEndTurn(); } return; }
   if (id === h.ravanaId) { skipRound(rname(id) + " was the Ravana and left the game."); return; }
   var cur = h.order[h.clueIdx];
@@ -1267,6 +1279,9 @@ function doResume() {
   if (h.z && isZoomPhase(h.phase)) {
     var z = h.z; h.timerEnd = now() + Math.max(1500, pl.timer); h.turnEnd = h.phase === "zplay" ? now() + Math.max(3000, pl.turn) : 0;
     if (h.phase === "zplay" && z.food) { if (z.picked == null) z.fStart = h.timerEnd - z.dur; else z.revealUntil = h.timerEnd; }
+  } else if (h.pc && isPctPhase(h.phase)) {
+    h.timerEnd = now() + Math.max(1500, pl.timer); h.turnEnd = 0;
+    if (h.phase === "pq") h.pc.start = h.timerEnd - h.pc.dur;
   } else if (h.c && isCalPhase(h.phase)) {
     h.timerEnd = now() + Math.max(1500, pl.timer); h.turnEnd = 0;
     if (h.phase === "cplay") h.c.start = h.timerEnd - h.c.dur;
@@ -1624,6 +1639,159 @@ function countUp() {
     (function step(t) { var k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3); el.textContent = String(Math.round(to * e)); if (k < 1) requestAnimationFrame(step); })(t0);
   });
 }
+/* ================= game 4: Ek Percent (logic puzzles from the 90% question to the 1% question) ================= */
+var PCT = { introMs: 6000, revealMs: 9000, LEVELS: { full: [90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 1], quick: [90, 70, 50, 30, 10, 1] } };
+var PCT_BY = {}; (window.PCT_Q || []).forEach(function (q) { PCT_BY[q.id] = q; });
+function isPctPhase(ph) { return ph === "pintro" || ph === "pq" || ph === "preveal"; }
+function pLen(h) { return h.settings && h.settings.plen === "quick" ? "quick" : "full"; }
+function pPassOn(h) { return !(h.settings && h.settings.ppass === "off"); }
+function pDur(level) { return level === 1 ? 60000 : (level <= 10 ? 45000 : 30000); }
+function pQ(h) { var c = h.pc; return c && c.qi >= 0 ? PCT_BY[c.qs[c.qi]] : null; }
+function pLevel(h) { var c = h.pc; return c && c.qi >= 0 ? c.levels[c.qi] : 0; }
+function pPick(h, level) {
+  var all = (window.PCT_Q || []).filter(function (q) { return q.p === level; });
+  var fresh = all.filter(function (q) { return h.pcUsed.indexOf(q.id) < 0; });
+  if (!fresh.length) { h.pcUsed = h.pcUsed.filter(function (id) { return !all.some(function (q) { return q.id === id; }); }); fresh = all; }
+  var q = fresh[Math.floor(Math.random() * fresh.length)]; h.pcUsed.push(q.id); return q.id;
+}
+function pCorrect(q, a) {
+  if (!q || a == null || a === "") return false;
+  if (q.t === "c") return +a === q.a;
+  var s = String(a).replace(/[^\d]/g, ""); return s !== "" && +s === q.a;
+}
+function pAlive(h) { var c = h.pc; return c ? h.players.filter(function (id) { return c.alive[id] && h.roster[id]; }) : []; }
+function pAllIn(h) { var on = pAlive(h).filter(online); return on.length > 0 && on.every(function (id) { return h.pc.picks[id]; }); }
+function pCanPass(h, id) { var c = h.pc; return !!(c && c.pass && c.alive[id] && !c.passUsed[id] && pLevel(h) !== 1); }
+function pStartGame() {
+  var h = T.H, ids = roster().filter(online); if (ids.length < minPlayers(h)) ids = roster();
+  roster().forEach(function (id) { h.scores[id] = 0; });
+  h.round = 0; h.ghosts = {}; h.players = ids; h.z = null; h.c = null; h.pcUsed = h.pcUsed || [];
+  var lv = PCT.LEVELS[pLen(h)];
+  h.pc = { levels: lv, qs: lv.map(function (l) { return pPick(h, l); }), qi: -1, qk: "", start: 0, dur: 30000, alive: {}, outAt: {}, passUsed: {}, picks: {}, fun: {}, res: null, hist: [], pass: pPassOn(h) };
+  ids.forEach(function (id) { h.pc.alive[id] = 1; });
+  h.word = ""; h.cat = ""; h.ravanaId = ""; h.order = []; h.clueIdx = 0; h.result = null; h.notice = ""; h.ack = { saw: [], ready: [], voted: [] };
+  h.rk = rid(6); h.phase = "pintro"; h.timerEnd = now() + PCT.introMs; h.timerTot = PCT.introMs; h.turnEnd = 0; h.paused = false; h.pauseLeft = null; T.pend = null;
+  SND.dhol(0, true);
+}
+function pFinish() { var h = T.H; h.phase = "final"; h.rk = rid(6); if (h.pc) h.pc.qk = ""; T.pend = null; }
+function pNextQ() {
+  var h = T.H, c = h.pc;
+  if (c.qi + 1 >= c.qs.length || (c.qi >= 0 && !pAlive(h).length)) { pFinish(); return; }
+  c.qi++; c.qk = rid(5); c.picks = {}; c.fun = {}; c.res = null; c.start = now(); c.dur = pDur(c.levels[c.qi]);
+  h.round = c.qi + 1; h.phase = "pq"; h.timerEnd = c.start + c.dur; h.timerTot = c.dur;
+}
+function pIntake() {
+  var h = T.H; if (!h || h.phase !== "pq" || !h.pc || h.paused) return false;
+  var c = h.pc, ch = false;
+  h.players.forEach(function (id) {
+    if (!h.roster[id] || c.picks[id] || c.fun[id]) return; var p = pst(id);
+    if (!p || !p.pct || p.pct.qk !== c.qk) return;
+    if (c.alive[id]) {
+      if (p.pct.pass) { if (pCanPass(h, id)) { c.picks[id] = { pass: 1, t: now() - c.start }; ch = true; } }
+      else if (p.pct.a != null && p.pct.a !== "") { c.picks[id] = { a: p.pct.a, t: now() - c.start }; ch = true; }
+    } else if (p.pct.a != null && p.pct.a !== "") { c.fun[id] = { a: p.pct.a }; ch = true; }
+  });
+  return ch;
+}
+function pResolve() {
+  var h = T.H, c = h.pc; if (h.phase !== "pq") return;
+  var q = pQ(h), lvl = pLevel(h), res = { right: [], out: [], passed: [], funRight: [] };
+  pAlive(h).forEach(function (id) {
+    var k = c.picks[id];
+    if (k && k.pass) { res.passed.push(id); c.passUsed[id] = 1; h.scores[id] = (h.scores[id] || 0) + 1; return; }
+    if (k && pCorrect(q, k.a)) { res.right.push(id); h.scores[id] = (h.scores[id] || 0) + 1; }
+    else { res.out.push(id); delete c.alive[id]; c.outAt[id] = lvl; }
+  });
+  Object.keys(c.fun).forEach(function (id) { if (pCorrect(q, c.fun[id].a)) res.funRight.push(id); });
+  c.res = res; c.hist.push([q.id, lvl, res.right.length, res.out.length]);
+  h.phase = "preveal"; h.timerEnd = now() + PCT.revealMs; h.timerTot = PCT.revealMs;
+}
+function pTick(t) {
+  var h = T.H, ch = false; if (!h.pc) return false;
+  if (h.phase === "pintro") { if (t > h.timerEnd) { pNextQ(); ch = true; } }
+  else if (h.phase === "pq") { if (t > h.timerEnd || pAllIn(h)) { pResolve(); ch = true; } }
+  else if (h.phase === "preveal") { if (t > h.timerEnd) { pNextQ(); ch = true; } }
+  return ch;
+}
+function pFinalText(h) {
+  var c = h.pc, last = c && c.qi === c.qs.length - 1, alive = c ? pAlive(h) : [];
+  var names = function (ids) { ids = ids.map(function (id) { return esc(rname(id)); }); return ids.length <= 2 ? ids.join(" and ") : ids.slice(0, -1).join(", ") + " and " + ids[ids.length - 1]; };
+  if (c && last && alive.length) return { title: (alive.length > 3 ? alive.length + " players" : names(alive)) + (alive.length === 1 ? " solved" : " solved") + " the 1% question!", sub: "Welcome to the 1% club. Happy Diwali, everyone." };
+  var ids = roster().sort(function (a, b) { return (h.scores[b] || 0) - (h.scores[a] || 0); }), top = h.scores[ids[0]] || 0, best = ids.filter(function (id) { return (h.scores[id] || 0) === top; });
+  if (!ids.length) return { title: "Happy Diwali!", sub: "" };
+  var lvl = c ? (top > 0 ? c.levels[Math.min(top, c.levels.length) - 1] : 0) : 0;
+  return { title: "Everyone’s out!", sub: (top ? names(best) + " got furthest, through the " + lvl + "% question." : "Nobody got past the first question.") + " Happy Diwali, everyone." };
+}
+function pctArt(k, size) {
+  if (k === "grid3") return '<svg class="pgrid" viewBox="0 0 96 96" width="' + size + '" height="' + size + '" aria-label="A 3 by 3 grid"><rect x="4" y="4" width="88" height="88" rx="2" fill="#FFFDF8" stroke="#3A1A2E" stroke-width="4"/><path d="M33.3 4V92M62.7 4V92M4 33.3H92M4 62.7H92" stroke="#3A1A2E" stroke-width="4"/></svg>';
+  return "";
+}
+function pAnsText(q, a) { if (a == null || a === "") return "—"; return q.t === "c" ? (q.o[+a] != null ? q.o[+a] : "—") : String(a).replace(/[^\d]/g, "") || "—"; }
+function pSky(h) {
+  var c = h.pc, pl = h.paused ? h.pauseLeft : null, ph = h.phase;
+  if (ph === "pintro") {
+    var n = c.qs.length;
+    return '<div class="talk"><div><h1 class="h1 dq">From 90% to 1%</h1><p class="sub">' + n + " puzzles, each harder than the last. Answer on your phone before the time runs out. Get one wrong and you’re out." +
+      (c.pass ? " Everyone has one pass to skip a puzzle (not the 1% one)." : "") + '</p><p class="sub small">No general knowledge needed, just logic and common sense.</p></div>' + tRing(h.timerEnd, h.timerTot, pl ? pl.timer : null) + "</div>";
+  }
+  var q = pQ(h); if (!q) return "";
+  var rev = ph === "preveal", res = c.res, lvl = pLevel(h), alive = pAlive(h);
+  var badge = '<div class="pbadge"><b class="disp">' + lvl + '%</b><span>get this right</span></div>';
+  var body = '<p class="pqtext' + (q.q.length > 110 ? " long" : "") + '">' + esc(q.q) + "</p>";
+  var art = q.svg ? '<div class="part">' + pctArt(q.svg, 150) + "</div>" : "";
+  if (q.t === "c") {
+    body += '<div class="pqrow">' + art + '<ol class="popts' + (q.o.length === 3 ? " three" : "") + (q.o.some(function (o) { return o.length > 26; }) ? " longo" : "") + '">' + q.o.map(function (o, i) {
+      var who = rev ? h.players.filter(function (id) { var k = c.picks[id]; return k && !k.pass && +k.a === i && h.roster[id]; }) : [];
+      var cls = rev ? (i === q.a ? " ok" : (who.length ? " no" : " dim")) : "";
+      return '<li class="' + cls + '"><span class="ltr">' + "ABCD"[i] + "</span><span class=\"otx\">" + esc(o) + "</span>" + (who.length ? '<span class="owho">' + who.map(function (id) { return avOf(id, 34); }).join("") + "</span>" : "") + "</li>";
+    }).join("") + "</ol></div>";
+  } else if (!rev) body += '<div class="pqrow">' + art + '<p class="pnum">' + ic("phone") + "Type the number on your phone</p></div>";
+  else {
+    var chips = h.players.filter(function (id) { return c.picks[id] && !c.picks[id].pass && h.roster[id]; }).map(function (id) { var ok = pCorrect(q, c.picks[id].a); return '<span class="pchip2 ' + (ok ? "ok" : "no") + '">' + avOf(id, 32) + "<b>" + esc(pAnsText(q, c.picks[id].a)) + "</b></span>"; }).join("");
+    body += '<div class="pqrow">' + art + '<div class="pans"><span class="k">Answer</span><b class="disp">' + q.a + "</b></div>" + (chips ? '<div class="pchips">' + chips + "</div>" : "") + "</div>";
+  }
+  if (rev) body += '<p class="pwhy">' + ic("bulb") + "<span>" + esc(q.why) + "</span></p>";
+  var side;
+  if (!rev) {
+    var done = alive.filter(function (id) { return c.picks[id]; });
+    side = tRing(h.timerEnd, h.timerTot, pl ? pl.timer : null) + '<div class="cdone"><span>' + done.length + " of " + alive.length + ' answered</span></div>';
+  } else {
+    side = '<div class="pres"><b class="disp">' + alive.length + '</b><span>still in</span></div>' +
+      (res.out.length ? '<div class="pout"><span>Out this round</span><div class="cavs">' + res.out.map(function (id) { return avOf(id, 44); }).join("") + "</div></div>" : '<p class="pall">Nobody went out!</p>') +
+      (res.passed.length ? '<p class="ppassed">' + res.passed.map(function (id) { return esc(rname(id)); }).join(", ") + " passed</p>" : "");
+  }
+  return '<div class="pqwrap">' + badge + '<div class="pqbody">' + body + '</div><div class="pqside">' + side + "</div></div>";
+}
+/* phones: the puzzle, the answer buttons or a number pad, and the pass */
+function pPhone(h, stt, vipC) {
+  var c = h.pc, me = P.me.id, pl = h.paused ? h.pauseLeft : null, alive = !!c.alive[me];
+  if (stt === "pintro") return '<div class="center">' + '<div class="pbig disp">1%</div><h2 class="h2 disp">Ek Percent</h2><p class="sub">' + c.qs.length + " puzzles, from easy to the 1% question. Get one wrong and you’re out." + (c.pass ? " You have one pass." : "") + '</p><div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? '<div class="acts">' + B("Start now", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
+  var q = pQ(h); if (!q) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">Get ready…</h2></div>';
+  var rev = stt === "preveal", res = c.res || { right: [], out: [], passed: [], funRight: [] }, lvl = pLevel(h);
+  var mine = c.picks[me] || c.fun[me] || (P.st.pct && P.st.pct.qk === c.qk ? P.st.pct : null);
+  if (P.pnumQk !== c.qk) { P.pnumQk = c.qk; P.pnum = ""; }
+  var head = '<div class="zhead"><span>' + lvl + "% question</span><span>" + (rev ? "" : tText(h.timerEnd, pl ? pl.timer : null) + "s") + '</span><span class="' + (alive ? "pin" : "pgone") + '">' + (alive ? "You’re in" : "You’re out") + "</span></div>";
+  var bar = rev ? "" : tBar(h.timerEnd, h.timerTot, pl ? pl.timer : null).replace('class="tbar"', 'class="tbar zpb"');
+  var out = head + bar + '<p class="pqp' + (q.q.length > 110 ? " long" : "") + '">' + esc(q.q) + "</p>" + (q.svg ? '<div class="part">' + pctArt(q.svg, 110) + "</div>" : "");
+  if (!rev) {
+    if (!alive) out += '<p class="pfun">You’re out, but you can still answer for fun.</p>';
+    if (mine) out += '<p class="plock">' + (mine.pass ? "You passed this one" : "Locked in: <b>" + esc(pAnsText(q, mine.a)) + "</b>") + "</p>" + (alive ? '<p class="status">Waiting for the others…</p>' : "");
+    else if (q.t === "c") out += '<div class="zgrid' + (q.o.length === 3 ? " three" : "") + '">' + q.o.map(function (o, i) { return '<button type="button" class="zbtn" data-act="pans" data-arg="' + i + '" data-k="pans:' + i + '"' + (h.paused ? " disabled" : "") + ">" + esc(o) + "</button>"; }).join("") + "</div>";
+    else out += '<div class="pdisp disp">' + (P.pnum ? esc(P.pnum) : '<span class="phq">?</span>') + '</div><div class="pkeys">' + ["1", "2", "3", "4", "5", "6", "7", "8", "9", "del", "0", "ok"].map(function (k) {
+      return k === "ok" ? '<button type="button" class="pk ok" data-act="psend" data-k="psend"' + (P.pnum ? "" : " disabled") + ">" + ic("check") + "</button>" : '<button type="button" class="pk' + (k === "del" ? " del" : "") + '" data-act="pkey" data-arg="' + k + '" data-k="pkey:' + k + '">' + (k === "del" ? ic("back") : k) + "</button>";
+    }).join("") + "</div>";
+    if (!mine && pCanPass(h, me)) out += '<div class="acts small">' + B("Use my pass (only one)", "ppass", null, "ghost") + "</div>";
+  } else {
+    var ans = q.t === "c" ? q.o[q.a] : String(q.a), st;
+    if (res.right.indexOf(me) >= 0) st = '<p class="zres ok">Correct! You’re still in.</p>';
+    else if (res.passed.indexOf(me) >= 0) st = '<p class="zres ok">You passed. Still in.</p>';
+    else if (res.out.indexOf(me) >= 0) st = '<p class="zres no">' + (c.picks[me] ? "Not this time." : "Time’s up.") + " You’re out at " + lvl + "%.</p>";
+    else st = '<p class="zres ' + (res.funRight.indexOf(me) >= 0 ? "ok" : "no") + '">' + (c.fun[me] ? (res.funRight.indexOf(me) >= 0 ? "You’d have got it!" : "You’d have missed this one.") : "Watching for fun.") + "</p>";
+    out += '<div class="pansp"><span>Answer</span><b class="disp">' + esc(ans) + "</b></div>" + st + '<p class="pwhyp">' + esc(q.why) + '</p><p class="note">' + pAlive(h).length + " still in</p>";
+  }
+  if (vipC) out += '<div class="acts small">' + B(rev ? (c.qi + 1 >= c.qs.length || !pAlive(h).length ? "See final results" : "Next question") : "Reveal now", "cmd", "skip", "ghost") + "</div>";
+  return '<div class="pph">' + out + "</div>";
+}
 /* ---- clock: timers + auto steps ---- */
 function tvTick() {
   var h = T.H; if (!h || S.view !== "tv") return;
@@ -1632,6 +1800,10 @@ function tvTick() {
   if (!h.paused && h.z && isZoomPhase(h.phase)) {
     if (zTick(now())) ch = true;
     if (h.phase === "zplay" && h.z.food && h.z.picked == null) { var zs = Math.ceil((h.z.fStart + h.z.dur - now()) / 1000), zkey = h.z.fk + ":" + zs; if (zs <= 4 && zs >= 1 && T.zTickKey !== zkey) { T.zTickKey = zkey; SND.tick(zs <= 2); } }
+  }
+  else if (!h.paused && h.pc && isPctPhase(h.phase)) {
+    if (pTick(now())) ch = true;
+    if (h.phase === "pq") { var ps = Math.ceil((h.timerEnd - now()) / 1000), pkey = h.pc.qk + ":" + ps; if (ps <= 5 && ps >= 1 && T.pTickKey !== pkey) { T.pTickKey = pkey; SND.tick(ps <= 3); } }
   }
   else if (!h.paused && h.c && isCalPhase(h.phase)) {
     if (cTick(now())) ch = true;
@@ -1713,6 +1885,7 @@ function castLayout(h) {
 function spotTarget(h) {
   if (h.paused) return "";
   if (isZoomPhase(h.phase)) return h.phase === "zplay" ? "" : (h.z ? h.z.pid : "");
+  if (isPctPhase(h.phase)) return "";
   if (isCalPhase(h.phase)) return h.c && h.c.mode === "turns" && (h.phase === "cintro" || h.phase === "cturnend") ? h.c.pid : "";
   if (h.phase === "clues") return h.order[h.clueIdx] || "";
   if (h.phase === "verdict") return h.result && h.result.picked || "";
@@ -1725,7 +1898,7 @@ function tvRender() {
   var h = T.H; if (!h || S.view !== "tv") return;
   if (!document.getElementById("tvMain")) { setRoot(tvShell()); fitTV(); }
   patch("tvHead", tvSign(h)); patch("tvTools", tvTools(h)); patch("tvBrand", h.phase === "lobby" ? "Diwali Games" : esc(gameName(h)));
-  var mainKey = h.phase + "|" + h.rk + "|" + h.clueIdx + (h.z ? "|" + h.z.fk : "") + (h.c ? "|" + h.c.ck : "");
+  var mainKey = h.phase + "|" + h.rk + "|" + h.clueIdx + (h.z ? "|" + h.z.fk : "") + (h.c ? "|" + h.c.ck : "") + (h.pc ? "|" + h.pc.qk : "");
   if (S.lastMainKey !== mainKey && h.phase + "|" + h.rk !== String(S.lastMainKey).split("|").slice(0, 2).join("|")) T.phaseAt = now();
   var phaseChanged = patch("tvMain", tvSky(h), mainKey) && S.lastMainKey !== mainKey;
   S.lastMainKey = mainKey;
@@ -1734,11 +1907,16 @@ function tvRender() {
   var ovChanged = patch("tvOv", tvOverlay(h));
   var showRav = (h.phase === "verdict" && h.result && h.result.picked && !h.result.caught) || h.phase === "guess" || (h.phase === "reveal" && h.result && !h.result.caught);
   patch("tvRav", showRav ? ravanaSVG() : "");
-  var tvel = document.getElementById("tv"); if (tvel) { tvel.classList.toggle("rav-on", !!showRav); tvel.classList.toggle("ring", h.phase === "verdict" || h.phase === "reveal" || h.phase === "final" || h.phase === "zturnend" || h.phase === "cturnend"); tvel.classList.toggle("zoomg", h.phase === "zplay"); tvel.classList.toggle("calg", h.phase === "cplay" || h.phase === "creveal"); tvel.classList.toggle("lobbyg", h.phase === "lobby"); }
+  var tvel = document.getElementById("tv"); if (tvel) { tvel.classList.toggle("rav-on", !!showRav); tvel.classList.toggle("ring", h.phase === "verdict" || h.phase === "reveal" || h.phase === "final" || h.phase === "zturnend" || h.phase === "cturnend"); tvel.classList.toggle("zoomg", h.phase === "zplay"); tvel.classList.toggle("calg", h.phase === "cplay" || h.phase === "creveal"); tvel.classList.toggle("lobbyg", h.phase === "lobby"); tvel.classList.toggle("pctg", h.phase === "pq" || h.phase === "preveal"); }
   if (h.phase === "zplay" && !T.zraf) T.zraf = requestAnimationFrame(zoomTick);
   if (h.z && h.phase === "zplay" && h.z.food && h.z.picked != null) { var zk = h.z.fk + ":" + h.z.picked; if (T.zKey !== zk) { T.zKey = zk; if (h.z.ok) SND.ding(); else if (h.z.picked === -1) SND.timeup(); else if (h.z.picked === -2) SND.play("whoosh", 0.5); else SND.buzz(); } }
   if (h.z && h.phase === "zplay" && h.z.food && h.z.picked == null && T.zNewKey !== h.z.fk) { T.zNewKey = h.z.fk; SND.play("whoosh", 0.35); }
   if (h.phase === "zturnend" && T.zEndKey !== h.rk) { T.zEndKey = h.rk; var gg = h.z ? (h.z.done[h.z.pid] || 0) : 0; if (gg >= 5) { FX.show(3, "joy"); SND.reveal(); SND.cheer(false, 0.2); } else if (gg >= 1) { SND.reveal(); SND.cheer(false, 0.2); } else SND.aww(); }
+  if (h.pc && h.phase === "pq" && T.pNewKey !== h.pc.qk) { T.pNewKey = h.pc.qk; SND.play("whoosh", 0.35); }
+  if (h.pc && h.phase === "preveal" && h.pc.res && T.pRevKey !== h.pc.qk) {
+    T.pRevKey = h.pc.qk; var PR = h.pc.res; SND.roll(1.0);
+    setTimeout(function () { if (PR.right.length || PR.passed.length) { SND.ding(); if (!PR.out.length) SND.cheer(false, 0.1); } if (PR.out.length) SND.aww(PR.right.length ? 0.6 : 0); }, 1050);
+  }
   if (h.c && h.phase === "cplay" && T.cNewKey !== h.c.ck) { T.cNewKey = h.c.ck; SND.play("whoosh", 0.35); }
   if (h.c && h.phase === "creveal" && h.c.res && T.cRevKey !== h.c.ck) {
     T.cRevKey = h.c.ck; var CR = h.c.res, cm = h.c.mode, cp = h.c.pid, picked = !!(h.c.picks && h.c.picks[cp]), nr = cRight(h).length;
@@ -1783,6 +1961,7 @@ function tvSpot(h) {
 function tvSign(h) {
   if (h.phase === "lobby") return '<span class="k">Room</span><span class="code disp">' + h.code + "</span>";
   if (h.phase === "final") return '<span class="k">Final results</span>';
+  if (isPctPhase(h.phase) && h.pc) return '<span class="k">' + (h.pc.qi >= 0 ? "Question " + (h.pc.qi + 1) + " of " + h.pc.qs.length : h.pc.qs.length + " puzzles") + "</span>" + (h.pc.qi >= 0 ? '<span class="lvl">' + pLevel(h) + "%</span>" : "");
   if (isCalPhase(h.phase) && h.c) return h.c.mode === "turns" ? '<span class="k">Turn ' + h.round + " of " + h.c.order.filter(function (id) { return h.roster[id]; }).length + (h.c.pi >= 0 && h.phase !== "cturnend" ? " · pair " + (h.c.pi + 1) + " of " + h.c.pairs.length : "") + "</span>" : '<span class="k">' + (h.c.pi >= 0 ? "Pair " + (h.c.pi + 1) + " of " + h.c.pairs.length : h.c.pairs.length + " pairs") + "</span>";
   if (isZoomPhase(h.phase)) return '<span class="k">Turn ' + h.round + " of " + (h.z ? h.z.order.filter(function (id) { return h.roster[id]; }).length : "?") + "</span>";
   var cur = STEP_OF[h.phase];
@@ -1797,6 +1976,7 @@ function tvTools(h) {
 function plateStatus(h, id) {
   if (!online(id)) return '<span class="ps away">' + ic("moon") + "</span>";
   if (h.players.indexOf(id) < 0 && isRoundPhase(h.phase)) return '<span class="ps wait">next round</span>';
+  if (h.pc && isPctPhase(h.phase) && !h.pc.alive[id]) return '<span class="ps outp">out</span>';
   return "";
 }
 /* 1, 2 or 3 for the podium on the final screen (ties share a place; nobody on 0 gets a medal) */
@@ -1815,11 +1995,13 @@ function tvCast(h) {
     if (h.phase === "clues" && id === tgt && online(id)) cls.push("speaking");
     if (isRoundPhase(h.phase) && !inRound) cls.push("out");
     if (h.phase === "cplay" && h.c && h.c.picks[id]) cls.push("lamp");
+    if (h.pc && isPctPhase(h.phase) && inRound && !h.pc.alive[id]) cls.push("out");
+    if (h.phase === "pq" && h.pc && h.pc.alive[id] && h.pc.picks[id]) cls.push("lamp");
     if ((h.phase === "peek" && h.ack.saw.indexOf(id) >= 0) || (h.phase === "discuss" && h.ack.ready.indexOf(id) >= 0) || (h.phase === "vote" && h.ack.voted.indexOf(id) >= 0)) cls.push("lamp");
     if (isRav) cls.push("ravana");
     if (winner && id === winner) cls.push("winner");
     var rk = h.phase === "final" ? rankOf(h, id) : 0;
-    var d = h.phase === "reveal" && R ? (R.delta[id] || 0) : (h.phase === "creveal" && h.c && h.c.res ? (h.c.res.pts[id] || 0) : 0), num = h.phase === "clues" ? h.order.indexOf(id) + 1 : 0;
+    var d = h.phase === "reveal" && R ? (R.delta[id] || 0) : (h.phase === "creveal" && h.c && h.c.res ? (h.c.res.pts[id] || 0) : (h.phase === "preveal" && h.pc && h.pc.res && (h.pc.res.right.indexOf(id) >= 0 || h.pc.res.passed.indexOf(id) >= 0) ? 1 : 0)), num = h.phase === "clues" ? h.order.indexOf(id) + 1 : 0;
     var av = h.roster[id].av, fig = lotus(av, L.w, "", { uid: id.slice(-6) + "a", dark: isRav, crown: !!winner && id === winner, refl: true });
     out += '<div class="' + cls.join(" ") + '" style="left:' + L.pos[id] + "px;--sw:" + (4.2 + (i % 4) * 0.55).toFixed(2) + "s;--sd:-" + (i * 0.9).toFixed(1) + 's">' +
       '<div class="fig"><div class="tilt">' + fig + "</div></div>" +
@@ -1836,12 +2018,14 @@ function tvSky(h) {
   var ph = h.phase, pl = h.paused ? h.pauseLeft : null;
   if (isZoomPhase(ph)) return zSky(h);
   if (isCalPhase(ph)) return cSky(h);
+  if (isPctPhase(ph)) return pSky(h);
   if (ph === "lobby") {
     return '<div class="lobbysky"><div class="qrcard"><div class="qr">' + qrSvg(JOIN_URL + "#join-" + h.code) + '</div></div>' +
       '<div class="lobbytxt"><h1 class="h1">Scan to join</h1><p class="joinat">or go to <b>' + CFG.short + '</b> and enter <b class="codeinline disp">' + h.code + "</b></p>" +
       '<p class="note">' + (roster().length < minPlayers(h) ? "Need at least " + minPlayers(h) + " players." : (h.notice ? esc(h.notice) : "The host (crown) can run the game from their phone.")) + "</p>" +
       gameTiles(h) +
       '<div class="lobbyopts">' + (h.game === "zoom" ? optRow("Each turn", [[45, "45 sec"], [60, "1 min"], [90, "1½ min"]], h.settings.zturn, "setZturn") + optRow("Foods", ZFOOD, zFoodMode(h), "setZfood") :
+        h.game === "pct" ? optRow("Puzzles", [["full", "All 11"], ["quick", "Quick 6"]], pLen(h), "setPlen") + optRow("Pass", [["on", "One each"], ["off", "No passes"]], pPassOn(h) ? "on" : "off", "setPpass") :
         h.game === "cal" ? optRow("Who answers", [["all", "Everyone"], ["turns", "One at a time"]], cMode(h), "setCmode") + optRow("Length", cLenOpts(h), cLen(h), "setClen") + optRow("Foods", ZFOOD, zFoodMode(h), "setZfood") : optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk")) + "</div></div></div>";
   }
   if (ph === "peek") {
@@ -1884,6 +2068,7 @@ function tvSky(h) {
     return '<div class="reveal bad"><p class="r1">The real Ravana was</p><h1 class="h1 rname disp r2">' + rn + '</h1><p class="r3">The word was <span class="rword disp">' + esc(h.word) + "</span></p><p class=\"r4\">" + out + "</p></div>";
   }
   if (ph === "skipped") return '<h1 class="h1">Round skipped</h1><p class="sub">' + esc(h.notice) + "</p>";
+  if (ph === "final" && h.game === "pct" && h.pc) { var pf = pFinalText(h); return '<h1 class="h1 ftitle">' + pf.title + '</h1><p class="sub">' + pf.sub + "</p>"; }
   if (ph === "final") {
     var ids = roster().sort(function (a, b) { return (h.scores[b] || 0) - (h.scores[a] || 0); });
     var top = (h.scores[ids[0]] || 0), winners = ids.filter(function (id) { return (h.scores[id] || 0) === top; });
@@ -1892,9 +2077,10 @@ function tvSky(h) {
   }
   return "";
 }
-var GAME_TAG = { ravana: "Find who doesn’t know the secret word", zoom: "Name the food as the photo zooms out", cal: "Pick the food with more calories" };
+var GAME_TAG = { ravana: "Find who doesn’t know the word", zoom: "Name the food as it zooms out", cal: "Pick the food with more calories", pct: "Puzzles get harder until only 1% can solve them" };
 function gameArt(k) {
   if (k === "ravana") return '<span class="gart ravana"><img src="art/lotus_dark.png" alt=""></span>';
+  if (k === "pct") return '<span class="gart pct"><b class="disp">1%</b></span>';
   if (k === "zoom") return '<span class="gart zoom"><img src="' + foodSrc("jalebi", true) + '" alt=""></span>';
   return '<span class="gart cal"><img src="' + foodSrc("samosa", true) + '" alt=""><img src="' + foodSrc("donut", true) + '" alt=""></span>';
 }
@@ -1916,6 +2102,9 @@ function tvApron(h) {
   } else if (ph === "zintro") { acts = B("Start now", "skip", null, "", "data-primary"); cap = rname(h.z.pid) + " picks the answers on their phone."; }
   else if (ph === "zplay") { acts = B("Skip this food", "skip", null, "ghost") + B("End this turn", "skipturn", null, "ghost"); cap = "Only " + rname(h.z.pid) + " answers. Everyone else, no shouting."; }
   else if (ph === "zturnend") { var lastT = !h.z.order.slice(h.z.ti + 1).some(function (id) { return h.roster[id]; }); acts = B(lastT ? "See final results" : "Next player", "next", null, "big", "data-primary") + '<span class="tchip">' + ic("clock") + tText(h.timerEnd, pl ? pl.timer : null) + "</span>"; cap = lastT ? "" : "Next turn starts by itself in a moment.";
+  } else if (ph === "pintro") { acts = B("Start now", "skip", null, "", "data-primary"); cap = "Everyone answers on their phone.";
+  } else if (ph === "pq") { acts = B("Reveal now", "skip", null, "ghost"); cap = "Answer on your phone. Wrong answer or no answer and you’re out.";
+  } else if (ph === "preveal") { var lastP = h.pc.qi + 1 >= h.pc.qs.length || !pAlive(h).length; acts = B(lastP ? "See final results" : "Next question", "skip", null, "", "data-primary") + '<span class="tchip">' + ic("clock") + tText(h.timerEnd, pl ? pl.timer : null) + "</span>"; cap = "The difficulty levels are our estimates, not a survey.";
   } else if (ph === "cintro") { acts = B("Start now", "skip", null, "", "data-primary"); cap = h.c.mode === "turns" ? rname(h.c.pid) + " answers on their phone." : "Everyone answers on their phone.";
   } else if (ph === "cplay") { acts = B("Reveal now", "skip", null, "ghost") + (h.c.mode === "turns" ? B("End this turn", "skipturn", null, "ghost") : ""); cap = h.c.mode === "turns" ? "Only " + rname(h.c.pid) + " answers. No helping!" : "Tap the food with more calories on your phone.";
   } else if (ph === "creveal") { acts = B(h.c.pi + 1 >= h.c.pairs.length ? (h.c.mode === "turns" ? "End of turn" : "See final results") : "Next pair", "skip", null, "", "data-primary") + '<span class="tchip">' + ic("clock") + tText(h.timerEnd, pl ? pl.timer : null) + "</span>"; cap = "Calories are typical values for the serving shown.";
@@ -1996,6 +2185,7 @@ function phOnPeers() {
     if (H2 && H2.phase === "zintro" && H2.z && H2.z.pid === P.me.id) { var kz = H2.rk + ":zi"; if (P.lastTurn !== kz) { P.lastTurn = kz; vibrate([120, 60, 120]); } }
     if (H2 && H2.phase === "cintro" && H2.c && H2.c.pid === P.me.id) { var kc = H2.rk + ":ci"; if (P.lastTurn !== kc) { P.lastTurn = kc; vibrate([120, 60, 120]); } }
     if (H2 && H2.phase === "cplay" && H2.c && (H2.c.mode === "all" || H2.c.pid === P.me.id) && H2.players.indexOf(P.me.id) >= 0) { var kp = H2.c.ck + ":cp"; if (P.lastTurn !== kp) { P.lastTurn = kp; vibrate(30); } }
+    if (H2 && H2.phase === "pq" && H2.pc && H2.players.indexOf(P.me.id) >= 0) { var kq = H2.pc.qk + ":pq"; if (P.lastTurn !== kq) { P.lastTurn = kq; vibrate(30); } }
     phPreload(H2);
     phAutoResend(H2);
     phRender();
@@ -2009,12 +2199,13 @@ function phAutoResend(h) {
   if (h.rk && P.st.saw === h.rk && h.phase === "peek" && h.ack.saw.indexOf(P.me.id) < 0) need = true;
   if (h.z && h.phase === "zplay" && h.z.pid === P.me.id && P.st.ans && P.st.ans.fk === h.z.fk && h.z.picked == null) need = true;
   if (h.c && h.phase === "cplay" && P.st.cal && P.st.cal.ck === h.c.ck && !h.c.picks[P.me.id]) need = true;
+  if (h.pc && h.phase === "pq" && P.st.pct && P.st.pct.qk === h.pc.qk && !h.pc.picks[P.me.id] && !h.pc.fun[P.me.id]) need = true;
   if (need && (!P.lastResend || now() - P.lastResend > 3000)) { P.lastResend = now(); P.net.publish(P.st); }
 }
 function goPhone() {
   var h = HS(); if (!h) return;
   var saved = lsGet("ravana_pst");
-  var base = { app: "ravana", role: "player", id: P.me.id, code: P.code, sess: h.sess, name: P.me.name, av: P.me.av, left: false, joinedAt: now(), saw: "", ready: "", vote: null, guess: null, ans: null, cal: null, cmd: null };
+  var base = { app: "ravana", role: "player", id: P.me.id, code: P.code, sess: h.sess, name: P.me.name, av: P.me.av, left: false, joinedAt: now(), saw: "", ready: "", vote: null, guess: null, ans: null, cal: null, pct: null, cmd: null };
   if (saved && saved.id === P.me.id && saved.sess === h.sess && saved.code === P.code) base = Object.assign(base, { saw: saved.saw || "", ready: saved.ready || "", vote: saved.vote || null, guess: saved.guess || null, joinedAt: saved.joinedAt || base.joinedAt });
   P.st = base;
   lsSet("ravana_room", { code: P.code, sess: h.sess, ts: now() });
@@ -2132,6 +2323,8 @@ function phMain(h, stt) {
         '<div class="hrow game"><span>Game</span><div class="seg">' + GAME_OPTS.map(function (o) { return B(o[1], "cmd", "setGame|" + o[0], "chip" + (h.game === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
         (h.game === "zoom" ? '<div class="hrow"><span>Each turn</span><div class="seg">' + [[45, "45s"], [60, "1 min"], [90, "1½ min"]].map(function (o) { return B(o[1], "cmd", "setZturn|" + o[0], "chip" + (h.settings.zturn === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
           '<div class="hrow"><span>Foods</span><div class="seg">' + ZFOOD.map(function (o) { return B(o[1], "cmd", "setZfood|" + o[0], "chip" + (zFoodMode(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
+        h.game === "pct" ? '<div class="hrow"><span>Puzzles</span><div class="seg">' + [["full", "All 11"], ["quick", "Quick 6"]].map(function (o) { return B(o[1], "cmd", "setPlen|" + o[0], "chip" + (pLen(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
+          '<div class="hrow"><span>Pass</span><div class="seg">' + [["on", "One each"], ["off", "No passes"]].map(function (o) { return B(o[1], "cmd", "setPpass|" + o[0], "chip" + ((pPassOn(h) ? "on" : "off") === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
         h.game === "cal" ? '<div class="hrow"><span>Who answers</span><div class="seg">' + [["all", "Everyone"], ["turns", "One at a time"]].map(function (o) { return B(o[1], "cmd", "setCmode|" + o[0], "chip" + (cMode(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
           '<div class="hrow"><span>Length</span><div class="seg">' + cLenOpts(h).map(function (o) { return B(o[1], "cmd", "setClen|" + o[0], "chip" + (cLen(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
           '<div class="hrow"><span>Foods</span><div class="seg">' + ZFOOD.map(function (o) { return B(o[1], "cmd", "setZfood|" + o[0], "chip" + (zFoodMode(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
@@ -2140,9 +2333,10 @@ function phMain(h, stt) {
         B("Start " + gameName(h), "cmd", "start", "big", n < minPlayers(h) ? "disabled" : "") + '<p class="note">' + (n < minPlayers(h) ? "Need at least " + minPlayers(h) + " players." : (h.game === "zoom" || (h.game === "cal" && cMode(h) === "turns") ? "Everyone takes a turn, one at a time." : "Everyone's phone will light up.")) + "</p></div>"
         : '<p class="sub">Waiting for ' + (h.vip ? esc(pName(h, h.vip)) : "the host") + ' to start the game.</p><button type="button" class="linkbtn" data-act="cmd" data-arg="claim" data-k="claim">Want to run the game? Become the host</button>') + "</div>";
   }
-  if (stt === "waiting") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">' + (h.game === "zoom" || h.game === "cal" ? "Game in progress" : "Round " + h.round + " is on") + "</h2><p class=\"sub\">" + (h.game === "zoom" ? "You'll be in the next game. Watch the TV for now." : "You'll be dealt in next round. Watch the TV and enjoy the chaos.") + "</p></div>";
+  if (stt === "waiting") return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">' + (h.game === "zoom" || h.game === "cal" || h.game === "pct" ? "Game in progress" : "Round " + h.round + " is on") + "</h2><p class=\"sub\">" + (h.game === "zoom" ? "You'll be in the next game. Watch the TV for now." : "You'll be dealt in next round. Watch the TV and enjoy the chaos.") + "</p></div>";
   if (stt === "zintro" || stt === "zplay" || stt === "zturnend") return zPhone(h, stt, vipC);
   if (isCalPhase(stt) && h.c) return cPhone(h, stt, vipC);
+  if (isPctPhase(stt) && h.pc) return pPhone(h, stt, vipC);
   if (stt === "peek") {
     var seen = P.st.saw === h.rk, acked = h.ack.saw.indexOf(me) >= 0;
     return card(h) + '<div class="acts">' + (seen ? '<p class="status">' + (acked ? ic("check") + " Got it. Waiting for the others (" + h.ack.saw.length + " of " + h.players.length + ")" : "Sending…") + "</p>" : B("Got it", "saw", null, "big")) +
@@ -2191,7 +2385,7 @@ function phMain(h, stt) {
   if (stt === "final") {
     var ids2 = Object.keys(h.roster), mine2 = h.scores[me] || 0, rank = 1 + ids2.filter(function (o) { return (h.scores[o] || 0) > mine2; }).length;
     var suf = rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th";
-    return '<div class="center">' + avHTML(P.me.name, P.me.av, 110, "pop") + '<h2 class="h2 disp">You came ' + rank + suf + '</h2><div class="pts disp got">' + mine2 + '</div><p class="sub">points. Happy Diwali!</p>' +
+    return '<div class="center">' + avHTML(P.me.name, P.me.av, 110, "pop") + '<h2 class="h2 disp">You came ' + rank + suf + '</h2><div class="pts disp got">' + mine2 + '</div><p class="sub">' + (h.game === "pct" ? (mine2 === 1 ? "puzzle solved" : "puzzles solved") : "points") + '. Happy Diwali!</p>' +
       (vipC ? '<div class="acts">' + B("Play again", "cmd", "again", "big") + "</div>" : "") + "</div>";
   }
   return "";
@@ -2220,7 +2414,7 @@ function phOv(h, stt) {
 function phHostSheet(h) {
   var ph = h.phase, last = h.settings.rounds && h.round >= h.settings.rounds;
   var step = {
-    lobby: ["Start " + gameName(h), "start"], cintro: ["Start now", "skip"], cplay: ["Reveal now", "skip"], creveal: ["Next pair", "skip"], cturnend: ["Next player", "next"], zintro: ["Start now", "skip"], zplay: ["Skip this food", "skip"], zturnend: ["Next player", "next"], peek: ["Start the clues", "skip"], clues: ["Next speaker", "skip"], discuss: ["Start the vote", "skip"],
+    lobby: ["Start " + gameName(h), "start"], pintro: ["Start now", "skip"], pq: ["Reveal now", "skip"], preveal: ["Next question", "skip"], cintro: ["Start now", "skip"], cplay: ["Reveal now", "skip"], creveal: ["Next pair", "skip"], cturnend: ["Next player", "next"], zintro: ["Start now", "skip"], zplay: ["Skip this food", "skip"], zturnend: ["Next player", "next"], peek: ["Start the clues", "skip"], clues: ["Next speaker", "skip"], discuss: ["Start the vote", "skip"],
     vote: ["Count the votes", "skip"], verdict: ["Continue", "skip"], guess: [h.result && h.result.guess != null ? "Show the results" : "Skip the guess", "skip"],
     reveal: [last ? "See final results" : "Next round", "next"], skipped: ["Next round", "next"], final: ["Play again", "again"]
   }[ph];
@@ -2325,13 +2519,19 @@ var ACT = {
   setZturn: function (v) { T.H.settings.zturn = +v; tvPub(); },
   setZfood: function (v) { if (["mix", "in", "w"].indexOf(v) >= 0) { T.H.settings.zfood = v; if (T.H.z) zRefill(T.H); tvPub(); } },
   skipturn: function () { if (T.H.phase === "zplay") { zEndTurn(); tvPub(); } else if ((T.H.phase === "cplay" || T.H.phase === "creveal") && T.H.c && T.H.c.mode === "turns") { cEndTurn(); tvPub(); } },
+  setPlen: function (v) { if (["full", "quick"].indexOf(v) >= 0 && T.H.phase === "lobby") { T.H.settings.plen = v; tvPub(); } },
+  setPpass: function (v) { if (["on", "off"].indexOf(v) >= 0 && T.H.phase === "lobby") { T.H.settings.ppass = v; tvPub(); } },
+  pans: function (a) { var h = HS(); if (!h || h.phase !== "pq" || !h.pc || h.paused || h.players.indexOf(P.me.id) < 0) return; if (P.st.pct && P.st.pct.qk === h.pc.qk) return; P.st.pct = { qk: h.pc.qk, a: String(a) }; vibrate(15); phPub(); },
+  pkey: function (k) { var h = HS(); if (!h || h.phase !== "pq") return; P.pnum = P.pnum || ""; if (k === "del") P.pnum = P.pnum.slice(0, -1); else if (/^\d$/.test(k) && P.pnum.length < 7) P.pnum = (P.pnum === "0" ? "" : P.pnum) + k; vibrate(8); phRender(); },
+  psend: function () { if (P.pnum) ACT.pans(P.pnum); },
+  ppass: function () { var h = HS(); if (!h || h.phase !== "pq" || !h.pc || !pCanPass(h, P.me.id)) return; if (P.st.pct && P.st.pct.qk === h.pc.qk) return; P.st.pct = { qk: h.pc.qk, pass: 1 }; vibrate(15); phPub(); },
   setCmode: function (v) { if (["all", "turns"].indexOf(v) >= 0 && T.H.phase === "lobby") { T.H.settings.cmode = v; tvPub(); } },
   setClen: function (v) { if (["s", "m", "l"].indexOf(v) >= 0 && T.H.phase === "lobby") { T.H.settings.clen = v; tvPub(); } },
   cans: function (i) { var h = HS(); if (!h || h.phase !== "cplay" || !h.c || h.paused) return; if (h.c.mode === "turns" && h.c.pid !== P.me.id) return; if (h.players.indexOf(P.me.id) < 0) return; if ((P.st.cal && P.st.cal.ck === h.c.ck) || h.c.picks[P.me.id]) return; P.st.cal = { ck: h.c.ck, pick: +i ? 1 : 0 }; vibrate(15); phPub(); },
   zans: function (i) { var h = HS(); if (!h || h.phase !== "zplay" || !h.z || h.z.pid !== P.me.id || h.z.picked != null) return; P.st.ans = { fk: h.z.fk, pick: +i }; vibrate(15); phPub(); },
   setTalk: function (v) { T.H.settings.talk = +v; tvPub(); },
   start: function () { startGame(); tvPub(); },
-  skip: function () { var ph = T.H.phase; if (ph === "cintro" || ph === "creveal") { cNextPair(); tvPub(); return; } if (ph === "cplay") { cResolve(); tvPub(); return; } if (ph === "cturnend") { cNextTurn(); tvPub(); return; } if (ph === "zintro") zBeginTurn(); else if (ph === "zplay") { if (T.H.z.picked == null) zResolve(-2); else zNextFood(); } else if (ph === "zturnend") zNextTurn(); else if (ph === "peek") toClues(); else if (ph === "clues") nextSpeaker(); tvPub(); },
+  skip: function () { var ph = T.H.phase; if (ph === "pintro" || ph === "preveal") { pNextQ(); tvPub(); return; } if (ph === "pq") { pResolve(); tvPub(); return; } if (ph === "cintro" || ph === "creveal") { cNextPair(); tvPub(); return; } if (ph === "cplay") { cResolve(); tvPub(); return; } if (ph === "cturnend") { cNextTurn(); tvPub(); return; } if (ph === "zintro") zBeginTurn(); else if (ph === "zplay") { if (T.H.z.picked == null) zResolve(-2); else zNextFood(); } else if (ph === "zturnend") zNextTurn(); else if (ph === "peek") toClues(); else if (ph === "clues") nextSpeaker(); tvPub(); },
   votenow: function () { toVote(); tvPub(); },
   addtime: function () { T.H.timerEnd += 30000; T.H.timerTot += 30000; tvPub(); },
   count: function () { tally(); tvPub(); },
@@ -2476,4 +2676,4 @@ function applyTheme(t) { if (["velvet", "ivory", "rose"].indexOf(t) < 0) t = "ve
   if (inroom && sr && sr.code === inroom && P.me.name) { startJoin(inroom); return; } /* this phone tab was reloaded mid-game */
   setView("home");
 })();
-window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, zRefill: zRefill, CAL: CAL, cMakePairs: cMakePairs, cFit: cFit, REC: REC, KEEP: KEEP };
+window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, zRefill: zRefill, PCT: PCT, PCT_BY: PCT_BY, pCorrect: pCorrect, CAL: CAL, cMakePairs: cMakePairs, cFit: cFit, REC: REC, KEEP: KEEP };

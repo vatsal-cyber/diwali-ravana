@@ -1,6 +1,6 @@
 # Diwali Games
 
-Live party games for the TV and everyone's phones: **Find the Ravana**, **Thali Thriller** and **Calorie Clash**. The TV runs the show; phones are the controllers.
+Live party games for the TV and everyone's phones: **Find the Ravana**, **Thali Thriller**, **Calorie Clash** and **Ek Percent**. The TV runs the show; phones are the controllers.
 
 **Play:** open **tinyurl.com/ravanatv** on the TV browser and choose **Use this screen as the TV**. Everyone scans the QR code. Phones on the same Wi-Fi also get a one-tap **Join** button on the home page. Pick the game in the lobby (on the TV or the host's phone); Play again returns to the lobby so you can switch.
 
@@ -16,6 +16,11 @@ Inspired by the calorie round in Ranveer Brar's *Yess Chef!*. Two food photos ap
 - **One at a time**: each player gets a turn of 4, 6 or 8 pairs while the others watch on their phones. 1 point per right answer.
 
 Pairs are never closer than 35% apart (so rough calorie values can't flip the answer) and never more than 3x apart (so it isn't a no-brainer). The serving and calories for each food are in `foods.js` (`sv`, `cal`); they are typical values, and real numbers vary by recipe. The Mix / Indian / World foods setting applies here too.
+
+## Ek Percent (2 to 8 players)
+Inspired by the TV show *The 1% Club*. Logic puzzles get harder every round, from the 90% question down to the 1% question. Everyone answers each puzzle on their phone (multiple choice, or a number pad for number answers) within 30 seconds (45 for the 10% and 5% puzzles, 60 for the 1%). A wrong answer or no answer puts you out; out players can keep answering for fun. Everyone gets one pass to skip a puzzle, except the 1% one. The reveal shows the answer, who picked what and a one-line explanation.
+
+Settings: all 11 levels (90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 1) or a quick 6 (90, 70, 50, 30, 10, 1), passes on or off. The puzzles are original and live in `pct.js` (44 puzzles, 4 per level); the percentages are our estimates of difficulty, not survey results.
 
 ## Photos on phones
 In both food games every phone shows the same photo as the TV: in Thali Thriller the photo zooms out on the phone in step with the TV, and in Calorie Clash both foods appear as big tap targets. Phones load smaller 720px copies from `food/m/`.
