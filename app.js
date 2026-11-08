@@ -3,7 +3,7 @@
 
 /* ================= config ================= */
 var CFG = {
-  short: /github\.io$/.test(location.hostname) ? "tinyurl.com/ravanatv2" : "tinyurl.com/ravanatv",
+  short: "tinyurl.com/ravanatv",
   maxP: 8, minP: 3,
   awayMs: 25000, hbMs: 8000, annMs: 4000,
   peekMs: 40000, turnMs: 25000, voteMs: 45000, guessMs: 35000, afterGuessMs: 8000, autoMs: 1300,
@@ -171,7 +171,7 @@ var ICONS = {
   arrow: '<path d="M4 12h15M14 6l6 6-6 6"/>',
   back: '<path d="M20 12H5M10 6l-6 6 6 6"/>',
   dots: '<circle cx="5" cy="12" r="1.9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.9" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.9" fill="currentColor" stroke="none"/>',
-  up: '<path d="M6 15l6-6 6 6"/>', down: '<path d="M6 9l6 6 6-6"/>',
+  up: '<path d="M6 15l6-6 6 6"/>', down: '<path d="M6 9l6 6 6-6"/>', prev: '<path d="M15 6l-6 6 6 6"/>', next: '<path d="M9 6l6 6-6 6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>', minus: '<path d="M5 12h14"/>',
   note: '<path d="M9 17.5V6.2l10-2.2v11.5"/><circle cx="6.6" cy="17.6" r="2.6" fill="currentColor"/><circle cx="16.6" cy="15.6" r="2.6" fill="currentColor"/>',
   noteoff: '<path d="M9 17.5V6.2l10-2.2v11.5"/><circle cx="6.6" cy="17.6" r="2.6" fill="currentColor"/><circle cx="16.6" cy="15.6" r="2.6" fill="currentColor"/><path d="M3 3l18 18" stroke-width="2.8"/>',
@@ -580,18 +580,32 @@ var MUS = {
 var REC = {
   /* src, where looping restarts (from) and where it loops (end), seconds. Swap a track by replacing the file in music/. */
   TRACKS: {
-    party: { src: "music/party.mp3", from: 25, end: 208 },
-    chill: { src: "music/chill.mp3", from: 15, end: 255 },
-    drive: { src: "music/drive.mp3", from: 10, end: 104 },
-    finale: { src: "music/finale.mp3", from: 15, end: 228 }
+    indian_dance: { n: "Indian Dance", src: "music/indian_dance.mp3", from: 8, end: 209 },
+    bollywood_groove: { n: "Bollywood Groove", src: "music/bollywood_groove.mp3", from: 8, end: 319 },
+    bhangra: { n: "Bhangra Beat", src: "music/bhangra.mp3", from: 8, end: 106 },
+    celebration: { n: "Indian Celebration", src: "music/celebration.mp3", from: 8, end: 228 },
+    hindi_pop: { n: "Hindi Pop", src: "music/hindi_pop.mp3", from: 8, end: 236 },
+    bollywood_music: { n: "Bollywood Music", src: "music/bollywood_music.mp3", from: 8, end: 258 },
+    desi_dance: { n: "Desi Dance", src: "music/desi_dance.mp3", from: 8, end: 198 },
+    bollywood_bounce: { n: "Bollywood Bounce", src: "music/bollywood_bounce.mp3", from: 8, end: 96 },
+    tabla_dance: { n: "Tabla Dance", src: "music/tabla_dance.mp3", from: 8, end: 184 },
+    bollywood_nights: { n: "Bollywood Nights", src: "music/bollywood_nights.mp3", from: 8, end: 123 },
+    hindi_song: { n: "Hindi Song", src: "music/hindi_song.mp3", from: 8, end: 198 },
+    bollywood_lounge: { n: "Bollywood Lounge", src: "music/bollywood_lounge.mp3", from: 8, end: 267 }
   },
-  /* phase: [track, volume 0..1] */
+  ORDER: ["auto", "indian_dance", "bollywood_groove", "bhangra", "celebration", "hindi_pop", "bollywood_music", "desi_dance", "bollywood_bounce", "tabla_dance", "bollywood_nights", "hindi_song", "bollywood_lounge"],
+  /* phase: [track used by "Auto mix", volume 0..1]. When the host picks one track, it plays everywhere at these volumes. */
   MAP: {
-    lobby: ["party", 0.75], peek: ["chill", 0.5], clues: ["chill", 0.32], discuss: ["chill", 0.42], vote: ["chill", 0.6],
-    verdict: ["chill", 0.14], guess: ["chill", 0.18], reveal: ["finale", 0.9], skipped: ["chill", 0.4], final: ["finale", 1],
-    zintro: ["drive", 0.5], zplay: ["drive", 0.72], zturnend: ["party", 0.8]
+    lobby: ["indian_dance", 0.75], peek: ["bollywood_music", 0.5], clues: ["bollywood_music", 0.32], discuss: ["bollywood_music", 0.42], vote: ["bollywood_music", 0.6],
+    verdict: ["bollywood_music", 0.14], guess: ["bollywood_music", 0.18], reveal: ["celebration", 0.9], skipped: ["bollywood_music", 0.4], final: ["celebration", 1],
+    zintro: ["bhangra", 0.5], zplay: ["bhangra", 0.72], zturnend: ["indian_dance", 0.8]
   },
-  els: {}, cur: "", failed: false, bus: null, timer: 0,
+  choice: (function () { var c = lsGet("ravana_track"); return c && c !== "auto" && !/^(party|chill|drive|finale)$/.test(c) ? c : "auto"; })(),
+  label: function (c) { c = c || this.choice; return c === "auto" ? "Auto mix" : (this.TRACKS[c] ? this.TRACKS[c].n : "Auto mix"); },
+  num: function (c) { c = c || this.choice; return this.ORDER.indexOf(c); },
+  pick: function (c) { if (this.ORDER.indexOf(c) < 0) c = "auto"; this.choice = c; lsSet("ravana_track", c); if (this.phase) { var ph = this.phase; this.phase = ""; this.set(ph); } },
+  step: function (d) { var i = this.ORDER.indexOf(this.choice); i = (i + d + this.ORDER.length) % this.ORDER.length; this.pick(this.ORDER[i]); },
+  els: {}, cur: "", phase: "", failed: false, bus: null, timer: 0,
   ok: function () { return !this.failed && !!SND.ctx && typeof Audio !== "undefined" && !(window.RAVANA_CFG && window.RAVANA_CFG.noRec); },
   setup: function () {
     if (this.bus || !SND.ctx) return;
@@ -627,7 +641,9 @@ var REC = {
     if (!this.ok()) return false;
     this.setup();
     var m = phase === "off" ? null : this.MAP[phase];
-    if (!m) { this.stopAll(); return true; }
+    if (!m) { this.phase = ""; this.stopAll(); return true; }
+    this.phase = phase;
+    if (this.choice !== "auto" && this.TRACKS[this.choice]) m = [this.choice, m[1]];
     var t = this.track(m[0]), me = this;
     if (this.cur && this.cur !== m[0] && this.els[this.cur]) this.stop(this.els[this.cur], 1.4);
     this.cur = m[0];
@@ -984,7 +1000,7 @@ function tvAnnounce() {
 }
 function tvPub() {
   var h = T.H; h.v++;
-  h.tv = { music: MUS.on, sfx: SND.on, fit: Math.round(T.fit.size * 100) }; h.theme = S.theme;
+  h.tv = { music: MUS.on, sfx: SND.on, fit: Math.round(T.fit.size * 100), track: REC.choice, trackName: REC.label() }; h.theme = S.theme;
   T.net.publish(h);
   lsSet("ravana_host", Object.assign({}, h, { savedAt: now() }));
   tvAnnounce();
@@ -1062,6 +1078,7 @@ function runCmd(id, c) {
   var same = c.rk === h.rk, a = c.arg;
   /* TV settings work any time */
   if (c.type === "music") { ACT.music(); return; }
+  if (c.type === "track") { ACT.track(a); return; }
   if (c.type === "sound") { ACT.sound(); return; }
   if (c.type === "fit") { var f = { plus: "fitplus", minus: "fitminus", up: "fitup", down: "fitdown" }[a]; if (f) ACT[f](); return; }
   if (c.type === "remove") { if (a && a !== id && h.roster[a]) removePlayer(a, "removed"); return; }
@@ -1307,6 +1324,7 @@ function zSky(h) {
 /* ---- clock: timers + auto steps ---- */
 function tvTick() {
   var h = T.H; if (!h || S.view !== "tv") return;
+  if (T.toast && now() > T.toast.until) { T.toast = null; patch("tvToast", ""); }
   var ch = recomputeDerived();
   if (!h.paused && h.z && isZoomPhase(h.phase)) { if (zTick(now())) ch = true; }
   else if (!h.paused) {
@@ -1346,7 +1364,7 @@ function tvShell() {
     '<div class="glowbg"></div><div class="medal">' + mandala() + '</div><div class="sparks">' + sparks(26) + '</div><div class="frame"><i></i><i></i><i></i><i></i></div>' +
     '<div class="bells"><div class="bell l">' + bellSVG() + '<i class="gleam"></i></div><div class="bell r">' + bellSVG() + '<i class="gleam"></i></div></div><div class="ravbg" id="tvRav"></div>' +
     '<main class="sky" id="tvMain"></main><div class="cast" id="tvRail"></div>' +
-    '<footer class="apron" id="tvFoot"></footer><div id="tvOv"></div></div>';
+    '<footer class="apron" id="tvFoot"></footer><div id="tvOv"></div><div id="tvToast"></div></div>';
 }
 function mandala() {
   /* fine line-work: rings of petals and dots, like a chalk rangoli */
@@ -1410,6 +1428,7 @@ function tvRender() {
   if (h.z && h.phase === "zplay" && h.z.food && h.z.picked != null) { var zk = h.z.fk + ":" + h.z.picked; if (T.zKey !== zk) { T.zKey = zk; if (h.z.ok) SND.ding(); else if (h.z.picked !== -2) SND.buzz(); } }
   if (h.phase === "zturnend" && T.zEndKey !== h.rk) { T.zEndKey = h.rk; SND.chime(); var gg = h.z ? (h.z.done[h.z.pid] || 0) : 0; if (gg >= 5) { FX.show(3, "joy"); SND.fanfare(); } else if (gg >= 3) SND.fanfare(); }
   tvSpot(h);
+  patch("tvToast", T.toast && now() < T.toast.until ? '<div class="toast">' + ic("note") + "<span>" + esc(T.toast.t) + "</span></div>" : "");
   T.newIds = {};
   var rk = (h.phase === "reveal" || h.phase === "verdict" || h.phase === "final") ? h.phase + h.rk : "";
   if (rk && rk !== T.revealKey) {
@@ -1569,6 +1588,7 @@ function tvOverlay(h) {
       '<div class="setrow"><span class="lbl">Screen size</span>' + IB("fitminus", "minus", "Smaller") + '<b class="val">' + Math.round(T.fit.size * 100) + "%</b>" + IB("fitplus", "plus", "Bigger") + '<span class="muted">Make it smaller if the edges are cut off</span></div>' +
       '<div class="setrow"><span class="lbl">Move screen</span>' + IB("fitup", "up", "Move up") + IB("fitdown", "down", "Move down") + '<span class="muted">Move it down if the browser bar covers the top</span></div>' +
       '<div class="setrow"><span class="lbl">Sound</span>' + B(MUS.on ? "Music on" : "Music off", "music", null, "chip" + (MUS.on ? " sel" : "")) + B(SND.on ? "Effects on" : "Effects off", "sound", null, "chip" + (SND.on ? " sel" : "")) + B("Full screen", "full", null, "chip") + "</div>" +
+      '<div class="setrow"><span class="lbl">Song</span>' + IB("track", "prev", "Previous song", "prev") + '<b class="val song">' + (REC.choice === "auto" ? "" : "#" + REC.num() + " ") + esc(REC.label()) + "</b>" + IB("track", "next", "Next song", "next") + '<span class="muted">' + (REC.choice === "auto" ? "Changes with the game" : "Plays all game, louder for reveals") + "</span></div>" +
       '<div class="setrow wrap"><span class="lbl">Remove</span>' + plist + "</div>" +
       '<div class="setrow"><span class="lbl">Game</span>' + B("End game, back to lobby", "endgame", null, "ghost chip") + B(T.confirmNew ? "Press again to confirm" : "New room code", "newroom", null, "ghost chip" + (T.confirmNew ? " danger" : "")) + "</div>" +
       '<div class="actrow">' + B("Done", "closeset", null, "", "data-primary") + "</div></div></div>";
@@ -1829,6 +1849,8 @@ function phHostSheet(h) {
     (ph === "discuss" && !h.paused ? B("+30 seconds", "cmd", "addtime", "ghost") : "") + "</div></div>" +
     '<div class="hsec"><span class="hl">TV</span><div class="hgrid">' +
     B(tv.music === false ? "Music off" : "Music on", "cmd", "music", "chip" + (tv.music === false ? "" : " sel")) + B(tv.sfx === false ? "Effects off" : "Effects on", "cmd", "sound", "chip" + (tv.sfx === false ? "" : " sel")) + "</div>" +
+    '<div class="hrow"><span>Song</span><div class="stepper">' + IB("cmd", "prev", "Previous song", "track|prev") + '<b class="song">' + esc(tv.trackName || "Auto mix") + "</b>" + IB("cmd", "next", "Next song", "track|next") + "</div></div>" +
+    '<div class="songs">' + REC.ORDER.map(function (k, i) { return B((i ? i + ". " : "") + esc(REC.label(k)), "cmd", "track|" + k, "chip" + ((tv.track || "auto") === k ? " sel" : "")); }).join("") + "</div>" +
     '<div class="hrow"><span>Screen size</span><div class="stepper">' + IB("cmd", "minus", "Smaller", "fit|minus") + "<b>" + (tv.fit || 92) + "%</b>" + IB("cmd", "plus", "Bigger", "fit|plus") + "</div></div>" +
     '<div class="hrow"><span>Move screen</span><div class="stepper">' + IB("cmd", "up", "Move up", "fit|up") + IB("cmd", "down", "Move down", "fit|down") + "</div></div></div>" +
     (players ? '<div class="hsec"><span class="hl">Remove a player</span><div class="rmlist">' + players + "</div></div>" : "") +
@@ -1931,6 +1953,13 @@ var ACT = {
   pause: function () { doPause(); tvPub(); },
   resume: function () { doResume(); tvPub(); },
   music: function () { MUS.on = !MUS.on; lsSet("ravana_music", MUS.on); SND.unlock(); if (!MUS.on) MUS.setMood("off", true); else { MUS.mood = null; } if (S.view === "tv") { S.cache.tvHead = S.cache.tvOv = null; tvRender(); } },
+  track: function (a) {
+    if (a === "next") REC.step(1); else if (a === "prev") REC.step(-1); else REC.pick(a);
+    if (!MUS.on) { MUS.on = true; lsSet("ravana_music", true); }
+    SND.unlock(); MUS.mood = null;
+    T.toast = { t: (REC.choice === "auto" ? "Music: Auto mix" : "Now playing: " + REC.label()), until: now() + 2600 };
+    if (S.view === "tv") { S.cache.tvOv = null; tvPub(); }
+  },
   sound: function () { SND.on = !SND.on; lsSet("ravana_snd", SND.on); SND.unlock(); if (SND.on) SND.join(); if (S.view === "tv") { S.cache.tvHead = S.cache.tvOv = null; tvRender(); } },
   settings: function () { T.showSet = true; T.confirmNew = false; tvRender(); },
   closeset: function () { T.showSet = false; T.confirmNew = false; tvRender(); },
@@ -1953,7 +1982,7 @@ var ACT = {
   saw: function () { var h = HS(); if (!h) return; P.st.saw = h.rk; phPub(); },
   ready: function () { var h = HS(); if (!h) return; P.st.ready = P.st.ready === h.rk ? "" : h.rk; phPub(); },
   vote: function (id) { var h = HS(); if (!h || h.phase !== "vote") return; P.st.vote = { rk: h.rk, t: id }; vibrate(15); phPub(); },
-  cmd: function (a) { var i = String(a).indexOf("|"), type = i < 0 ? a : a.slice(0, i), arg = i < 0 ? "" : a.slice(i + 1); if (["fit", "music", "sound", "setRounds", "setTalk", "setGame", "setZturn", "remove"].indexOf(type) < 0) { P.menu = false; P.confirmLeave = false; P.host = false; } phCmd(type, arg); },
+  cmd: function (a) { var i = String(a).indexOf("|"), type = i < 0 ? a : a.slice(0, i), arg = i < 0 ? "" : a.slice(i + 1); if (["fit", "music", "sound", "track", "setRounds", "setTalk", "setGame", "setZturn", "remove"].indexOf(type) < 0) { P.menu = false; P.confirmLeave = false; P.host = false; } phCmd(type, arg); },
   host: function () { P.host = true; P.menu = false; phRender(); },
   closehost: function () { P.host = false; phRender(); },
   menu: function () { P.menu = true; P.confirmLeave = false; phRender(); },
@@ -2043,12 +2072,6 @@ function route() {
   return false;
 }
 window.addEventListener("load", function () { FX.init(); gyroTilt(); });
-/* the githack mirror now shows a "One more step" notice to every browser; once GitHub Pages is on, hop there (it has no notice) */
-var PAGES_URL = "https://vatsal-cyber.github.io/diwali-ravana/";
-(function () {
-  if (!/githack\.com$/.test(location.hostname) || !window.fetch) return;
-  try { fetch(PAGES_URL + "foods.js", { cache: "no-store" }).then(function (r) { if (r && r.ok && S.view !== "tv" && S.view !== "phone") location.replace(PAGES_URL + (location.hash || "")); }).catch(function () { }); } catch (e) { }
-})();
 function applyTheme(t) { if (["velvet", "ivory", "rose"].indexOf(t) < 0) t = "velvet"; if (document.documentElement.getAttribute("data-theme") !== t) document.documentElement.setAttribute("data-theme", t); return t; }
 (function boot() {
   S.theme = "ramlila";
