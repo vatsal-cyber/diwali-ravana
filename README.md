@@ -1,10 +1,15 @@
-# Find the Ravana
+# Diwali Games
 
-A live Diwali party game for 3 to 8 players. The TV runs the show, and phones hold the secret cards and the votes.
+Live party games for the TV and everyone's phones: **Find the Ravana** and **Pehchaan Kaun?**. The TV runs the show; phones are the controllers.
 
-**Play:** open **tinyurl.com/ravanatv** on the TV browser and choose **Use this screen as the TV**. Everyone scans the QR code. Phones on the same Wi-Fi also get a one-tap **Join** button on the home page.
+**Play:** open **tinyurl.com/ravanatv** on the TV browser and choose **Use this screen as the TV**. Everyone scans the QR code. Phones on the same Wi-Fi also get a one-tap **Join** button on the home page. Pick the game in the lobby (on the TV or the host's phone); Play again returns to the lobby so you can switch.
 
-## How a round works
+## Pehchaan Kaun? (2 to 8 players)
+One player at a time gets a turn (45 s, 1 min or 1½ min). A mithai or snack photo starts zoomed way in and zooms out over 10 seconds; the player taps its name from four choices on their phone. One point per right answer, most right wins. The turn ends with a photo recap of every food.
+
+The food list lives in `foods.js`: 97 vegetarian sweets and snacks with other names, region, a lookalike group (so two near-identical foods are never offered together) and the spot where the zoom starts. Photos are in `food/`, credited in `food/CREDITS.md`. To add a food, drop a 4:3 photo in `food/` and add a line to `foods.js`.
+
+## Find the Ravana (3 to 8 players): how a round works
 1. **Cards:** everyone holds their phone card to see the secret word. One player is the Ravana: they get a private hint (the topic) instead of the word. The TV never shows the topic.
 2. **Clues:** in turn, each player says one word that hints at the secret word.
 3. **Talk:** the group discusses who doesn't seem to know the word.

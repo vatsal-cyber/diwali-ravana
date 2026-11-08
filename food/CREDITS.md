@@ -1,64 +1,101 @@
 # Photo credits
 
-Food photos used in Zoom Zoom Khana. Wikimedia Commons photos are used under their Creative Commons licenses; the seven marked as generated were made for this game.
+Photos used in Pehchaan Kaun?. Wikimedia Commons and Flickr photos are used under the Creative Commons licence shown; they were cropped and resized. Seven were generated for this game.
 
-- **aloo_paratha** — "Amazing Aloo Paratha and Lovely Lassi".jpg, by Mahi Tatavarty, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%22Amazing_Aloo_Paratha_and_Lovely_Lassi%22.jpg
-- **aloo_tikki** — Aloo Tikki served with chutneys.jpg, by Raveesh Vyas from [Ahmedabad, Noida], India, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Aloo_Tikki_served_with_chutneys.jpg
-- **balushahi** — Badusha.jpg, by Thamizhpparithi Maari, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Badusha.jpg
-- **barfi** — Barfi-Diwali sweet.jpg, by Afsana Samad, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Barfi-Diwali_sweet.jpg
-- **batata_vada** — Batata Vada ..JPG, by Miansari66, CC0 — https://commons.wikimedia.org/wiki/File:Batata_Vada_..JPG
-- **besan_ladoo** — generated illustration for this game
-- **bhakarwadi** — Bhakarwadi Up-Close.jpg, by DL22YAY, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Bhakarwadi_Up-Close.jpg
-- **bhel_puri** — Bhel Puri Chaat.JPG, by Mdsmds0, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Bhel_Puri_Chaat.JPG
-- **chakli** — "Aesthetic Murukku of Salem".jpg, by Thamizhpparithi Maari, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%22Aesthetic_Murukku_of_Salem%22.jpg
-- **chikki** — Peanut Chikki.JPG, by Zeel Patel, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Peanut_Chikki.JPG
-- **chole_bhature** — Chole Bhature-Noida-UP-SP002.jpg, by Sutapa Pal, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Chole_Bhature-Noida-UP-SP002.jpg
-- **coconut_ladoo** — Coconut ladoo, Assam.jpg, by Baby Devi 26, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Coconut_ladoo,_Assam.jpg
-- **dabeli** — Daabeli.JPG, by Kanikatwl, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Daabeli.JPG
-- **dahi_puri** — Odia Style Dahi bara Puri Odisha-IMG 953.jpg, by Subhransuphotography, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Odia_Style_Dahi_bara_Puri_Odisha-IMG_953.jpg
-- **dhokla** — Dhokla Karachi.jpg, by Miansari66, CC0 — https://commons.wikimedia.org/wiki/File:Dhokla_Karachi.jpg
-- **gajar_halwa** — Gajjar ka halwa (carrot halwa).JPG, by Prerna Jaddwani, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Gajjar_ka_halwa_(carrot_halwa).JPG
-- **ghevar** — Ghevar with Malai Topping.jpg, by Pradeep717, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Ghevar_with_Malai_Topping.jpg
-- **gujiya** — Gujiya.JPG, by Nairdeepa, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Gujiya.JPG
-- **gulab_jamun** — generated illustration for this game
-- **idli** — Idli Sambar Food by Ms Ujwala Kasambe DSCN9744 (2).jpg, by Dr. Raju Kasambe, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Idli_Sambar_Food_by_Ms_Ujwala_Kasambe_DSCN9744_(2).jpg
-- **imarti** — JalebiIndia.jpg, by kspoddar, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:JalebiIndia.jpg
-- **jalebi** — generated illustration for this game
-- **kachori** — Kachori MA23.jpg, by Rajeeb Dutta, CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Kachori_MA23.jpg
-- **kaju_katli** — generated illustration for this game
-- **kalakand** — Kalakand of Salem.jpg, by Thamizhpparithi Maari, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Kalakand_of_Salem.jpg
-- **khakhra** — Peanut chuteny with Jain khakhra.jpg, by Mrshah, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Peanut_chuteny_with_Jain_khakhra.jpg
-- **khandvi** — Khandvi - 1.jpg, by Sushant savla, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Khandvi_-_1.jpg
-- **kheer** — Kheer.jpg, by stu spivack, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Kheer.jpg
-- **kulfi** — Kulfi ice-cream.jpg, by Shreya13jain, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Kulfi_ice-cream.jpg
-- **malpua** — Malpua (dessert).jpg, by Camak0912, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Malpua_(dessert).jpg
-- **masala_dosa** — Butter Dosa served with coconut chutney and sambhar.jpg, by Ravi Dwivedi, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Butter_Dosa_served_with_coconut_chutney_and_sambhar.jpg
-- **mathri** — Masala Mathri.JPG, by Mdsmds0, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Masala_Mathri.JPG
-- **medu_vada** — Medu Vada with chutnies.jpg, by Ravi Talwar, CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Medu_Vada_with_chutnies.jpg
-- **misal_pav** — Misal Pav from Maharashtra.JPG, by Dheerajk88, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Misal_Pav_from_Maharashtra.JPG
-- **modak** — MMutta- Savouries1.JPG, by MAHESH MUTTA, CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:MMutta-_Savouries1.JPG
-- **motichoor_ladoo** — generated illustration for this game
-- **mysore_pak** — Ghee Mysore Pak.jpg, by Vaidehi Pujary, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Ghee_Mysore_Pak.jpg
-- **namak_pare** — Namak Para Recipe by Sonia goyal.jpg, by Sonia Goyal Jaipur, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Namak_Para_Recipe_by_Sonia_goyal.jpg
-- **pakora** — Pakoras in Jaipur.jpg, by ampersandyslexia, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Pakoras_in_Jaipur.jpg
-- **paneer_tikka** — Paneer Tikka Masala.jpg, by Rohitvalecha, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Paneer_Tikka_Masala.jpg
-- **pani_puri** — Crispy Pani Puri.jpg, by Teena Sometimes, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Crispy_Pani_Puri.jpg
-- **papdi_chaat** — Papdi-chaat.jpg, by Sonia Goyal, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Papdi-chaat.jpg
-- **pav_bhaji** — Pav Bhaji at Home.JPG, by Nundhaa, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Pav_Bhaji_at_Home.JPG
-- **peda** — Indian Sweet Dessert Peda in a white bone china plate.jpg, by Prashant Sahu, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Indian_Sweet_Dessert_Peda_in_a_white_bone_china_plate.jpg
-- **petha** — Petha kesari.JPG, by PJ.wikilovesfood, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Petha_kesari.JPG
-- **poha** — Poha, a snack made of flattened rice.jpg, by rovingI, CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Poha,_a_snack_made_of_flattened_rice.jpg
-- **puran_poli** — Obbattu.jpg, by GaneshDatta (talk) (Uploads), CC BY 3.0 — https://commons.wikimedia.org/wiki/File:Obbattu.jpg
-- **rabri** — Homemade Rabri.jpg, by Ravi Talwar, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Homemade_Rabri.jpg
-- **rasgulla** — generated illustration for this game
-- **rasmalai** — generated illustration for this game
-- **sabudana_vada** — Food - sabudana vada 1c.jpg, by Babu iyer, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Food_-_sabudana_vada_1c.jpg
-- **samosa** — Indian Samosa by clumsy home chef.jpg, by ClumsyHomeChef, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Indian_Samosa_by_clumsy_home_chef.jpg
-- **sandesh** — Gupo Sandesh Panihati (2).jpg, by Sumitsurai, CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Gupo_Sandesh_Panihati_(2).jpg
-- **sev_puri** — Sev Puri.jpg, by https://www.flickr.com/photos/feastguru_kirti/, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Sev_Puri.jpg
-- **shakarpara** — Shankarpali sweets mithai Western India 2012.jpg, by Vijay Sonar, CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Shankarpali_sweets_mithai_Western_India_2012.jpg
-- **shrikhand** — Shrikhand.JPG, by Miansari66, CC0 — https://commons.wikimedia.org/wiki/File:Shrikhand.JPG
-- **soan_papdi** — Soan sohan papdi India Festive Sweets.jpg, by Abigail Batchelder, CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Soan_sohan_papdi_India_Festive_Sweets.jpg
-- **sooji_halwa** — Sooji Halwa.JPG, by Dr. Manavpreet Kaur, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Sooji_Halwa.JPG
-- **thepla** — Thepla main.jpg, by Rocky231293, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Thepla_main.jpg
-- **vada_pav** — Vada Paav.jpg, by Yakshitha, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Vada_Paav.jpg
+- **Aloo paratha** — by Mahi Tatavarty, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%22Amazing_Aloo_Paratha_and_Lovely_Lassi%22.jpg
+- **Aloo tikki** — by Raveesh Vyas from [Ahmedabad, Noida], India, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Aloo_Tikki_served_with_chutneys.jpg
+- **Balushahi** — by Thamizhpparithi Maari, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Badusha.jpg
+- **Banana chips** — by Rameshng, CC BY-SA 2.0 — https://www.flickr.com/photos/39107352@N08/5164098782
+- **Barfi** — by Afsana Samad, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Barfi-Diwali_sweet.jpg
+- **Basundi** — by Thamizhpparithi Maari, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=40262018
+- **Batata vada** — by Miansari66, CC0 — https://commons.wikimedia.org/wiki/File:Batata_Vada_..JPG
+- **Besan ladoo** — generated for this game
+- **Bhakarwadi** — by DL22YAY, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Bhakarwadi_Up-Close.jpg
+- **Bhel puri** — by Mdsmds0, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Bhel_Puri_Chaat.JPG
+- **Boondi ladoo** — by avlxyz, CC BY-NC 2.0 — https://www.flickr.com/photos/10559879@N00/50363479846
+- **Bread pakora** — by DDohler, CC BY 2.0 — https://www.flickr.com/photos/51614546@N00/3717621596
+- **Chakli** — by Thamizhpparithi Maari, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:%22Aesthetic_Murukku_of_Salem%22.jpg
+- **Cham cham** — by Billjones94, CC0 — https://commons.wikimedia.org/wiki/File:Chomchom,_a_traditional_Bengali_sweet,_in_West_Bengal,_India,_photographed_on_May_7,_2024.jpg
+- **Chhena poda** — by Subhransuphotography, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=125682914
+- **Chikki** — by Zeel Patel, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Peanut_Chikki.JPG
+- **Chole bhature** — by Sutapa Pal, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Chole_Bhature-Noida-UP-SP002.jpg
+- **Chole kulche** — by Manan dv, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=40672652
+- **Churma ladoo** — by Misbah khimani, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=103624617
+- **Coconut barfi** — by Bingo2310, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=40942011
+- **Coconut ladoo** — by Baby Devi 26, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Coconut_ladoo,_Assam.jpg
+- **Dabeli** — by Kanikatwl, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Daabeli.JPG
+- **Dahi puri** — by Panku00143, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=101854344
+- **Dahi vada** — by Sameer Goyal Jaipur, CC BY-SA 2.0 — https://www.flickr.com/photos/104309165@N05/17265147650
+- **Dhokla** — by Miansari66, CC0 — https://commons.wikimedia.org/wiki/File:Dhokla_Karachi.jpg
+- **Fafda** — by chiragkpatel, CC BY-NC 2.0 — https://www.flickr.com/photos/89285992@N00/278779630
+- **Falooda** — by bluesmoon, CC BY-SA 2.0 — https://www.flickr.com/photos/57155801@N00/2055596784
+- **Gajar ka halwa** — by Prerna Jaddwani, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Gajjar_ka_halwa_(carrot_halwa).JPG
+- **Ghevar** — by Meghana78, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=40988268
+- **Gujiya** — by Nairdeepa, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Gujiya.JPG
+- **Gulab jamun** — generated for this game
+- **Handvo** — by KartikMistry, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=81092280
+- **Idli** — by Dr. Raju Kasambe, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Idli_Sambar_Food_by_Ms_Ujwala_Kasambe_DSCN9744_(2).jpg
+- **Imarti** — by kspoddar, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:JalebiIndia.jpg
+- **Jalebi** — generated for this game
+- **Jhalmuri** — by Jashjashjash, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=103635489
+- **Kachori** — by Rajeeb Dutta, CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Kachori_MA23.jpg
+- **Kaju katli** — generated for this game
+- **Kalakand** — by Thamizhpparithi Maari, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Kalakand_of_Salem.jpg
+- **Karachi halwa** — by Thamizhpparithi Maari, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Bombay_halwa.jpg
+- **Kathi roll** — by Satyajit Dhawale (Satyajit888), CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Kolkata_Rolls.jpg
+- **Khakhra** — by Mrshah, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Peanut_chuteny_with_Jain_khakhra.jpg
+- **Khandvi** — by Sushant savla, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Khandvi_-_1.jpg
+- **Kheer** — by stu spivack, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Kheer.jpg
+- **Kozhukattai** — by Mohan P J, CC BY-NC-SA 2.0 — https://www.flickr.com/photos/32338324@N03/8040089681
+- **Kulfi** — by Shreya13jain, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Kulfi_ice-cream.jpg
+- **Lavang latika** — by Marajozkee, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=75525138
+- **Makhana** — by FacetsOfNonStickPans, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Foxnut_Makhana_-_Nawada_District_-_Bihar_-_1.jpg
+- **Malpua** — by Camak0912, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Malpua_(dessert).jpg
+- **Masala dosa** — by Ravi Dwivedi, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Butter_Dosa_served_with_coconut_chutney_and_sambhar.jpg
+- **Mathri** — by Mdsmds0, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Masala_Mathri.JPG
+- **Medu vada** — by World to Table, CC BY-NC 2.0 — https://www.flickr.com/photos/39969363@N08/4937830167
+- **Mirchi bajji** — by balu from fremont, ca, usa, CC BY 2.0 — https://commons.wikimedia.org/w/index.php?curid=47167154
+- **Misal pav** — by Dheerajk88, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Misal_Pav_from_Maharashtra.JPG
+- **Mishti doi** — by Kirti Poddar, CC BY-NC-SA 2.0 — https://www.flickr.com/photos/22598380@N07/4567535806
+- **Modak** — by MAHESH MUTTA, CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:MMutta-_Savouries1.JPG
+- **Mohanthal** — by Dkgohil, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=39780124
+- **Momos** — by anantal, CC BY 2.0 — https://www.flickr.com/photos/33088287@N00/2207880052
+- **Moong dal halwa** — by joegoauk73, CC BY-SA 2.0 — https://www.flickr.com/photos/95914901@N08/32201296491
+- **Motichoor ladoo** — generated for this game
+- **Murukku** — by Keerthiga, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Murukku_or_Chakli.jpg
+- **Mysore pak** — by Vaidehi Pujary, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Ghee_Mysore_Pak.jpg
+- **Namak pare** — by Sonia Goyal Jaipur, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Namak_Para_Recipe_by_Sonia_goyal.jpg
+- **Pakora** — by ampersandyslexia, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Pakoras_in_Jaipur.jpg
+- **Paneer tikka** — by Shikharkrati3119, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=40734378
+- **Pani puri** — by Teena Sometimes, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Crispy_Pani_Puri.jpg
+- **Paniyaram** — by mojosaurus, CC BY 2.0 — https://www.flickr.com/photos/77727541@N00/4015580003
+- **Papdi chaat** — by Sonia Goyal, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Papdi-chaat.jpg
+- **Pav bhaji** — by Nundhaa, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Pav_Bhaji_at_Home.JPG
+- **Payasam** — by Ross thres, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=40990418
+- **Peda** — by Prashant Sahu, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Indian_Sweet_Dessert_Peda_in_a_white_bone_china_plate.jpg
+- **Petha** — by PJ.wikilovesfood, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Petha_kesari.JPG
+- **Phirni** — by baxiabhishek, CC BY-NC 2.0 — https://www.flickr.com/photos/19261460@N00/9371384175
+- **Pinni** — by Divas Grover (original image); repro, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Pinni_cropped.JPG
+- **Poha** — by rovingI, CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Poha,_a_snack_made_of_flattened_rice.jpg
+- **Puran poli** — by GaneshDatta (talk) (Uploads), CC BY 3.0 — https://commons.wikimedia.org/wiki/File:Obbattu.jpg
+- **Rabri** — by Ravi Talwar, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Homemade_Rabri.jpg
+- **Rasgulla** — generated for this game
+- **Rasmalai** — generated for this game
+- **Rava ladoo** — by nithyarn, CC BY-SA 2.0 — https://www.flickr.com/photos/10043490@N06/6940611128
+- **Sabudana khichdi** — by Mrudit161187, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=40991675
+- **Sabudana vada** — by Babu iyer, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Food_-_sabudana_vada_1c.jpg
+- **Samosa** — by ClumsyHomeChef, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Indian_Samosa_by_clumsy_home_chef.jpg
+- **Samosa chaat** — by pulaw, CC BY 2.0 — https://www.flickr.com/photos/35832040@N07/15334396887
+- **Sandesh** — by Daliadasgupta2022, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=125434771
+- **Sev puri** — by https://www.flickr.com/photos/feastguru_kirti/, CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Sev_Puri.jpg
+- **Shahi tukda** — by Miansari66, CC0 — https://commons.wikimedia.org/wiki/File:Double_Ka_Meetha.JPG
+- **Shakarpara** — by Vijay Sonar, CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Shankarpali_sweets_mithai_Western_India_2012.jpg
+- **Shrikhand** — by Beingmarathi, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=40990603
+- **Soan papdi** — by Abigail Batchelder, CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Soan_sohan_papdi_India_Festive_Sweets.jpg
+- **Sooji halwa** — by Dr. Manavpreet Kaur, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Sooji_Halwa.JPG
+- **Thepla** — by Rocky231293, CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Thepla_main.jpg
+- **Til ladoo** — by Sonia Goyal Jaipur, CC BY-SA 2.0 — https://www.flickr.com/photos/115727405@N06/31022492645
+- **Unniyappam** — by Riyaz Ahamed at Malayalam Wikipedia, CC BY-SA 2.5 — https://commons.wikimedia.org/w/index.php?curid=11879811
+- **Upma** — by Intodustin, CC BY-SA 4.0 — https://commons.wikimedia.org/w/index.php?curid=40979068
+- **Uttapam** — by SteveR-, CC BY 2.0 — https://www.flickr.com/photos/98621709@N00/3559408952
+- **Vada pav** — by Warren Noronha, CC BY 2.0 — https://commons.wikimedia.org/w/index.php?curid=3463390

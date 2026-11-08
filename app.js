@@ -31,16 +31,11 @@ var WORDS = {
 /* ================= utils ================= */
 var GAMES = {
   ravana: { name: "Find the Ravana", blurb: "Everyone gets the same secret word, except the Ravana, who only gets a hint. Give clues, talk, vote, find them.", minP: 3, foot: "3 to 8 players. Rounds take about 3 minutes." },
-  zoom: { name: "Zoom Zoom Khana", blurb: "A sweet or snack appears zoomed way in and slowly zooms out. Name it on your phone before time runs out. One player at a time, most right wins.", minP: 2, foot: "2 to 8 players. Each turn is one minute." }
+  zoom: { name: "Pehchaan Kaun?", blurb: "A mithai or snack starts zoomed way in and slowly zooms out. Name it on your phone before time runs out. One player at a time, most right wins.", minP: 2, foot: "2 to 8 players. Each turn is one minute." }
 };
-var FOODS = [
-  ["jalebi", "Jalebi", "s"], ["gulab_jamun", "Gulab jamun", "s"], ["rasgulla", "Rasgulla", "s"], ["rasmalai", "Rasmalai", "s"], ["motichoor_ladoo", "Motichoor ladoo", "s"], ["besan_ladoo", "Besan ladoo", "s"], ["kaju_katli", "Kaju katli", "s"], ["kheer", "Kheer", "s"], ["gajar_halwa", "Gajar ka halwa", "s"], ["soan_papdi", "Soan papdi", "s"],
-  ["mysore_pak", "Mysore pak", "s"], ["peda", "Peda", "s"], ["barfi", "Barfi", "s"], ["malpua", "Malpua", "s"], ["ghevar", "Ghevar", "s"], ["sandesh", "Sandesh", "s"], ["kalakand", "Kalakand", "s"], ["modak", "Modak", "s"], ["shrikhand", "Shrikhand", "s"], ["kulfi", "Kulfi", "s"],
-  ["rabri", "Rabri", "s"], ["balushahi", "Balushahi", "s"], ["chikki", "Chikki", "s"], ["petha", "Petha", "s"], ["coconut_ladoo", "Coconut ladoo", "s"], ["puran_poli", "Puran poli", "s"], ["sooji_halwa", "Sooji halwa", "s"], ["imarti", "Imarti", "s"], ["gujiya", "Gujiya", "s"], ["shakarpara", "Shakarpara", "s"],
-  ["samosa", "Samosa", "n"], ["kachori", "Kachori", "n"], ["pakora", "Pakora", "n"], ["dhokla", "Dhokla", "n"], ["khandvi", "Khandvi", "n"], ["pani_puri", "Pani puri", "n"], ["bhel_puri", "Bhel puri", "n"], ["sev_puri", "Sev puri", "n"], ["dahi_puri", "Dahi puri", "n"], ["papdi_chaat", "Papdi chaat", "n"],
-  ["aloo_tikki", "Aloo tikki", "n"], ["vada_pav", "Vada pav", "n"], ["pav_bhaji", "Pav bhaji", "n"], ["chakli", "Chakli", "n"], ["mathri", "Mathri", "n"], ["bhakarwadi", "Bhakarwadi", "n"], ["masala_dosa", "Masala dosa", "n"], ["idli", "Idli", "n"], ["medu_vada", "Medu vada", "n"], ["paneer_tikka", "Paneer tikka", "n"],
-  ["chole_bhature", "Chole bhature", "n"], ["aloo_paratha", "Aloo paratha", "n"], ["poha", "Poha", "n"], ["namak_pare", "Namak pare", "n"], ["dabeli", "Dabeli", "n"], ["misal_pav", "Misal pav", "n"], ["thepla", "Thepla", "n"], ["batata_vada", "Batata vada", "n"], ["sabudana_vada", "Sabudana vada", "n"], ["khakhra", "Khakhra", "n"]
-];
+var FOOD_FALLBACK = [["jalebi", "Jalebi", "s"], ["gulab_jamun", "Gulab jamun", "s"], ["kaju_katli", "Kaju katli", "s"], ["rasgulla", "Rasgulla", "s"], ["samosa", "Samosa", "n"], ["pani_puri", "Pani puri", "n"], ["dhokla", "Dhokla", "n"], ["vada_pav", "Vada pav", "n"]];
+var FOOD_INFO = {};
+var FOODS = (window.FOOD_DB && window.FOOD_DB.length ? window.FOOD_DB : FOOD_FALLBACK.map(function (x) { return { id: x[0], n: x[1], t: x[2], g: "", aka: "", r: "", f: [50, 50] }; })).map(function (f) { FOOD_INFO[f.id] = f; return [f.id, f.n, f.t]; });
 function now() { return Date.now(); }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 function rid(n) { var s = ""; while (s.length < (n || 8)) s += Math.random().toString(36).slice(2); return s.slice(0, n || 8); }
@@ -1110,13 +1105,18 @@ function doResume() {
   h.paused = false; h.pauseLeft = null; T.pend = null;
 }
 
-/* ================= game 2: Zoom Zoom Khana ================= */
-var ZOOM = { ms: 10000, z0: 7, revealMs: 1500, introMs: 4000, endMs: 4500, minLeft: 2500, awayMs: 8000 };
+/* ================= game 2: Pehchaan Kaun? (zoom-out food quiz) ================= */
+var ZOOM = { ms: 10000, z0: 7, revealMs: 1600, introMs: 4000, endMs: 7000, minLeft: 2500, awayMs: 8000 };
 function zTurnLabel(sec) { return sec === 60 ? "1 minute" : sec === 90 ? "1½ minutes" : sec === 120 ? "2 minutes" : sec + " seconds"; }
 function zFoodByKey(k) { for (var i = 0; i < FOODS.length; i++) if (FOODS[i][0] === k) return FOODS[i]; return FOODS[0]; }
+function zGroup(k) { return (FOOD_INFO[k] && FOOD_INFO[k].g) || ""; }
 function zOptions(f) {
-  var same = FOODS.filter(function (x) { return x[2] === f[2] && x[0] !== f[0]; });
-  var picks = shuffle(same).slice(0, 3).map(function (x) { return x[1]; }); picks.push(f[1]);
+  /* 3 wrong answers of the same kind (sweet or snack); never a lookalike of the answer or of each other */
+  var used = {}, picks = [], g0 = zGroup(f[0]); if (g0) used[g0] = true;
+  shuffle(FOODS.filter(function (x) { return x[2] === f[2] && x[0] !== f[0]; })).forEach(function (x) {
+    if (picks.length >= 3) return; var g = zGroup(x[0]); if (g && used[g]) return; if (g) used[g] = true; picks.push(x[1]);
+  });
+  picks.push(f[1]);
   return shuffle(picks);
 }
 function zRefill(h) { h.z.pool = shuffle(FOODS.map(function (f) { return f[0]; })); }
@@ -1133,7 +1133,7 @@ function zNextTurn() {
   var h = T.H, z = h.z; z.ti++;
   while (z.ti < z.order.length && !h.roster[z.order[z.ti]]) z.ti++;
   if (z.ti >= z.order.length) { h.phase = "final"; h.rk = rid(6); z.pid = ""; z.food = null; T.pend = null; return; }
-  z.pid = z.order[z.ti]; z.got = 0; z.seen = 0; z.fi = -1; z.food = null; z.picked = null; z.ok = null; z.fk = ""; z.awayAt = 0;
+  z.pid = z.order[z.ti]; z.got = 0; z.seen = 0; z.fi = -1; z.food = null; z.picked = null; z.ok = null; z.fk = ""; z.awayAt = 0; z.hist = [];
   var need = Math.round(h.settings.zturn / 7.5); z.list = [];
   while (z.list.length < need) { if (!z.pool.length) zRefill(h); z.list.push(z.pool.shift()); }
   h.round = z.ti + 1; h.rk = rid(6); h.notice = "";
@@ -1146,14 +1146,15 @@ function zNextFood() {
   var h = T.H, z = h.z;
   if (h.turnEnd - now() < ZOOM.minLeft || z.fi + 1 >= z.list.length) { h.notice = z.fi + 1 >= z.list.length ? "All " + z.list.length + " foods done!" : ""; zEndTurn(); return; }
   z.fi++; var f = zFoodByKey(z.list[z.fi]); z.seen++;
-  z.food = { k: f[0], n: f[1], opts: zOptions(f), fx: 25 + Math.floor(Math.random() * 50), fy: 25 + Math.floor(Math.random() * 50), ans: 0 };
+  var inf = FOOD_INFO[f[0]] || {}, fc = inf.f || [50, 50], jit = function (v) { return Math.max(22, Math.min(78, v + Math.round(Math.random() * 8 - 4))); };
+  z.food = { k: f[0], n: f[1], aka: inf.aka || "", r: inf.r || "", opts: zOptions(f), fx: jit(fc[0]), fy: jit(fc[1]), ans: 0 };
   z.food.ans = z.food.opts.indexOf(f[1]);
   z.fk = rid(5); z.fStart = now(); z.picked = null; z.ok = null; z.revealUntil = 0;
   z.dur = Math.max(3000, Math.min(ZOOM.ms, h.turnEnd - now() - 800)); h.timerEnd = z.fStart + z.dur; h.timerTot = z.dur;
 }
 function zResolve(pick) {
   var h = T.H, z = h.z; if (!z.food || z.picked != null) return;
-  z.picked = pick; z.ok = pick === z.food.ans;
+  z.picked = pick; z.ok = pick === z.food.ans; (z.hist = z.hist || []).push([z.food.k, z.ok ? 1 : 0]);
   if (z.ok) { z.got++; h.scores[z.pid] = (h.scores[z.pid] || 0) + 1; }
   z.revealUntil = now() + ZOOM.revealMs; h.timerEnd = z.revealUntil; h.timerTot = ZOOM.revealMs;
 }
@@ -1203,7 +1204,7 @@ function zSky(h) {
     var f = z.food; if (!f) return "";
     var rev = z.picked != null, rem = pl ? pl.timer : (z.fStart + z.dur - now()), frac = Math.max(0, Math.min(1, rem / z.dur));
     var opts = f.opts.map(function (o, i) { var c = rev ? (i === f.ans ? " ok" : (i === z.picked ? " no" : " dim")) : ""; return '<li class="' + c + '"><span class="ltr">' + "ABCD"[i] + "</span>" + esc(o) + "</li>"; }).join("");
-    var badge = rev ? '<div class="zbadge ' + (z.ok ? "ok" : "no") + '">' + (z.ok ? ic("check") + " " + esc(f.n) : (z.picked === -1 ? "Time! It was " + esc(f.n) : (z.picked === -2 ? "Skipped: " + esc(f.n) : "It was " + esc(f.n)))) + "</div>" : "";
+    var badge = rev ? '<div class="zbadge ' + (z.ok ? "ok" : "no") + '"><span>' + (z.ok ? ic("check") + " " + esc(f.n) : (z.picked === -1 ? "Time! It was " + esc(f.n) : (z.picked === -2 ? "Skipped: " + esc(f.n) : "It was " + esc(f.n)))) + "</span>" + (f.aka || f.r ? '<small>' + esc(f.aka ? "aka " + f.aka : f.r) + "</small>" : "") + "</div>" : "";
     return '<div class="zwrap"><div class="zframe' + (rev ? " rev" : "") + '"><img class="zimg" src="food/' + f.k + '.jpg" alt="" draggable="false" style="transform-origin:' + f.fx + "% " + f.fy + '%;transform:scale(' + (rev ? 1 : ZOOM.z0) + ')"' + (rev ? "" : ' data-zs="' + z.fStart + '" data-zd="' + z.dur + '"') + ">" + badge +
       '<div class="zbar"><i style="transform:scaleX(' + frac.toFixed(3) + ')"' + (pl || rev ? "" : ' data-dl="' + (z.fStart + z.dur) + '" data-tot="' + z.dur + '" data-fmt="bar"') + "></i></div></div>" +
       '<aside class="zside"><div class="zwho">' + avOf(z.pid, 72) + '<div><span class="k">Guessing now</span><span class="nm">' + esc(rname(z.pid)) + "</span></div></div>" +
@@ -1212,7 +1213,8 @@ function zSky(h) {
   }
   if (ph === "zturnend") {
     var g = z.done[z.pid] || 0, nxt = z.order.slice(z.ti + 1).filter(function (id) { return h.roster[id]; })[0];
-    return '<div class="zend"><h1 class="h1">' + esc(rname(z.pid)) + " got <span class=\"zbig disp\">" + g + "</span>" + (g === 1 ? " right" : " right") + "</h1><p class=\"sub\">" + (h.notice ? esc(h.notice) + " " : "") + (nxt ? "Up next: <b>" + esc(rname(nxt)) + "</b>." : "That was the last turn.") + "</p></div>";
+    var recap = (z.hist || []).map(function (x) { var inf = FOOD_INFO[x[0]] || {}; return '<figure class="' + (x[1] ? "ok" : "no") + '"><img src="food/' + x[0] + '.jpg" alt=""><figcaption>' + (x[1] ? ic("check") : ic("x")) + esc(inf.n || x[0]) + "</figcaption></figure>"; }).join("");
+    return '<div class="zend"><h1 class="h1">' + esc(rname(z.pid)) + " got <span class=\"zbig disp\">" + g + "</span> right</h1>" + (recap ? '<div class="zrecap">' + recap + "</div>" : "") + "<p class=\"sub\">" + (h.notice ? esc(h.notice) + " " : "") + (nxt ? "Up next: <b>" + esc(rname(nxt)) + "</b>." : "That was the last turn.") + "</p></div>";
   }
   return "";
 }
@@ -1400,7 +1402,7 @@ function tvSky(h) {
     return '<div class="lobbysky"><div class="qrcard"><div class="qr">' + qrSvg(JOIN_URL + "#join-" + h.code) + '</div></div>' +
       '<div class="lobbytxt"><h1 class="h1">Scan to join</h1><p class="joinat">or go to <b>' + CFG.short + '</b> and enter <b class="codeinline disp">' + h.code + "</b></p>" +
       '<p class="note">' + (roster().length < minPlayers(h) ? "Need at least " + minPlayers(h) + " players." : (h.notice ? esc(h.notice) : "The host (crown) can run the game from their phone.")) + "</p>" +
-      '<div class="lobbyopts">' + optRow("Game", [["ravana", "Find the Ravana"], ["zoom", "Zoom Zoom Khana"]], h.game, "setGame") + "</div>" +
+      '<div class="lobbyopts">' + optRow("Game", [["ravana", "Find the Ravana"], ["zoom", "Pehchaan Kaun?"]], h.game, "setGame") + "</div>" +
       '<p class="gblurb">' + esc(GAMES[h.game].blurb) + "</p>" +
       '<div class="lobbyopts">' + (h.game === "zoom" ? optRow("Each turn", [[45, "45 sec"], [60, "1 min"], [90, "1½ min"]], h.settings.zturn, "setZturn") : optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk")) + "</div></div></div>";
   }
@@ -1642,7 +1644,7 @@ function phMain(h, stt) {
     return '<div class="center">' + avHTML(P.me.name, h.roster[me].av, 120, "pop") + '<h2 class="h2 disp">You\'re in, ' + esc(P.me.name) + "!</h2>" +
       '<div class="mini">' + ids.map(function (id) { return '<span class="mchip">' + pAv(h, id, 34) + esc(pName(h, id)) + "</span>"; }).join("") + "</div>" +
       (vipC ? '<div class="hostbox"><span class="hb-t">' + ic("crown") + " You're the host</span>" +
-        '<div class="hrow"><span>Game</span><div class="seg">' + [["ravana", "Ravana"], ["zoom", "Zoom Khana"]].map(function (o) { return B(o[1], "cmd", "setGame|" + o[0], "chip" + (h.game === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
+        '<div class="hrow"><span>Game</span><div class="seg">' + [["ravana", "Find the Ravana"], ["zoom", "Pehchaan Kaun?"]].map(function (o) { return B(o[1], "cmd", "setGame|" + o[0], "chip" + (h.game === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
         (h.game === "zoom" ? '<div class="hrow"><span>Each turn</span><div class="seg">' + [[45, "45s"], [60, "1 min"], [90, "1½ min"]].map(function (o) { return B(o[1], "cmd", "setZturn|" + o[0], "chip" + (h.settings.zturn === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
         '<div class="hrow"><span>Rounds</span><div class="seg">' + [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]].map(function (o) { return B(o[1], "cmd", "setRounds|" + o[0], "chip" + (h.settings.rounds === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
         '<div class="hrow"><span>Talk time</span><div class="seg">' + [[60, "1 min"], [90, "1½ min"], [120, "2 min"]].map(function (o) { return B(o[1], "cmd", "setTalk|" + o[0], "chip" + (h.settings.talk === o[0] ? " sel" : "")); }).join("") + "</div></div>") +
@@ -1767,7 +1769,7 @@ function homeLan() {
 function renderHome() {
   var sr = savedRoom(), sh = savedHost();
   setRoot('<div class="home"><div class="hpool">' + [0, 4, 2].map(function (i, k) { return '<div class="hl p' + k + '">' + lotus(i, k === 1 ? 170 : 130, "", { ripples: false, refl: true }) + "</div>"; }).join("") + "</div>" +
-    '<div class="hero"><h1 class="title disp">Diwali Games</h1><p class="tag">Find the Ravana · Zoom Zoom Khana. The TV is the stage, your phones are the controllers.</p></div>' +
+    '<div class="hero"><h1 class="title disp">Diwali Games</h1><p class="tag">Find the Ravana · Pehchaan Kaun? The TV is the stage, your phones are the controllers.</p></div>' +
     '<div class="choices"><div id="homeLan">' + homeLan() + "</div>" +
     (sr && P.me.name ? B("Rejoin room " + esc(sr.code) + " as " + esc(P.me.name), "rejoin", sr.code, "rani big") : "") +
     B("Join a game", "join1", null, "big", IS_TOUCH ? "data-primary" : "") +
@@ -1963,4 +1965,4 @@ function applyTheme(t) { if (["velvet", "ivory", "rose"].indexOf(t) < 0) t = "ve
   FX.init();
   if (!route()) setView("home");
 })();
-window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM };
+window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions };

@@ -219,6 +219,17 @@ h1,h2,h3,p{margin:0}
 @keyframes zsnap{from{transform:scale(1.25)}to{transform:scale(1)}}
 .zbadge{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:14px;padding:16px 40px;border-radius:999px;font-size:46px;font-weight:800;white-space:nowrap;color:#fff;background:var(--jade);box-shadow:0 12px 34px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.4);animation:popin .45s cubic-bezier(.2,1.5,.4,1) both}
 .zbadge.no{background:#D9342B}
+.zbadge{flex-direction:column;gap:2px;line-height:1.1}
+.zbadge>span{display:inline-flex;align-items:center;gap:12px}
+.zbadge small{font-size:24px;font-weight:600;opacity:.9}
+.zrecap{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:22px 0 4px;max-width:1500px}
+.zrecap figure{margin:0;width:200px;display:flex;flex-direction:column;align-items:center;gap:6px;animation:rise .45s both}
+.zrecap figure:nth-child(2){animation-delay:.07s}.zrecap figure:nth-child(3){animation-delay:.14s}.zrecap figure:nth-child(4){animation-delay:.21s}.zrecap figure:nth-child(5){animation-delay:.28s}.zrecap figure:nth-child(6){animation-delay:.35s}.zrecap figure:nth-child(7){animation-delay:.42s}.zrecap figure:nth-child(8){animation-delay:.49s}
+.zrecap img{width:200px;height:150px;object-fit:cover;border-radius:16px;box-shadow:0 0 0 4px #fff,0 0 0 7px var(--jade),0 10px 22px rgba(90,40,40,.25)}
+.zrecap figure.no img{box-shadow:0 0 0 4px #fff,0 0 0 7px #D9342B,0 10px 22px rgba(90,40,40,.25);filter:saturate(.75)}
+.zrecap figcaption{display:flex;align-items:center;gap:4px;font-size:22px;font-weight:700;color:var(--text);white-space:nowrap;max-width:210px;overflow:hidden;text-overflow:ellipsis}
+.zrecap figcaption .ic{width:20px;height:20px;flex:none;color:var(--jade)}
+.zrecap figure.no figcaption .ic{color:#D9342B}
 .zbadge .ic{width:44px;height:44px}
 .zbar{position:absolute;left:0;right:0;bottom:0;height:12px;background:rgba(0,0,0,.35)}
 .zbar i{display:block;height:100%;background:var(--pink);transform-origin:0 50%;transition:transform .25s linear}
@@ -465,6 +476,7 @@ h1,h2,h3,p{margin:0}
 <canvas id="fx" aria-hidden="true"></canvas>
 <script src="qrcode.min.js"></script>
 <script src="mqtt.min.js"></script>
-<script src="app.js?v=10"></script>
+<script src="foods.js?v=12"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>
