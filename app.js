@@ -721,6 +721,7 @@ var FX = {
   KINDS: ["peony", "chrys", "ring", "willow", "lotus", "crackle", "peony", "chrys"],
   init: function () { this.c = document.getElementById("fx"); if (!this.c) return; this.x = this.c.getContext("2d"); this.size(); var me = this; window.addEventListener("resize", function () { me.size(); }); },
   size: function () { if (!this.c) return; this.c.width = window.innerWidth; this.c.height = window.innerHeight; },
+  calm: function () { this.until = 0; this.rockets = []; this.finale = false; for (var i = 0; i < this.parts.length; i++) this.parts[i].d = Math.max(this.parts[i].d, 0.06); },
   show: function (sec, style) {
     if (REDUCED || !this.x) return;
     var st = style || "joy";
@@ -1169,6 +1170,7 @@ function runCmd(id, c) {
 /* ---- game flow ---- */
 function startGame() {
   var h = T.H; if (roster().length < minPlayers(h)) return;
+  FX.calm();
   if (h.game === "zoom") { zStartGame(); return; }
   if (h.game === "cal") { cStartGame(); return; }
   roster().forEach(function (id) { h.scores[id] = 0; });
@@ -1237,7 +1239,7 @@ function nextRound() {
   if (h.settings.rounds && h.round >= h.settings.rounds) { h.phase = "final"; h.rk = rid(6); return; }
   startRound();
 }
-function playAgain() { var h = T.H; roster().forEach(function (id) { h.scores[id] = 0; }); h.round = 0; h.phase = "lobby"; h.rk = ""; h.result = null; h.ghosts = {}; h.z = null; h.c = null; h.paused = false; h.pauseLeft = null; h.notice = ""; }
+function playAgain() { FX.calm(); var h = T.H; roster().forEach(function (id) { h.scores[id] = 0; }); h.round = 0; h.phase = "lobby"; h.rk = ""; h.result = null; h.ghosts = {}; h.z = null; h.c = null; h.paused = false; h.pauseLeft = null; h.notice = ""; }
 function skipRound(reason) { var h = T.H; h.phase = "skipped"; h.notice = reason; h.result = null; T.pend = null; }
 function removePlayer(id, why) {
   var h = T.H; if (!h.roster[id]) return;
@@ -1403,7 +1405,7 @@ function zSky(h) {
     var f = z.food; if (!f) return "";
     var rev = z.picked != null, rem = pl ? pl.timer : (z.fStart + z.dur - now()), frac = Math.max(0, Math.min(1, rem / z.dur));
     var opts = f.opts.map(function (o, i) { var c = rev ? (i === f.ans ? " ok" : (i === z.picked ? " no" : " dim")) : ""; return '<li class="' + c + '"><span class="ltr">' + "ABCD"[i] + "</span>" + esc(o) + "</li>"; }).join("");
-    var badge = rev ? '<div class="zbadge ' + (z.ok ? "ok" : "no") + '"><span>' + (z.ok ? ic("check") + " " + esc(f.n) : (z.picked === -1 ? "Time! It was " + esc(f.n) : (z.picked === -2 ? "Skipped: " + esc(f.n) : "It was " + esc(f.n)))) + "</span>" + (f.aka || f.r ? '<small>' + esc(f.aka ? "aka " + f.aka : f.r) + "</small>" : "") + "</div>" : "";
+    var badge = rev ? '<div class="zbadge ' + (z.ok ? "ok" : "no") + (f.n.length > 14 ? " long" : "") + '"><span>' + (z.ok ? ic("check") + " " + esc(f.n) : (z.picked === -1 ? "Time! It was " + esc(f.n) : (z.picked === -2 ? "Skipped: " + esc(f.n) : "It was " + esc(f.n)))) + "</span>" + (f.aka || f.r ? '<small>' + esc(f.aka ? "aka " + f.aka : f.r) + "</small>" : "") + "</div>" : "";
     return '<div class="zwrap"><div class="zframe' + (rev ? " rev" : "") + '"><img class="zimg" src="' + foodSrc(f.k) + '" alt="" draggable="false" data-keep="z:' + z.fk + ":" + (rev ? "r" : z.fStart) + '" style="transform-origin:' + f.fx + "% " + f.fy + '%;transform:scale(' + zScaleNow(h, 0).toFixed(4) + ')"' + (rev ? "" : ' data-zs="' + z.fStart + '" data-zd="' + z.dur + '"') + ">" + badge +
       '<div class="zbar"><i style="transform:scaleX(' + frac.toFixed(3) + ')"' + (pl || rev ? "" : ' data-dl="' + (z.fStart + z.dur) + '" data-tot="' + z.dur + '" data-fmt="bar"') + "></i></div></div>" +
       '<aside class="zside"><div class="zwho">' + avOf(z.pid, 72) + '<div><span class="k">Guessing now</span><span class="nm">' + esc(rname(z.pid)) + "</span></div></div>" +
@@ -1562,7 +1564,7 @@ function cSky(h) {
   }
   if (ph === "cturnend") {
     var g = c.done[c.pid] || 0, nxt = c.order.slice(c.ti + 1).filter(function (id) { return h.roster[id]; })[0];
-    var recap = (c.hist || []).map(function (x) { var w = FOOD_INFO[x[x[2]]] || {}; return '<figure class="' + (x[3] ? "ok" : "no") + '"><img src="' + foodSrc(x[x[2]]) + '" alt=""><figcaption>' + (x[3] ? ic("check") : ic("x")) + esc(w.n || "") + " · " + (w.cal || "") + "</figcaption></figure>"; }).join("");
+    var recap = (c.hist || []).map(function (x) { var w = FOOD_INFO[x[x[2]]] || {}; return '<figure class="' + (x[3] ? "ok" : "no") + '"><img src="' + foodSrc(x[x[2]]) + '" alt=""><figcaption>' + (x[3] ? ic("check") : ic("x")) + esc(w.n || "") + '</figcaption><span class="rkcal">' + (w.cal || "") + " kcal</span></figure>"; }).join("");
     return '<div class="zend"><h1 class="h1">' + esc(rname(c.pid)) + ' got <span class="zbig disp">' + g + "</span> of " + c.pairs.length + " right</h1>" + (recap ? '<div class="zrecap">' + recap + "</div>" : "") +
       '<p class="sub">' + (h.notice ? esc(h.notice) + " " : "") + (nxt ? "Up next: <b>" + esc(rname(nxt)) + "</b>." : "That was the last turn.") + "</p></div>";
   }
@@ -1797,6 +1799,12 @@ function plateStatus(h, id) {
   if (h.players.indexOf(id) < 0 && isRoundPhase(h.phase)) return '<span class="ps wait">next round</span>';
   return "";
 }
+/* 1, 2 or 3 for the podium on the final screen (ties share a place; nobody on 0 gets a medal) */
+function rankOf(h, id) {
+  var me = h.scores[id] || 0; if (me <= 0) return 0;
+  var better = roster().filter(function (o) { return (h.scores[o] || 0) > me; }).length;
+  return better < 3 ? better + 1 : 0;
+}
 function tvCast(h) {
   var L = castLayout(h), tgt = spotTarget(h), R = h.result, out = "", winner = h.phase === "final" ? tgt : "";
   L.ids.forEach(function (id, i) {
@@ -1810,13 +1818,14 @@ function tvCast(h) {
     if ((h.phase === "peek" && h.ack.saw.indexOf(id) >= 0) || (h.phase === "discuss" && h.ack.ready.indexOf(id) >= 0) || (h.phase === "vote" && h.ack.voted.indexOf(id) >= 0)) cls.push("lamp");
     if (isRav) cls.push("ravana");
     if (winner && id === winner) cls.push("winner");
+    var rk = h.phase === "final" ? rankOf(h, id) : 0;
     var d = h.phase === "reveal" && R ? (R.delta[id] || 0) : (h.phase === "creveal" && h.c && h.c.res ? (h.c.res.pts[id] || 0) : 0), num = h.phase === "clues" ? h.order.indexOf(id) + 1 : 0;
     var av = h.roster[id].av, fig = lotus(av, L.w, "", { uid: id.slice(-6) + "a", dark: isRav, crown: !!winner && id === winner, refl: true });
     out += '<div class="' + cls.join(" ") + '" style="left:' + L.pos[id] + "px;--sw:" + (4.2 + (i % 4) * 0.55).toFixed(2) + "s;--sd:-" + (i * 0.9).toFixed(1) + 's">' +
       '<div class="fig"><div class="tilt">' + fig + "</div></div>" +
       (num ? '<span class="num">' + num + "</span>" : "") + '<div class="lampi">' + ic("check") + "</div>" +
-      '<div class="plate">' + (isRav ? '<span class="ravtag">Ravana</span>' : "") + '<span class="pn">' + esc(rname(id)) + (id === h.vip ? '<span class="crown">' + ic("crown") + "</span>" : "") + plateStatus(h, id) + "</span>" +
-      (h.phase !== "lobby" ? '<span class="sc disp">' + (h.scores[id] || 0) + "</span>" : "") + (d ? '<span class="delta">+' + d + "</span>" : "") + "</div></div>";
+      '<div class="plate">' + (isRav ? '<span class="ravtag">Ravana</span>' : (rk ? '<span class="rank r' + rk + '">' + ["", "1st", "2nd", "3rd"][rk] + "</span>" : "")) + '<span class="pn">' + esc(rname(id)) + (id === h.vip ? '<span class="crown">' + ic("crown") + "</span>" : "") + plateStatus(h, id) + "</span>" +
+      (h.phase !== "lobby" ? '<span class="scrow"><span class="sc">' + (h.scores[id] || 0) + "</span>" + (d ? '<span class="delta">+' + d + "</span>" : "") + "</span>" : "") + "</div></div>";
   });
   if (h.phase === "lobby") for (var k = L.ids.length; k < L.nSlots; k++) {
     out += '<div class="pup empty" style="left:' + Math.round(L.x0 + k * L.slot) + 'px"><div class="fig"><div class="ghostp" style="width:' + L.w + 'px;height:' + Math.round(L.w * 0.94) + 'px"></div></div><div class="plate dim"><span class="pn">Open seat</span></div></div>';
@@ -1831,16 +1840,15 @@ function tvSky(h) {
     return '<div class="lobbysky"><div class="qrcard"><div class="qr">' + qrSvg(JOIN_URL + "#join-" + h.code) + '</div></div>' +
       '<div class="lobbytxt"><h1 class="h1">Scan to join</h1><p class="joinat">or go to <b>' + CFG.short + '</b> and enter <b class="codeinline disp">' + h.code + "</b></p>" +
       '<p class="note">' + (roster().length < minPlayers(h) ? "Need at least " + minPlayers(h) + " players." : (h.notice ? esc(h.notice) : "The host (crown) can run the game from their phone.")) + "</p>" +
-      '<div class="lobbyopts">' + optRow("Game", GAME_OPTS, h.game, "setGame") + "</div>" +
-      '<p class="gblurb">' + esc(GAMES[h.game].blurb) + "</p>" +
+      gameTiles(h) +
       '<div class="lobbyopts">' + (h.game === "zoom" ? optRow("Each turn", [[45, "45 sec"], [60, "1 min"], [90, "1½ min"]], h.settings.zturn, "setZturn") + optRow("Foods", ZFOOD, zFoodMode(h), "setZfood") :
         h.game === "cal" ? optRow("Who answers", [["all", "Everyone"], ["turns", "One at a time"]], cMode(h), "setCmode") + optRow("Length", cLenOpts(h), cLen(h), "setClen") + optRow("Foods", ZFOOD, zFoodMode(h), "setZfood") : optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk")) + "</div></div></div>";
   }
   if (ph === "peek") {
     var el = now() - (T.phaseAt || 0);
     var rc = el < 2300 ? '<div class="roundcard" style="animation-delay:-' + (el / 1000).toFixed(2) + 's"><span class="disp">Round ' + h.round + "</span><small>Check your phones</small></div>" : "";
-    return rc + '<h1 class="h1">Check your phones</h1><p class="sub">Everyone gets the same secret word, except one player. They’re the Ravana, and they only get a hint.</p>' +
-      '<p class="sub small">Ready: <b>' + h.ack.saw.length + " of " + onlinePlayers().length + "</b></p>";
+    return rc + '<div class="' + (rc ? "afterrc" : "") + '" style="' + (rc ? "animation-delay:" + Math.max(0, 2.2 - el / 1000).toFixed(2) + "s" : "") + '"><h1 class="h1">Check your phones</h1><p class="sub">Everyone gets the same secret word, except one player. They’re the Ravana, and they only get a hint.</p>' +
+      '<p class="sub small">Ready: <b>' + h.ack.saw.length + " of " + onlinePlayers().length + "</b></p></div>";
   }
   if (ph === "clues") {
     var cur = h.order[h.clueIdx], away = !online(cur);
@@ -1883,6 +1891,19 @@ function tvSky(h) {
     return '<h1 class="h1 ftitle">' + title + '</h1><p class="sub">' + top + " point" + (top === 1 ? "" : "s") + ". Happy Diwali, everyone.</p>";
   }
   return "";
+}
+var GAME_TAG = { ravana: "Find who doesn’t know the secret word", zoom: "Name the food as the photo zooms out", cal: "Pick the food with more calories" };
+function gameArt(k) {
+  if (k === "ravana") return '<span class="gart ravana"><img src="art/lotus_dark.png" alt=""></span>';
+  if (k === "zoom") return '<span class="gart zoom"><img src="' + foodSrc("jalebi", true) + '" alt=""></span>';
+  return '<span class="gart cal"><img src="' + foodSrc("samosa", true) + '" alt=""><img src="' + foodSrc("donut", true) + '" alt=""></span>';
+}
+function gameTiles(h) {
+  return '<div class="gtiles">' + GAME_OPTS.map(function (o) {
+    var k = o[0], sel = h.game === k;
+    return '<button type="button" class="gtile' + (sel ? " sel" : "") + '" data-act="setGame" data-arg="' + k + '" data-k="setGame:' + k + '" aria-pressed="' + sel + '">' + gameArt(k) +
+      '<span class="gtx"><b>' + esc(o[1]) + "</b><small>" + esc(GAME_TAG[k]) + "</small></span></button>";
+  }).join("") + "</div>";
 }
 function optRow(label, opts, val, act) {
   return '<div class="optrow"><span class="lbl">' + label + '</span><div class="seg">' + opts.map(function (o) { return B(o[1], act, o[0], "chip" + (o[0] === val ? " sel" : "")); }).join("") + "</div></div>";
@@ -2060,7 +2081,7 @@ function card(h, small) {
     : '<div class="face back"><span class="kick">The secret word</span><span class="cw disp">' + esc(h.word) + '</span><span class="ct">Give clues that fit it, without saying it.</span></div>';
   var word = mine ? '<span class="kick">You are the</span><span class="cw disp">Ravana</span><span class="ct">You don\'t know the word. Your hint: it\'s about <b>' + esc(h.cat) + "</b>. Blend in.</span>"
     : '<span class="kick">The secret word</span><span class="cw disp">' + esc(h.word) + '</span><span class="ct">Give clues that fit it, without saying it.</span>';
-  return '<div class="card3d' + (small ? " small" : "") + '" data-hold="1"><div class="budwrap' + (mine ? " rav" : "") + '"><div class="word">' + word + '</div><div class="budlotus">' + lotus(P.me.av, 300, "fluid", { dark: mine, ripples: false }) + '</div><span class="hold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M12 10.5a1.5 1.5 0 0 1 3 0V12"/><path d="M15 11.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.2a6 6 0 0 1-4.6-2.2L4 15.5a1.4 1.4 0 0 1 2.1-1.8L9 16.5"/></svg>Hold to see your card</span></div></div>';
+  return '<div class="card3d' + (small ? " small" : "") + '" data-hold="1"><div class="budwrap' + (mine ? " rav" : "") + '"><div class="word">' + word + '</div><div class="budlotus">' + lotus(P.me.av, 300, "fluid", { ripples: false }) + '</div><span class="hold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M12 10.5a1.5 1.5 0 0 1 3 0V12"/><path d="M15 11.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.2a6 6 0 0 1-4.6-2.2L4 15.5a1.4 1.4 0 0 1 2.1-1.8L9 16.5"/></svg>Hold to see your card</span></div></div>';
 }
 function zPhone(h, stt, vipC) {
   var z = h.z, me = P.me.id, mine = z.pid === me, pl = h.paused ? h.pauseLeft : null;
@@ -2137,7 +2158,7 @@ function phMain(h, stt) {
   if (stt === "discuss") {
     var ready = P.st.ready === h.rk, pl = h.paused ? h.pauseLeft.timer : null;
     return card(h, true) + '<h2 class="h2 disp">Talk it out</h2><p class="sub">Who doesn\'t know the word? ' + tText(h.timerEnd, pl) + " left.</p>" +
-      '<div class="acts">' + B(ready ? "Ready ✓ (tap to undo)" : "I'm ready to vote", "ready", null, ready ? "ghost big" : "big") + (vipC ? '<div class="hrow2">' + B("Start the vote now", "cmd", "votenow", "ghost") + B("+30 sec", "cmd", "addtime", "ghost") + "</div>" : "") + "</div>";
+      '<div class="acts">' + B(ready ? ic("check") + " You’re ready <small>Tap to undo</small>" : "I’m ready to vote", "ready", null, ready ? "ghost big isready" : "big") + (vipC ? '<div class="hrow2">' + B("Start the vote now", "cmd", "votenow", "ghost") + B("+30 sec", "cmd", "addtime", "ghost") + "</div>" : "") + "</div>";
   }
   if (stt === "vote") {
     var my = P.st.vote && P.st.vote.rk === h.rk ? P.st.vote.t : "", ok = h.ack.voted.indexOf(me) >= 0, pl2 = h.paused ? h.pauseLeft.timer : null;
@@ -2241,7 +2262,8 @@ function homeLan() {
 function renderHome() {
   var sr = savedRoom(), sh = savedHost();
   setRoot('<div class="home"><div class="hpool">' + [0, 4, 2].map(function (i, k) { return '<div class="hl p' + k + '">' + lotus(i, k === 1 ? 170 : 130, "", { ripples: false, refl: true }) + "</div>"; }).join("") + "</div>" +
-    '<div class="hero"><h1 class="title disp">Diwali Games</h1><p class="tag">Find the Ravana · Thali Thriller. The TV is the stage, your phones are the controllers.</p></div>' +
+    '<div class="hero"><h1 class="title disp">Diwali Games</h1><p class="tag">Party games for one room. The TV is the stage and your phones are the controllers.</p>' +
+      '<ul class="hgames">' + GAME_OPTS.map(function (o) { return '<li>' + gameArt(o[0]) + "<span>" + esc(o[1]) + "</span></li>"; }).join("") + "</ul></div>" +
     '<div class="choices"><div id="homeLan">' + homeLan() + "</div>" +
     (sr && P.me.name ? B("Rejoin room " + esc(sr.code) + " as " + esc(P.me.name), "rejoin", sr.code, "rani big") : "") +
     B("Join a game", "join1", null, "big", IS_TOUCH ? "data-primary" : "") +

@@ -161,10 +161,10 @@ h1,h2,h3,p{margin:0}
 .talk{display:flex;align-items:center;gap:70px;text-align:left}
 .talk .h1.dq{font-size:80px}
 .ringwrap{position:relative;width:230px;height:230px;flex:none}
-.ring{width:100%;height:100%;display:block}
-.ring .trk{fill:none;stroke:rgba(58,26,46,.1);stroke-width:8}
-.ring .prog{fill:none;stroke:var(--gold);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .25s linear}
-.ring .prog.low{stroke:var(--pink)}
+svg.ring{width:100%;height:100%;display:block}
+svg.ring .trk{fill:none;stroke:rgba(58,26,46,.1);stroke-width:8}
+svg.ring .prog{fill:none;stroke:var(--gold);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+svg.ring .prog.low{stroke:var(--pink)}
 .ringin{position:absolute;inset:0;display:grid;place-items:center;font-family:"Rozha One",Georgia,serif;font-size:92px;line-height:1;padding-top:8px;color:var(--text)}
 .gbox{margin-top:18px;min-width:640px;min-height:120px;border-radius:26px;background:rgba(255,255,255,.55);box-shadow:0 10px 30px rgba(120,70,60,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 44px}
 .gtext{font-size:76px;line-height:1.05;color:var(--text)}
@@ -564,6 +564,99 @@ h1,h2,h3,p{margin:0}
 .hostbox .hrow.game{flex-direction:column;align-items:stretch;gap:8px}
 .hostbox .hrow.game .seg{display:grid;grid-template-columns:repeat(3,1fr);margin-left:0}
 .hostbox .hrow.game .chip{white-space:normal;line-height:1.15;padding:9px 6px;min-height:44px}
+
+/* ====================== polish pass ====================== */
+/* buttons: warm shadows instead of grey, a real pressed state, a proper secondary style */
+.btn{box-shadow:inset 0 1px 0 rgba(255,255,255,.75),inset 0 -3px 0 rgba(140,90,20,.3),0 10px 22px rgba(166,118,42,.3),0 0 0 1px rgba(184,134,44,.38)}
+.btn:active{transform:translateY(2px) scale(.985);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(140,90,20,.3),0 4px 10px rgba(166,118,42,.28),0 0 0 1px rgba(184,134,44,.38)}
+.btn.ghost{background:linear-gradient(180deg,#FFFDF9 0%,#FBF0E0 100%);color:var(--text);box-shadow:inset 0 0 0 2px rgba(217,164,65,.6),inset 0 -3px 0 rgba(166,118,42,.13),0 8px 18px rgba(120,70,60,.1)}
+.btn.ghost:active{box-shadow:inset 0 0 0 2px rgba(217,164,65,.75),0 3px 8px rgba(120,70,60,.1)}
+.btn.ghost .ic{color:var(--gold2)}
+.btn.danger{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -3px 0 rgba(0,0,0,.18),0 10px 22px rgba(217,52,43,.3)}
+.btn.rani{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -3px 0 rgba(0,0,0,.25),0 10px 22px rgba(58,26,46,.28)}
+.btn[disabled]{box-shadow:inset 0 0 0 2px rgba(166,118,42,.25);filter:saturate(.6)}
+.btn small{font-size:.62em;font-weight:600;opacity:.75;line-height:1.1}
+.btn.isready{flex-wrap:wrap;row-gap:0;color:var(--jade);background:linear-gradient(180deg,#F7FFFB,#E4F5EE);box-shadow:inset 0 0 0 2.5px var(--jade),0 8px 18px rgba(46,158,120,.16)}
+.btn.isready small{flex-basis:100%;color:var(--muted);opacity:1}
+.btn.isready .ic{color:var(--jade)}
+.tv .btn.ghost:focus{box-shadow:inset 0 0 0 3px var(--gold),0 0 0 10px rgba(217,164,65,.55),0 0 50px 10px var(--btn-glow)}
+/* TV header: bigger for the couch, the round steps read as a track */
+.brand{font-size:34px}
+.mid .k{font-size:28px;color:var(--text);font-weight:700}
+.track{gap:8px}
+.track li{font-size:23px;padding:5px 15px;border-radius:999px;color:rgba(58,26,46,.36);background:rgba(58,26,46,.045);font-weight:700}
+.track li.done{color:var(--gold2);background:rgba(217,164,65,.16)}
+.track li.cur{color:#fff;background:var(--pink);box-shadow:0 6px 16px rgba(232,37,125,.32)}
+.roomchip{font-size:26px}
+.roomchip b{font-size:32px}
+.tv .ibtn{width:62px;height:62px;background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1.5px var(--line),0 6px 14px rgba(120,70,60,.1)}
+/* name plates: score in a gold pill (sans figures, so a 1 never looks like an I), gains beside it */
+.plate .pn{font-size:31px}
+.scrow{display:flex;align-items:center;gap:8px;margin-top:5px}
+.plate .sc{font-family:"Mukta",system-ui,sans-serif;font-weight:800;font-size:25px;line-height:1.3;min-width:48px;margin:0;padding:0 14px;border-radius:999px;text-align:center;color:var(--gold2);background:rgba(255,255,255,.78);box-shadow:inset 0 0 0 1.5px rgba(217,164,65,.6);font-variant-numeric:tabular-nums lining-nums}
+.delta{position:static;margin:0;left:auto;bottom:auto;font-size:24px;padding:0 12px;line-height:1.3;box-shadow:0 6px 14px rgba(46,158,120,.3)}
+.rank{display:inline-block;margin-bottom:5px;padding:3px 16px;border-radius:999px;font-size:21px;font-weight:800;color:#3A1205;background:linear-gradient(180deg,#FFE7A8,#E0AE4A);box-shadow:0 6px 14px rgba(166,118,42,.3);animation:popin .45s .4s cubic-bezier(.2,1.5,.4,1) both}
+.rank.r2{background:linear-gradient(180deg,#FBF8F5,#CFC7C0);color:#3A2E2A}
+.rank.r3{background:linear-gradient(180deg,#F8D9BE,#CB8F60);color:#3A1A08}
+.zboard .row>b,.zpr b{font-family:"Mukta",system-ui,sans-serif;font-weight:800;font-variant-numeric:tabular-nums lining-nums}
+/* lobby: three game tiles */
+.gtiles{display:flex;gap:16px;margin-top:2px}
+.gtile{font:inherit;display:flex;align-items:center;gap:16px;width:356px;padding:12px 20px 12px 12px;border:0;border-radius:26px;cursor:pointer;text-align:left;color:var(--text);background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 2px rgba(166,118,42,.22);transition:background .2s,box-shadow .2s,transform .2s}
+.gtile.sel{background:#fff;box-shadow:inset 0 0 0 3px var(--text),0 14px 30px rgba(58,26,46,.16)}
+.gtile:not(.sel) .gart{filter:saturate(.7);opacity:.85}
+.gtile:focus{outline:none}
+.gtile:focus-visible{outline:4px solid var(--gold);outline-offset:5px;transform:scale(1.03)}
+.gtx{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gtx b{font-size:28px;font-weight:800;line-height:1.08}
+.gtx small{font-size:20px;color:var(--muted);font-weight:600;line-height:1.2}
+.gart{position:relative;flex:none;display:block;width:84px;height:84px;border-radius:50%;overflow:hidden;background:#2B1424;box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(217,164,65,.6)}
+.gart img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+.gart.ravana{background:radial-gradient(circle at 50% 62%,#6B2445,#2B1424 72%)}
+.gart.ravana img{object-fit:contain;top:9%;left:9%;width:82%;height:82%}
+.gart.zoom img{transform:scale(1.9);transform-origin:45% 50%}
+.gart.cal img{width:50%}
+.gart.cal img+img{left:50%}
+.gart.cal::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#fff}
+/* TV settings: a real panel */
+.ovin.set{width:1460px;gap:18px;padding:52px 70px 48px;border-radius:40px;background:linear-gradient(180deg,#FFFDF8,#FBF1E2);box-shadow:0 40px 90px rgba(90,40,40,.22),inset 0 0 0 2px rgba(217,164,65,.45)}
+.ovin.set .h2{font-size:68px;margin-bottom:6px}
+.setrow{padding-bottom:18px}
+.setrow .lbl{font-size:30px;color:var(--text)}
+.setrow .muted{font-size:24px;color:var(--muted)}
+.ovin.set .btn.chip{font-size:26px;padding:11px 26px;box-shadow:inset 0 0 0 1.5px var(--line)}
+.ovin.set .btn.chip.sel{box-shadow:none}
+.ovin.set .ibtn{width:62px;height:62px}
+/* round card: the text underneath waits for it */
+.afterrc{animation:fade .5s both}
+/* zoom game: long names fit the badge, scoreboard as pills */
+.zbadge{max-width:92%;white-space:normal;text-align:center}
+.zbadge>span{white-space:normal;justify-content:center}
+.zbadge.long{font-size:36px;padding:14px 32px}
+.zopts li{font-size:32px;padding:10px 18px}
+.zboard{display:flex;flex-wrap:wrap;gap:8px}
+.zboard .row{padding:4px 16px 4px 4px;border-radius:999px;background:rgba(255,255,255,.6);box-shadow:inset 0 0 0 1px var(--line);font-size:22px;gap:10px}
+.zboard .row.cur{box-shadow:inset 0 0 0 2px var(--pink);background:#fff}
+.zboard .row>b{font-size:24px;margin-left:4px}
+/* calorie game: centre column reads from the couch */
+.ccard,.cph{width:690px}
+.cph{height:518px}
+.cmid{width:300px;height:518px}
+.cq{font-size:36px;padding:0 10px}
+.cdone,.cturn{font-size:27px}
+.cres{font-size:42px}
+.cdiff{font-size:26px}
+.cfast{font-size:26px}
+/* phone card text */
+.budwrap .kick{font-size:16px}
+.budwrap .ct{font-size:17px;max-width:300px}
+/* phone home: the three games */
+.hgames{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:760px}
+.hgames li{display:inline-flex;align-items:center;gap:8px;padding:4px 14px 4px 4px;border-radius:999px;background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1px var(--line);font-size:15px;font-weight:700;color:var(--text);white-space:nowrap}
+.hgames .gart{width:30px;height:30px;box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(217,164,65,.5)}
+@media (min-width:900px){.hgames li{font-size:20px;padding:6px 20px 6px 6px;gap:10px}.hgames .gart{width:44px;height:44px}}
+.zrecap .rkcal{font-size:20px;font-weight:700;color:var(--muted);margin-top:-4px}
+/* reduced motion */
+@media (prefers-reduced-motion:reduce){.btn,.gtile{transition:none}.afterrc,.rank{animation:none}}
 </style>
 </head>
 <body>
@@ -571,7 +664,7 @@ h1,h2,h3,p{margin:0}
 <canvas id="fx" aria-hidden="true"></canvas>
 <script src="qrcode.min.js"></script>
 <script src="mqtt.min.js"></script>
-<script src="foods.js?v=20"></script>
-<script src="app.js?v=20"></script>
+<script src="foods.js?v=21"></script>
+<script src="app.js?v=21"></script>
 </body>
 </html>
