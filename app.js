@@ -31,11 +31,13 @@ var WORDS = {
 /* ================= utils ================= */
 var GAMES = {
   ravana: { name: "Find the Ravana", blurb: "Everyone gets the same secret word, except the Ravana, who only gets a hint. Give clues, talk, vote, find them.", minP: 3, foot: "3 to 8 players. Rounds take about 3 minutes." },
-  zoom: { name: "Pehchaan Kaun?", blurb: "A mithai or snack starts zoomed way in and slowly zooms out. Name it on your phone before time runs out. One player at a time, most right wins.", minP: 2, foot: "2 to 8 players. Each turn is one minute." }
+  zoom: { name: "Pehchaan Kaun?", blurb: "A sweet or snack, Indian or from around the world, starts zoomed way in and slowly zooms out. Name it on your phone before time runs out. One player at a time, most right wins.", minP: 2, foot: "2 to 8 players. Each turn is one minute." }
 };
 var FOOD_FALLBACK = [["jalebi", "Jalebi", "s"], ["gulab_jamun", "Gulab jamun", "s"], ["kaju_katli", "Kaju katli", "s"], ["rasgulla", "Rasgulla", "s"], ["samosa", "Samosa", "n"], ["pani_puri", "Pani puri", "n"], ["dhokla", "Dhokla", "n"], ["vada_pav", "Vada pav", "n"]];
 var FOOD_INFO = {};
-var FOODS = (window.FOOD_DB && window.FOOD_DB.length ? window.FOOD_DB : FOOD_FALLBACK.map(function (x) { return { id: x[0], n: x[1], t: x[2], g: "", aka: "", r: "", f: [50, 50] }; })).map(function (f) { FOOD_INFO[f.id] = f; return [f.id, f.n, f.t]; });
+var FOODS = (window.FOOD_DB && window.FOOD_DB.length ? window.FOOD_DB : FOOD_FALLBACK.map(function (x) { return { id: x[0], n: x[1], t: x[2], g: "", aka: "", r: "", c: "in", f: [50, 50] }; })).map(function (f) { FOOD_INFO[f.id] = f; return [f.id, f.n, f.t, f.c || "in"]; });
+function foodSrc(k) { return "food/" + k + ".jpg?v=18"; }
+var ZFOOD = [["mix", "Mix"], ["in", "Indian"], ["w", "World"]];
 function now() { return Date.now(); }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 function rid(n) { var s = ""; while (s.length < (n || 8)) s += Math.random().toString(36).slice(2); return s.slice(0, n || 8); }
@@ -1006,7 +1008,7 @@ function gameName(h) { return (GAMES[(h || T.H).game] || GAMES.ravana).name; }
 function newHost() {
   return {
     app: "ravana", role: "host", id: "tv_" + rid(10), code: String(1000 + Math.floor(Math.random() * 9000)), sess: rid(10), created: now(),
-    v: 0, game: "ravana", z: null, phase: "lobby", roster: {}, ghosts: {}, removed: {}, rejected: {}, scores: {}, settings: { rounds: 5, talk: 90, zturn: 60 },
+    v: 0, game: "ravana", z: null, phase: "lobby", roster: {}, ghosts: {}, removed: {}, rejected: {}, scores: {}, settings: { rounds: 5, talk: 90, zturn: 60, zfood: "mix" },
     round: 0, rk: "", players: [], word: "", cat: "", ravanaId: "", order: [], clueIdx: 0, turnEnd: 0, timerEnd: 0, timerTot: 1,
     paused: false, pauseLeft: null, result: null, used: [], cmdSeen: {}, away: [], vip: "", notice: "", ack: { saw: [], ready: [], voted: [] }
   };
@@ -1128,6 +1130,7 @@ function runCmd(id, c) {
   if (h.paused) return;
   if (c.type === "setGame" && h.phase === "lobby" && GAMES[a]) h.game = a;
   else if (c.type === "setZturn" && h.phase === "lobby" && [45, 60, 90].indexOf(+a) >= 0) h.settings.zturn = +a;
+  else if (c.type === "setZfood" && h.phase === "lobby" && ["mix", "in", "w"].indexOf(a) >= 0) h.settings.zfood = a;
   else if (c.type === "skipturn" && h.phase === "zplay" && same) zEndTurn();
   else if (c.type === "setRounds" && h.phase === "lobby" && [0, 3, 5, 8].indexOf(+a) >= 0) h.settings.rounds = +a;
   else if (c.type === "setTalk" && h.phase === "lobby" && [60, 90, 120].indexOf(+a) >= 0) h.settings.talk = +a;
@@ -1254,15 +1257,26 @@ function zTurnLabel(sec) { return sec === 60 ? "1 minute" : sec === 90 ? "1½ mi
 function zFoodByKey(k) { for (var i = 0; i < FOODS.length; i++) if (FOODS[i][0] === k) return FOODS[i]; return FOODS[0]; }
 function zGroup(k) { return (FOOD_INFO[k] && FOOD_INFO[k].g) || ""; }
 function zOptions(f) {
-  /* 3 wrong answers of the same kind (sweet or snack); never a lookalike of the answer or of each other */
-  var used = {}, picks = [], g0 = zGroup(f[0]); if (g0) used[g0] = true;
-  shuffle(FOODS.filter(function (x) { return x[2] === f[2] && x[0] !== f[0]; })).forEach(function (x) {
-    if (picks.length >= 3) return; var g = zGroup(x[0]); if (g && used[g]) return; if (g) used[g] = true; picks.push(x[1]);
-  });
+  /* 3 wrong answers of the same kind (sweet or snack) and, where possible, the same cuisine (Indian or world);
+     never a lookalike of the answer or of each other */
+  var used = {}, picks = [], g0 = zGroup(f[0]), c0 = f[3] || "in"; if (g0) used[g0] = true;
+  var take = function (x) {
+    if (picks.length >= 3 || picks.indexOf(x[1]) >= 0) return; var g = zGroup(x[0]); if (g && used[g]) return; if (g) used[g] = true; picks.push(x[1]);
+  };
+  var same = FOODS.filter(function (x) { return x[2] === f[2] && x[0] !== f[0]; });
+  shuffle(same.filter(function (x) { return (x[3] || "in") === c0; })).forEach(take);
+  if (picks.length < 3) shuffle(same).forEach(take);
+  if (picks.length < 3) shuffle(FOODS.filter(function (x) { return x[0] !== f[0]; })).forEach(take);
   picks.push(f[1]);
   return shuffle(picks);
 }
-function zRefill(h) { h.z.pool = shuffle(FOODS.map(function (f) { return f[0]; })); }
+function zFoodMode(h) { var m = h.settings && h.settings.zfood; return m === "in" || m === "w" ? m : "mix"; }
+function zFoodLabel(h) { var m = zFoodMode(h); return m === "in" ? "Indian" : m === "w" ? "world" : ""; }
+function zRefill(h) {
+  var m = zFoodMode(h), list = FOODS.filter(function (f) { return m === "mix" || (f[3] || "in") === m; });
+  if (list.length < 8) list = FOODS;
+  h.z.pool = shuffle(list.map(function (f) { return f[0]; }));
+}
 function zStartGame() {
   var h = T.H, ids = roster().filter(online); if (ids.length < minPlayers(h)) ids = roster();
   roster().forEach(function (id) { h.scores[id] = 0; });
@@ -1281,7 +1295,7 @@ function zNextTurn() {
   while (z.list.length < need) { if (!z.pool.length) zRefill(h); z.list.push(z.pool.shift()); }
   h.round = z.ti + 1; h.rk = rid(6); h.notice = "";
   h.phase = "zintro"; h.timerEnd = now() + ZOOM.introMs; h.timerTot = ZOOM.introMs; h.turnEnd = 0; h.paused = false; h.pauseLeft = null; T.pend = null;
-  z.list.forEach(function (k) { var im = new Image(); im.src = "food/" + k + ".jpg"; });
+  z.list.forEach(function (k) { var im = new Image(); im.src = foodSrc(k); });
   SND.dhol(0, true);
 }
 function zBeginTurn() { var h = T.H; if (h.phase !== "zintro") return; h.phase = "zplay"; h.turnEnd = now() + h.settings.zturn * 1000; zNextFood(); }
@@ -1340,7 +1354,7 @@ function zBoard(h, size) {
 function zSky(h) {
   var z = h.z, pl = h.paused ? h.pauseLeft : null, ph = h.phase;
   if (ph === "zintro") {
-    return '<div class="talk"><div><h1 class="h1 dq">' + esc(rname(z.pid)) + ", you’re up!</h1><p class=\"sub\">" + zTurnLabel(h.settings.zturn) + ", " + z.list.length + " foods. Each one zooms out on the TV. Tap its name on your phone, fast.</p>" +
+    return '<div class="talk"><div><h1 class="h1 dq">' + esc(rname(z.pid)) + ", you’re up!</h1><p class=\"sub\">" + zTurnLabel(h.settings.zturn) + ", " + z.list.length + " " + (zFoodLabel(h) ? zFoodLabel(h) + " " : "") + "foods. Each one zooms out on the TV. Tap its name on your phone, fast.</p>" +
       '<p class="sub small">Everyone else: no shouting.</p></div>' + tRing(h.timerEnd, h.timerTot, pl ? pl.timer : null) + "</div>";
   }
   if (ph === "zplay") {
@@ -1348,7 +1362,7 @@ function zSky(h) {
     var rev = z.picked != null, rem = pl ? pl.timer : (z.fStart + z.dur - now()), frac = Math.max(0, Math.min(1, rem / z.dur));
     var opts = f.opts.map(function (o, i) { var c = rev ? (i === f.ans ? " ok" : (i === z.picked ? " no" : " dim")) : ""; return '<li class="' + c + '"><span class="ltr">' + "ABCD"[i] + "</span>" + esc(o) + "</li>"; }).join("");
     var badge = rev ? '<div class="zbadge ' + (z.ok ? "ok" : "no") + '"><span>' + (z.ok ? ic("check") + " " + esc(f.n) : (z.picked === -1 ? "Time! It was " + esc(f.n) : (z.picked === -2 ? "Skipped: " + esc(f.n) : "It was " + esc(f.n)))) + "</span>" + (f.aka || f.r ? '<small>' + esc(f.aka ? "aka " + f.aka : f.r) + "</small>" : "") + "</div>" : "";
-    return '<div class="zwrap"><div class="zframe' + (rev ? " rev" : "") + '"><img class="zimg" src="food/' + f.k + '.jpg" alt="" draggable="false" style="transform-origin:' + f.fx + "% " + f.fy + '%;transform:scale(' + (rev ? 1 : ZOOM.z0) + ')"' + (rev ? "" : ' data-zs="' + z.fStart + '" data-zd="' + z.dur + '"') + ">" + badge +
+    return '<div class="zwrap"><div class="zframe' + (rev ? " rev" : "") + '"><img class="zimg" src="' + foodSrc(f.k) + '" alt="" draggable="false" style="transform-origin:' + f.fx + "% " + f.fy + '%;transform:scale(' + (rev ? 1 : ZOOM.z0) + ')"' + (rev ? "" : ' data-zs="' + z.fStart + '" data-zd="' + z.dur + '"') + ">" + badge +
       '<div class="zbar"><i style="transform:scaleX(' + frac.toFixed(3) + ')"' + (pl || rev ? "" : ' data-dl="' + (z.fStart + z.dur) + '" data-tot="' + z.dur + '" data-fmt="bar"') + "></i></div></div>" +
       '<aside class="zside"><div class="zwho">' + avOf(z.pid, 72) + '<div><span class="k">Guessing now</span><span class="nm">' + esc(rname(z.pid)) + "</span></div></div>" +
       '<div class="zclock">' + ic("clock") + "<b>" + tText(h.turnEnd, pl ? pl.turn : null) + "</b><span>left · food " + z.seen + " · <b class=\"got\">" + z.got + "</b> right</span></div>" +
@@ -1356,7 +1370,7 @@ function zSky(h) {
   }
   if (ph === "zturnend") {
     var g = z.done[z.pid] || 0, nxt = z.order.slice(z.ti + 1).filter(function (id) { return h.roster[id]; })[0];
-    var recap = (z.hist || []).map(function (x) { var inf = FOOD_INFO[x[0]] || {}; return '<figure class="' + (x[1] ? "ok" : "no") + '"><img src="food/' + x[0] + '.jpg" alt=""><figcaption>' + (x[1] ? ic("check") : ic("x")) + esc(inf.n || x[0]) + "</figcaption></figure>"; }).join("");
+    var recap = (z.hist || []).map(function (x) { var inf = FOOD_INFO[x[0]] || {}; return '<figure class="' + (x[1] ? "ok" : "no") + '"><img src="' + foodSrc(x[0]) + '" alt=""><figcaption>' + (x[1] ? ic("check") : ic("x")) + esc(inf.n || x[0]) + "</figcaption></figure>"; }).join("");
     return '<div class="zend"><h1 class="h1">' + esc(rname(z.pid)) + " got <span class=\"zbig disp\">" + g + "</span> right</h1>" + (recap ? '<div class="zrecap">' + recap + "</div>" : "") + "<p class=\"sub\">" + (h.notice ? esc(h.notice) + " " : "") + (nxt ? "Up next: <b>" + esc(rname(nxt)) + "</b>." : "That was the last turn.") + "</p></div>";
   }
   return "";
@@ -1553,7 +1567,7 @@ function tvSky(h) {
       '<p class="note">' + (roster().length < minPlayers(h) ? "Need at least " + minPlayers(h) + " players." : (h.notice ? esc(h.notice) : "The host (crown) can run the game from their phone.")) + "</p>" +
       '<div class="lobbyopts">' + optRow("Game", [["ravana", "Find the Ravana"], ["zoom", "Pehchaan Kaun?"]], h.game, "setGame") + "</div>" +
       '<p class="gblurb">' + esc(GAMES[h.game].blurb) + "</p>" +
-      '<div class="lobbyopts">' + (h.game === "zoom" ? optRow("Each turn", [[45, "45 sec"], [60, "1 min"], [90, "1½ min"]], h.settings.zturn, "setZturn") : optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk")) + "</div></div></div>";
+      '<div class="lobbyopts">' + (h.game === "zoom" ? optRow("Each turn", [[45, "45 sec"], [60, "1 min"], [90, "1½ min"]], h.settings.zturn, "setZturn") + optRow("Foods", ZFOOD, zFoodMode(h), "setZfood") : optRow("Rounds", [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]], h.settings.rounds, "setRounds") + optRow("Talk time", [[60, "1 min"], [90, "1½ min"], [120, "2 min"]], h.settings.talk, "setTalk")) + "</div></div></div>";
   }
   if (ph === "peek") {
     var el = now() - (T.phaseAt || 0);
@@ -1774,7 +1788,7 @@ function card(h, small) {
 function zPhone(h, stt, vipC) {
   var z = h.z, me = P.me.id, mine = z.pid === me, pl = h.paused ? h.pauseLeft : null;
   if (stt === "zintro") {
-    if (mine) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">You’re up, ' + esc(P.me.name) + '!</h2><p class="sub">' + zTurnLabel(h.settings.zturn) + ', ' + z.list.length + ' foods. Tap the name of the food on the TV as soon as you know it.</p><div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? '<div class="acts">' + B("Start now", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
+    if (mine) return '<div class="center">' + glyph(120) + '<h2 class="h2 disp">You’re up, ' + esc(P.me.name) + '!</h2><p class="sub">' + zTurnLabel(h.settings.zturn) + ', ' + z.list.length + ' ' + (zFoodLabel(h) ? zFoodLabel(h) + ' ' : '') + 'foods. Tap the name of the food on the TV as soon as you know it.</p><div class="zcount disp">' + tText(h.timerEnd, pl ? pl.timer : null) + "</div>" + (vipC ? '<div class="acts">' + B("Start now", "cmd", "skip", "ghost") + "</div>" : "") + "</div>";
     return '<div class="center">' + pAv(h, z.pid, 110, "pop") + '<h2 class="h2 disp">' + esc(pName(h, z.pid)) + ' is up next</h2><p class="sub">Watch the TV. No shouting the answers!</p>' + zPhBoard(h) + "</div>";
   }
   if (stt === "zplay") {
@@ -1815,7 +1829,8 @@ function phMain(h, stt) {
       '<div class="mini">' + ids.map(function (id) { return '<span class="mchip">' + pAv(h, id, 34) + esc(pName(h, id)) + "</span>"; }).join("") + "</div>" +
       (vipC ? '<div class="hostbox"><span class="hb-t">' + ic("crown") + " You're the host</span>" +
         '<div class="hrow"><span>Game</span><div class="seg">' + [["ravana", "Find the Ravana"], ["zoom", "Pehchaan Kaun?"]].map(function (o) { return B(o[1], "cmd", "setGame|" + o[0], "chip" + (h.game === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
-        (h.game === "zoom" ? '<div class="hrow"><span>Each turn</span><div class="seg">' + [[45, "45s"], [60, "1 min"], [90, "1½ min"]].map(function (o) { return B(o[1], "cmd", "setZturn|" + o[0], "chip" + (h.settings.zturn === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
+        (h.game === "zoom" ? '<div class="hrow"><span>Each turn</span><div class="seg">' + [[45, "45s"], [60, "1 min"], [90, "1½ min"]].map(function (o) { return B(o[1], "cmd", "setZturn|" + o[0], "chip" + (h.settings.zturn === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
+          '<div class="hrow"><span>Foods</span><div class="seg">' + ZFOOD.map(function (o) { return B(o[1], "cmd", "setZfood|" + o[0], "chip" + (zFoodMode(h) === o[0] ? " sel" : "")); }).join("") + "</div></div>" :
         '<div class="hrow"><span>Rounds</span><div class="seg">' + [[3, "3"], [5, "5"], [8, "8"], [0, "No limit"]].map(function (o) { return B(o[1], "cmd", "setRounds|" + o[0], "chip" + (h.settings.rounds === o[0] ? " sel" : "")); }).join("") + "</div></div>" +
         '<div class="hrow"><span>Talk time</span><div class="seg">' + [[60, "1 min"], [90, "1½ min"], [120, "2 min"]].map(function (o) { return B(o[1], "cmd", "setTalk|" + o[0], "chip" + (h.settings.talk === o[0] ? " sel" : "")); }).join("") + "</div></div>") +
         B("Start " + gameName(h), "cmd", "start", "big", n < minPlayers(h) ? "disabled" : "") + '<p class="note">' + (n < minPlayers(h) ? "Need at least " + minPlayers(h) + " players." : (h.game === "zoom" ? "Everyone takes a turn, one at a time." : "Everyone's phone will light up.")) + "</p></div>"
@@ -2002,6 +2017,7 @@ var ACT = {
   setRounds: function (v) { T.H.settings.rounds = +v; tvPub(); },
   setGame: function (v) { if (GAMES[v] && T.H.phase === "lobby") { T.H.game = v; tvPub(); } },
   setZturn: function (v) { T.H.settings.zturn = +v; tvPub(); },
+  setZfood: function (v) { if (["mix", "in", "w"].indexOf(v) >= 0) { T.H.settings.zfood = v; if (T.H.z) zRefill(T.H); tvPub(); } },
   skipturn: function () { if (T.H.phase === "zplay") { zEndTurn(); tvPub(); } },
   zans: function (i) { var h = HS(); if (!h || h.phase !== "zplay" || !h.z || h.z.pid !== P.me.id || h.z.picked != null) return; P.st.ans = { fk: h.z.fk, pick: +i }; vibrate(15); phPub(); },
   setTalk: function (v) { T.H.settings.talk = +v; tvPub(); },
@@ -2151,4 +2167,4 @@ function applyTheme(t) { if (["velvet", "ivory", "rose"].indexOf(t) < 0) t = "ve
   if (inroom && sr && sr.code === inroom && P.me.name) { startJoin(inroom); return; } /* this phone tab was reloaded mid-game */
   setView("home");
 })();
-window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, REC: REC, KEEP: KEEP };
+window.RV = { S: S, T: T, P: P, ACT: ACT, FORMS: FORMS, HS: HS, CFG: CFG, FX: FX, SND: SND, MUS: MUS, FOODS: FOODS, ZOOM: ZOOM, FOOD_INFO: FOOD_INFO, zOptions: zOptions, zRefill: zRefill, REC: REC, KEEP: KEEP };
