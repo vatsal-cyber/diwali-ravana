@@ -3,7 +3,7 @@
 
 /* ================= config ================= */
 var CFG = {
-  short: "tinyurl.com/ravanatv",
+  short: /github\.io$/.test(location.hostname) ? "tinyurl.com/ravanatv2" : "tinyurl.com/ravanatv",
   maxP: 8, minP: 3,
   awayMs: 25000, hbMs: 8000, annMs: 4000,
   peekMs: 40000, turnMs: 25000, voteMs: 45000, guessMs: 35000, afterGuessMs: 8000, autoMs: 1300,
@@ -2043,6 +2043,12 @@ function route() {
   return false;
 }
 window.addEventListener("load", function () { FX.init(); gyroTilt(); });
+/* the githack mirror now shows a "One more step" notice to every browser; once GitHub Pages is on, hop there (it has no notice) */
+var PAGES_URL = "https://vatsal-cyber.github.io/diwali-ravana/";
+(function () {
+  if (!/githack\.com$/.test(location.hostname) || !window.fetch) return;
+  try { fetch(PAGES_URL + "foods.js", { cache: "no-store" }).then(function (r) { if (r && r.ok && S.view !== "tv" && S.view !== "phone") location.replace(PAGES_URL + (location.hash || "")); }).catch(function () { }); } catch (e) { }
+})();
 function applyTheme(t) { if (["velvet", "ivory", "rose"].indexOf(t) < 0) t = "velvet"; if (document.documentElement.getAttribute("data-theme") !== t) document.documentElement.setAttribute("data-theme", t); return t; }
 (function boot() {
   S.theme = "ramlila";
